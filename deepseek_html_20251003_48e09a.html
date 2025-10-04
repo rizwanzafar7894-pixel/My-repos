@@ -12,31 +12,47 @@
         
         * {
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
         
-        html {
-            scroll-behavior: smooth;
+        :root {
+            --primary: #1a202c;
+            --secondary: #2d3748;
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --text: #e2e8f0;
+            --text-secondary: #a0aec0;
+        }
+        
+        :root[data-theme="light"] {
+            --primary: #ffffff;
+            --secondary: #f7fafc;
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --text: #2d3748;
+            --text-secondary: #4a5568;
         }
         
         body {
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-            color: #e2e8f0;
-            overflow-x: hidden;
-            position: relative;
-            min-height: 100vh;
+            background-color: var(--primary);
+            color: var(--text);
+            transition: all 0.5s ease;
+            overflow-x: auto;
+        }
+        
+        body.light-mode {
+            overflow-y: auto;
         }
         
         .starry-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            position: relative;
+            overflow: auto;
+        }
+        
+        .light-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
+            overflow: auto;
         }
         
         .stars {
@@ -45,6 +61,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 0;
         }
         
         .star {
@@ -101,9 +118,8 @@
         
         .card-hover {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background-color: rgba(45, 55, 72, 0.7);
+            background-color: var(--secondary);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
         }
         
         .card-hover:hover {
@@ -136,185 +152,104 @@
             width: 100%;
         }
         
-        .moon {
-            position: fixed;
-            top: 50px;
-            right: 50px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30px 30px, #f9f3c5, #d4af37);
-            box-shadow: 0 0 50px #f9f3c5;
-            z-index: 0;
-            pointer-events: none;
+        /* Custom styles for new design */
+        .wavy-bg {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23667eea' fill-opacity='0.1' d='M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
         }
         
-        .moon-crater {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(180, 150, 50, 0.3);
+        .ai-ml-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         }
         
-        .section-bg {
-            background-color: rgba(45, 55, 72, 0.7);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .ui-ux-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 50%, #00f2fe 100%);
         }
         
-        .text-primary {
-            color: #e2e8f0;
-        }
-        
-        .text-secondary {
-            color: #a0aec0;
-        }
-        
-        .responsive-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        /* Enhanced text visibility */
-        .text-enhanced {
-            line-height: 1.7;
-            font-size: 1.1rem;
-        }
-        
-        .heading-enhanced {
-            margin-bottom: 1.5rem;
-            line-height: 1.3;
-        }
-        
-        /* New SVG decorations */
-        .svg-decoration {
-            position: absolute;
-            z-index: 0;
-            opacity: 0.1;
-            pointer-events: none;
-        }
-        
-        .svg-1 {
-            top: 10%;
-            left: 5%;
-            width: 150px;
-            height: 150px;
-        }
-        
-        .svg-2 {
-            bottom: 10%;
-            right: 5%;
-            width: 200px;
-            height: 200px;
-        }
-        
-        /* Enhanced button styles */
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 600;
+        .animated-icon {
             transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
-            text-decoration: none;
         }
         
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .animated-icon:hover {
+            transform: scale(1.1) rotate(5deg);
         }
         
-        .btn-outline {
-            border: 2px solid #667eea;
-            color: #667eea;
-            background: transparent;
-            padding: 10px 28px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-block;
-            text-decoration: none;
+        .blob {
+            animation: blob 7s infinite;
         }
         
-        .btn-outline:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-3px);
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
         
-        /* Navigation */
-        nav {
-            background-color: rgba(26, 32, 44, 0.9) !important;
-            backdrop-filter: blur(10px);
-        }
-        
-        /* Content sections */
-        section {
+        .timeline {
             position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            transform: translateX(-50%);
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            transform: translateX(-50%);
             z-index: 1;
-            padding: 80px 0;
         }
         
-        /* Responsive improvements */
-        @media (max-width: 640px) {
-            .moon {
-                width: 60px;
-                height: 60px;
-                top: 20px;
-                right: 20px;
-            }
-            
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-            
-            .stats-counter {
-                font-size: 1.8rem;
-            }
-            
-            .section-bg {
-                padding: 20px;
-                margin-bottom: 20px;
+        @media (max-width: 768px) {
+            .timeline-dot {
+                left: 20px;
             }
         }
         
-        /* Animations */
-        .pulse-animation {
-            animation: pulse 2s infinite;
+        .progress-ring {
+            transform: rotate(-90deg);
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(90deg);
+            transform-origin: 50% 50%;
         }
         
-        .glow-effect {
-            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        /* New enhanced styles */
+        .particles-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
         
-        .typewriter-cursor {
-            display: inline-block;
-            width: 3px;
-            background-color: white;
-            margin-left: 2px;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        
-        /* Dark mode toggle */
         .dark-mode-toggle {
             position: fixed;
             bottom: 20px;
@@ -382,6 +317,88 @@
             transform: translateX(0);
         }
         
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+        
+        .testimonial-slider {
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .testimonial-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        
+        .testimonial-slide {
+            min-width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4a5568;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .slider-dot.active {
+            background: #667eea;
+        }
+        
+        .achievement-badge {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .achievement-badge .badge-tooltip {
+            visibility: hidden;
+            width: 200px;
+            background-color: #2d3748;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .achievement-badge:hover .badge-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .achievement-badge .badge-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2d3748 transparent transparent transparent;
+        }
+        
         .floating-action-button {
             position: fixed;
             bottom: 20px;
@@ -440,93 +457,26 @@
             background: #667eea;
         }
         
-        /* Timeline */
-        .timeline {
-            position: relative;
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: var(--text);
+            margin-left: 2px;
+            animation: blink 1s infinite;
         }
         
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, #667eea, #764ba2);
-            transform: translateX(-50%);
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
         
-        @media (max-width: 768px) {
-            .timeline::before {
-                left: 20px;
-            }
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #667eea, transparent);
+            margin: 60px auto;
+            width: 80%;
         }
         
-        .timeline-item {
-            position: relative;
-            margin-bottom: 50px;
-        }
-        
-        .timeline-dot {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            transform: translateX(-50%);
-            z-index: 1;
-        }
-        
-        @media (max-width: 768px) {
-            .timeline-dot {
-                left: 20px;
-            }
-            
-            .timeline-item > div {
-                margin-left: 40px;
-            }
-        }
-        
-        /* Testimonial slider */
-        .testimonial-slider {
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .testimonial-track {
-            display: flex;
-            transition: transform 0.5s ease;
-        }
-        
-        .testimonial-slide {
-            min-width: 100%;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-        
-        .slider-nav {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .slider-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #4a5568;
-            margin: 0 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        
-        .slider-dot.active {
-            background: #667eea;
-        }
-        
-        /* Stats counter */
         .stats-counter {
             font-size: 2.5rem;
             font-weight: bold;
@@ -535,20 +485,301 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        
+        .skill-card {
+            perspective: 1000px;
+        }
+        
+        .skill-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .skill-card:hover .skill-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .skill-card-front, .skill-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .skill-card-back {
+            transform: rotateY(180deg);
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .moon {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30px 30px, #f9f3c5, #d4af37);
+            box-shadow: 0 0 50px #f9f3c5;
+            z-index: 1;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30px 30px, #ffd700, #ff8c00);
+            box-shadow: 0 0 50px #ffd700;
+            z-index: 1;
+        }
+        
+        .moon-crater {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(180, 150, 50, 0.3);
+        }
+        
+        .section-bg {
+            background-color: var(--secondary);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-primary {
+            color: var(--text);
+        }
+        
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        
+        .bg-primary {
+            background-color: var(--primary);
+        }
+        
+        .bg-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .border-accent {
+            border-color: var(--accent);
+        }
+        
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 640px) {
+            .moon, .sun {
+                width: 60px;
+                height: 60px;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-counter {
+                font-size: 1.8rem;
+            }
+            
+            .section-bg {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 15px;
+            }
+            
+            .timeline-dot {
+                left: 15px;
+            }
+            
+            .timeline-item > div {
+                margin-left: 40px;
+            }
+        }
+        
+        /* Enhanced text visibility */
+        .text-enhanced {
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        
+        .heading-enhanced {
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+        
+        /* New SVG decorations */
+        .svg-decoration {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        
+        .svg-1 {
+            top: 10%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+        }
+        
+        .svg-2 {
+            bottom: 10%;
+            right: 5%;
+            width: 200px;
+            height: 200px;
+        }
+        
+        /* Enhanced button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-outline {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        /* Light mode specific styles */
+        body.light-mode .card-hover {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        body.light-mode .stars {
+            display: none;
+        }
+        
+        body.light-mode .moon {
+            display: none;
+        }
+        
+        body.light-mode .sun {
+            display: block;
+        }
+        
+        body:not(.light-mode) .sun {
+            display: none;
+        }
+        
+        body.light-mode .section-bg {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        body.light-mode .nav-link {
+            color: var(--text);
+        }
+        
+        body.light-mode input, 
+        body.light-mode textarea {
+            background-color: white;
+            color: #2d3748;
+            border-color: #e2e8f0;
+        }
+        
+        body.light-mode input:focus, 
+        body.light-mode textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        body.light-mode .mobile-menu {
+            background-color: white;
+            border-color: #e2e8f0;
+        }
+        
+        body.light-mode .mobile-menu a {
+            color: #2d3748;
+        }
+        
+        body.light-mode .mobile-menu a:hover {
+            background-color: #f7fafc;
+        }
     </style>
 </head>
-<body>
+<body class="starry-bg">
     <!-- Starry Night Background -->
-    <div class="starry-bg">
-        <div class="stars" id="stars"></div>
-    </div>
-    
-    <!-- Moon -->
+    <div class="stars" id="stars"></div>
     <div class="moon">
         <div class="moon-crater" style="top: 20px; left: 30px; width: 20px; height: 20px;"></div>
         <div class="moon-crater" style="top: 50px; left: 60px; width: 15px; height: 15px;"></div>
         <div class="moon-crater" style="top: 70px; left: 30px; width: 10px; height: 10px;"></div>
     </div>
+    
+    <!-- Sun for light mode -->
+    <div class="sun"></div>
 
     <!-- Floating Action Button -->
     <div class="floating-action-button">
@@ -582,7 +813,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 shadow-sm">
+    <nav class="fixed top-0 w-full bg-secondary/90 backdrop-blur-md z-50 shadow-sm transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
@@ -611,20 +842,20 @@
         </div>
         <!-- Mobile menu -->
         <div class="md:hidden mobile-menu hidden">
-            <div class="px-2 pt-2 pb-3 space-y-1 border-t">
-                <a href="#home" class="block px-3 py-2 text-primary hover:bg-gray-800">Home</a>
-                <a href="#about" class="block px-3 py-2 text-primary hover:bg-gray-800">About</a>
-                <a href="#skills" class="block px-3 py-2 text-primary hover:bg-gray-800">Skills</a>
-                <a href="#journey" class="block px-3 py-2 text-primary hover:bg-gray-800">My Journey</a>
-                <a href="#portfolio" class="block px-3 py-2 text-primary hover:bg-gray-800">Portfolio</a>
-                <a href="#testimonials" class="block px-3 py-2 text-primary hover:bg-gray-800">Testimonials</a>
-                <a href="#contact" class="block px-3 py-2 text-primary hover:bg-gray-800">Contact</a>
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-secondary border-t transition-colors duration-300">
+                <a href="#home" class="block px-3 py-2 text-primary hover:bg-primary">Home</a>
+                <a href="#about" class="block px-3 py-2 text-primary hover:bg-primary">About</a>
+                <a href="#skills" class="block px-3 py-2 text-primary hover:bg-primary">Skills</a>
+                <a href="#journey" class="block px-3 py-2 text-primary hover:bg-primary">My Journey</a>
+                <a href="#portfolio" class="block px-3 py-2 text-primary hover:bg-primary">Portfolio</a>
+                <a href="#testimonials" class="block px-3 py-2 text-primary hover:bg-primary">Testimonials</a>
+                <a href="#contact" class="block px-3 py-2 text-primary hover:bg-primary">Contact</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center relative overflow-hidden pt-16">
+    <section id="home" class="min-h-screen flex items-center relative overflow-hidden">
         <!-- SVG Decorations -->
         <svg class="svg-decoration svg-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
             <path fill="#667eea" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,89.5,-0.3C89,15.7,85.4,31.4,76.9,43.9C68.5,56.5,55.2,65.9,40.2,73.1C25.2,80.3,8.4,85.2,-7.9,83.5C-24.2,81.7,-39.9,73.2,-53.4,62.2C-66.9,51.2,-78.2,37.7,-84.5,21.9C-90.9,6.1,-92.4,-12.1,-87.1,-28.2C-81.8,-44.3,-69.6,-58.4,-54.3,-65.2C-39,-72,-19.5,-71.5,-2.7,-68.2C14.2,-64.9,28.3,-58.8,44.7,-76.4Z" transform="translate(100 100)" />
@@ -664,7 +895,7 @@
                             <path fill="#FFD700" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,89.5,-0.3C89,15.7,85.4,31.4,76.9,43.9C68.5,56.5,55.2,65.9,40.2,73.1C25.2,80.3,8.4,85.2,-7.9,83.5C-24.2,81.7,-39.9,73.2,-53.4,62.2C-66.9,51.2,-78.2,37.7,-84.5,21.9C-90.9,6.1,-92.4,-12.1,-87.1,-28.2C-81.8,-44.3,-69.6,-58.4,-54.3,-65.2C-39,-72,-19.5,-71.5,-2.7,-68.2C14.2,-64.9,28.3,-58.8,44.7,-76.4Z" transform="translate(100 100)" />
                         </svg>
                         <div class="absolute inset-8 bg-white rounded-full overflow-hidden shadow-2xl">
-                            <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=400&fit=crop&crop=face" 
+                            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI9TcWS96tI4nK263O9FudnNv1y3aQf5VSjRMqv0NUAvodwX0F5T33l4_8FQSrs6PFGdcjC5zXXz9D-AvhvWtmQ4xu4xzIOmzd6K5NT2vPivf2Q-sWII2F05x4uKyYWIUD1PkX7YbBhUvKYoQU9m9vn70mfU-AGbmNUI_nq4S7xh3nJon8f1z2N975Pojb/s1600/1743825591840-1%20%281%29.png" 
                                  alt="Muhammad Rizwan Zafar" class="w-full h-full object-cover">
                         </div>
                         <!-- Decorative elements -->
@@ -694,7 +925,7 @@
                         <div class="relative">
                             <div class="w-full max-w-md mx-auto">
                                 <div class="relative bg-gradient-to-br from-purple-900 to-blue-900 rounded-2xl p-8">
-                                    <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=300&h=400&fit=crop" 
+                                    <img src="rizwan.jpg" 
                                          alt="About Me" class="w-full rounded-lg shadow-lg">
                                     <div class="absolute -bottom-4 -right-4 bg-yellow-400 p-4 rounded-xl">
                                         <i class="fas fa-user-check text-2xl text-white"></i>
@@ -713,19 +944,19 @@
                         </p>
                         
                         <div class="grid grid-cols-2 gap-4 mb-8">
-                            <div class="bg-gray-900 p-4 rounded-lg transition-colors duration-300">
+                            <div class="bg-primary p-4 rounded-lg transition-colors duration-300">
                                 <div class="text-2xl font-bold text-purple-600 mb-1 stats-counter" data-target="70">0</div>
                                 <div class="text-sm text-secondary">Web Design</div>
                             </div>
-                            <div class="bg-gray-900 p-4 rounded-lg transition-colors duration-300">
+                            <div class="bg-primary p-4 rounded-lg transition-colors duration-300">
                                 <div class="text-2xl font-bold text-purple-600 mb-1 stats-counter" data-target="60">0</div>
                                 <div class="text-sm text-secondary">UI/UX Design</div>
                             </div>
-                            <div class="bg-gray-900 p-4 rounded-lg transition-colors duration-300">
+                            <div class="bg-primary p-4 rounded-lg transition-colors duration-300">
                                 <div class="text-2xl font-bold text-purple-600 mb-1 stats-counter" data-target="65">0</div>
                                 <div class="text-sm text-secondary">Responsive Design</div>
                             </div>
-                            <div class="bg-gray-900 p-4 rounded-lg transition-colors duration-300">
+                            <div class="bg-primary p-4 rounded-lg transition-colors duration-300">
                                 <div class="text-2xl font-bold text-purple-600 mb-1 stats-counter" data-target="50">0</div>
                                 <div class="text-sm text-secondary">JavaScript</div>
                             </div>
@@ -734,12 +965,12 @@
                         <div class="bg-purple-900 p-6 rounded-xl transition-colors duration-300">
                             <h3 class="font-semibold text-primary mb-2">Personal Interests</h3>
                             <div class="flex flex-wrap gap-2">
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Technology Trends</span>
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Problem Solving</span>
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Creative Design</span>
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Learning New Skills</span>
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">AI Research</span>
-                                <span class="bg-gray-900 px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">User Psychology</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Technology Trends</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Problem Solving</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Creative Design</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">Learning New Skills</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">AI Research</span>
+                                <span class="bg-primary px-3 py-1 rounded-full text-sm text-secondary transition-colors duration-300">User Psychology</span>
                             </div>
                         </div>
                     </div>
@@ -763,39 +994,39 @@
                 <div class="section-bg" data-aos="fade-right" data-aos-duration="1000">
                     <h3 class="text-2xl font-bold text-primary mb-6">Current Skills</h3>
                     <div class="space-y-6">
-                        <div class="bg-gray-900 p-6 rounded-xl shadow-sm transition-colors duration-300">
+                        <div class="bg-primary p-6 rounded-xl shadow-sm transition-colors duration-300">
                             <div class="flex justify-between mb-2">
                                 <span class="font-semibold text-primary">HTML/CSS</span>
                                 <span class="text-secondary">70%</span>
                             </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="w-full bg-secondary rounded-full h-2">
                                 <div class="skill-bar bg-gradient-to-r from-purple-600 to-blue-500 h-2 rounded-full" data-width="70"></div>
                             </div>
                         </div>
-                        <div class="bg-gray-900 p-6 rounded-xl shadow-sm transition-colors duration-300">
+                        <div class="bg-primary p-6 rounded-xl shadow-sm transition-colors duration-300">
                             <div class="flex justify-between mb-2">
                                 <span class="font-semibold text-primary">UI/UX Design Principles</span>
                                 <span class="text-secondary">60%</span>
                             </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="w-full bg-secondary rounded-full h-2">
                                 <div class="skill-bar bg-gradient-to-r from-purple-600 to-blue-500 h-2 rounded-full" data-width="60"></div>
                             </div>
                         </div>
-                        <div class="bg-gray-900 p-6 rounded-xl shadow-sm transition-colors duration-300">
+                        <div class="bg-primary p-6 rounded-xl shadow-sm transition-colors duration-300">
                             <div class="flex justify-between mb-2">
                                 <span class="font-semibold text-primary">Responsive Design</span>
                                 <span class="text-secondary">65%</span>
                             </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="w-full bg-secondary rounded-full h-2">
                                 <div class="skill-bar bg-gradient-to-r from-purple-600 to-blue-500 h-2 rounded-full" data-width="65"></div>
                             </div>
                         </div>
-                        <div class="bg-gray-900 p-6 rounded-xl shadow-sm transition-colors duration-300">
+                        <div class="bg-primary p-6 rounded-xl shadow-sm transition-colors duration-300">
                             <div class="flex justify-between mb-2">
                                 <span class="font-semibold text-primary">JavaScript</span>
                                 <span class="text-secondary">50%</span>
                             </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="w-full bg-secondary rounded-full h-2">
                                 <div class="skill-bar bg-gradient-to-r from-purple-600 to-blue-500 h-2 rounded-full" data-width="50"></div>
                             </div>
                         </div>
@@ -1024,9 +1255,12 @@
             </div>
 
             <div class="text-center mt-12" data-aos="fade-up" data-aos-duration="1000">
-                <button class="btn-primary">
+		<a href="project.html">
+                            <button class="btn-primary">
                     View All Projects
                 </button>
+                        </a>
+                
             </div>
         </div>
     </section>
@@ -1123,13 +1357,13 @@
                         <div class="mt-8">
                             <h4 class="font-semibold mb-4 text-primary">Follow My Journey</h4>
                             <div class="flex space-x-4">
-                                <a href="#" class="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
                                     <i class="fab fa-linkedin-in text-secondary"></i>
                                 </a>
-                                <a href="#" class="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
                                     <i class="fab fa-github text-secondary"></i>
                                 </a>
-                                <a href="#" class="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
                                     <i class="fab fa-twitter text-secondary"></i>
                                 </a>
                             </div>
@@ -1144,26 +1378,26 @@
                                 <div>
                                     <label for="name" class="block text-sm font-medium text-primary mb-2">Name</label>
                                     <input type="text" id="name" name="name" 
-                                           class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-gray-900 text-primary"
+                                           class="w-full px-4 py-3 border border-secondary rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-primary text-primary"
                                            placeholder="Your Name" required>
                                 </div>
                                 <div>
                                     <label for="email" class="block text-sm font-medium text-primary mb-2">Email</label>
                                     <input type="email" id="email" name="email" 
-                                           class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-gray-900 text-primary"
+                                           class="w-full px-4 py-3 border border-secondary rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-primary text-primary"
                                            placeholder="your.email@example.com" required>
                                 </div>
                             </div>
                             <div>
                                 <label for="subject" class="block text-sm font-medium text-primary mb-2">Subject</label>
                                 <input type="text" id="subject" name="subject" 
-                                       class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-gray-900 text-primary"
+                                       class="w-full px-4 py-3 border border-secondary rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-primary text-primary"
                                        placeholder="What's this about?" required>
                             </div>
                             <div>
                                 <label for="message" class="block text-sm font-medium text-primary mb-2">Message</label>
                                 <textarea id="message" name="message" rows="5"
-                                          class="w-full px-4 py-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-gray-900 text-primary"
+                                          class="w-full px-4 py-3 border border-secondary rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-primary text-primary"
                                           placeholder="Your message..." required></textarea>
                             </div>
                             <button type="submit" 
@@ -1178,32 +1412,32 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 transition-colors duration-300">
+    <footer class="bg-primary text-white py-12 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <div class="bg-gradient-to-r from-purple-600 to-blue-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
                     MRZ
                 </div>
                 <h3 class="text-2xl font-bold mb-4">Muhammad Rizwan Zafar</h3>
-                <p class="text-gray-400 mb-8 max-w-md mx-auto text-enhanced">
+                <p class="text-secondary mb-8 max-w-md mx-auto text-enhanced">
                     Aspiring AI/ML Engineer & UI/UX Designer passionate about creating intelligent, user-centered digital experiences that make a positive impact.
                 </p>
                 <div class="flex justify-center space-x-6 mb-8">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
                         <i class="fab fa-linkedin-in text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
                         <i class="fab fa-github text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
                         <i class="fab fa-twitter text-xl"></i>
                     </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
                         <i class="fab fa-instagram text-xl"></i>
                     </a>
                 </div>
-                <div class="border-t border-gray-800 pt-8">
-                    <p class="text-gray-400">&copy; 2024 Muhammad Rizwan Zafar. All rights reserved.</p>
+                <div class="border-t border-secondary pt-8">
+                    <p class="text-secondary">&copy; 2024 Muhammad Rizwan Zafar. All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -1406,13 +1640,22 @@
             // Dark mode toggle
             const darkModeToggle = document.querySelector('.dark-mode-toggle');
             darkModeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('starry-bg');
-                document.body.classList.toggle('bg-gray-50');
-                const icon = darkModeToggle.querySelector('i');
-                if (document.body.classList.contains('starry-bg')) {
+                const isLightMode = document.body.classList.contains('light-mode');
+                
+                if (isLightMode) {
+                    // Switch to dark mode
+                    document.body.classList.remove('light-mode');
+                    document.body.classList.add('starry-bg');
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    const icon = darkModeToggle.querySelector('i');
                     icon.classList.remove('fa-moon');
                     icon.classList.add('fa-sun');
                 } else {
+                    // Switch to light mode
+                    document.body.classList.remove('starry-bg');
+                    document.body.classList.add('light-mode');
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    const icon = darkModeToggle.querySelector('i');
                     icon.classList.remove('fa-sun');
                     icon.classList.add('fa-moon');
                 }
