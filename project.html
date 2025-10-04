@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects Portfolio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #1a202c;
+            --secondary: #2d3748;
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --text: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --bg: #1a202c;
+        }
+        
+        [data-theme="light"] {
+            --primary: #ffffff;
+            --secondary: #f7fafc;
+            --accent: #667eea;
+            --accent2: #764ba2;
+            --text: #2d3748;
+            --text-secondary: #4a5568;
+            --bg: #ffffff;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: all 0.5s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .starry-bg {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        [data-theme="light"] {
+            background: #ffffff;
+        }
+        
+        [data-theme="light"] .starry-bg {
+            background: #ffffff;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        [data-theme="light"] .stars {
+            display: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+            transform: rotate(-45deg);
+            animation: shooting var(--duration) linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes shooting {
+            0% {
+                transform: translateX(0) translateY(0) rotate(-45deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(500px) translateY(500px) rotate(-45deg);
+                opacity: 0;
+            }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: var(--secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="light"] .card-hover {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(102, 126, 234, 0.25);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .skill-bar {
+            transition: width 2s ease-in-out;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Custom styles for new design */
+        .wavy-bg {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23667eea' fill-opacity='0.1' d='M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .ai-ml-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+        
+        .ui-ux-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #4facfe 50%, #00f2fe 100%);
+        }
+        
+        .animated-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .animated-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .blob {
+            animation: blob 7s infinite;
+        }
+        
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        
+        .section-bg {
+            background-color: var(--secondary);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] .section-bg {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .text-primary {
+            color: var(--text);
+        }
+        
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        
+        .bg-primary {
+            background-color: var(--primary);
+        }
+        
+        .bg-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .project-filter {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .filter-btn {
+            background: var(--primary);
+            color: var(--text);
+            border: 1px solid var(--accent);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        .project-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+        }
+        
+        [data-theme="light"] .project-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .project-card:hover .project-overlay {
+            opacity: 1;
+        }
+        
+        .hidden-project {
+            display: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-outline {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+        
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .text-enhanced {
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        
+        .heading-enhanced {
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            background-color: var(--text);
+            margin-left: 2px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .moon {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30px 30px, #f9f3c5, #d4af37);
+            box-shadow: 0 0 50px #f9f3c5;
+            z-index: 1;
+        }
+        
+        [data-theme="light"] .moon {
+            display: none;
+        }
+        
+        .sun {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30px 30px, #ffd700, #ff8c00);
+            box-shadow: 0 0 50px #ffd700;
+            z-index: 1;
+            display: none;
+        }
+        
+        [data-theme="light"] .sun {
+            display: block;
+        }
+        
+        .moon-crater {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(180, 150, 50, 0.3);
+        }
+        
+        @media (max-width: 640px) {
+            .section-bg {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .moon, .sun {
+                width: 60px;
+                height: 60px;
+                top: 20px;
+                right: 20px;
+            }
+        }
+        
+        /* Overflow handling */
+        html {
+            overflow-x: hidden;
+        }
+        
+        body {
+            overflow-y: auto;
+        }
+        
+        section {
+            overflow: hidden;
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Light mode specific styles */
+        [data-theme="light"] input, 
+        [data-theme="light"] textarea {
+            background-color: white;
+            color: #2d3748;
+            border-color: #e2e8f0;
+        }
+        
+        [data-theme="light"] input:focus, 
+        [data-theme="light"] textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+        
+        [data-theme="light"] .mobile-menu {
+            background-color: white;
+            border-color: #e2e8f0;
+        }
+        
+        [data-theme="light"] .mobile-menu a {
+            color: #2d3748;
+        }
+        
+        [data-theme="light"] .mobile-menu a:hover {
+            background-color: #f7fafc;
+        }
+        
+        /* SVG decorations */
+        .svg-decoration {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.1;
+        }
+        
+        .svg-1 {
+            top: 10%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+        }
+        
+        .svg-2 {
+            bottom: 10%;
+            right: 5%;
+            width: 200px;
+            height: 200px;
+        }
+        
+        /* Stats counter */
+        .stats-counter {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Glow effect */
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+<body class="starry-bg" data-theme="dark">
+    <!-- Starry Night Background -->
+    <div class="stars" id="stars"></div>
+    <div class="moon">
+        <div class="moon-crater" style="top: 20px; left: 30px; width: 20px; height: 20px;"></div>
+        <div class="moon-crater" style="top: 50px; left: 60px; width: 15px; height: 15px;"></div>
+        <div class="moon-crater" style="top: 70px; left: 30px; width: 10px; height: 10px;"></div>
+    </div>
+    
+    <!-- Sun for light mode -->
+    <div class="sun"></div>
+
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle">
+        <i class="fas fa-sun text-white"></i>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top">
+        <i class="fas fa-chevron-up text-white"></i>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-secondary/90 backdrop-blur-md z-50 shadow-sm transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="bg-gradient-to-r from-purple-600 to-blue-500 text-white px-3 py-2 rounded-lg font-bold pulse-animation">
+                        MRZ
+                    </div>
+                    <span class="ml-2 text-lg font-semibold text-primary">Project Portfolio</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="nav-link text-primary hover:text-purple-600 px-3 py-2 text-sm font-medium">Home</a>
+                        <a href="#portfolio" class="nav-link text-primary hover:text-purple-600 px-3 py-2 text-sm font-medium">Projects</a>
+                        <a href="#contact" class="nav-link text-primary hover:text-purple-600 px-3 py-2 text-sm font-medium">Contact</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="mobile-menu-button p-2">
+                        <i class="fas fa-bars text-primary"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden mobile-menu hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 bg-secondary border-t transition-colors duration-300">
+                <a href="#home" class="block px-3 py-2 text-primary hover:bg-primary">Home</a>
+                <a href="#portfolio" class="block px-3 py-2 text-primary hover:bg-primary">Projects</a>
+                <a href="#contact" class="block px-3 py-2 text-primary hover:bg-primary">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center relative overflow-hidden pt-16">
+        <!-- SVG Decorations -->
+        <svg class="svg-decoration svg-1" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#667eea" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,89.5,-0.3C89,15.7,85.4,31.4,76.9,43.9C68.5,56.5,55.2,65.9,40.2,73.1C25.2,80.3,8.4,85.2,-7.9,83.5C-24.2,81.7,-39.9,73.2,-53.4,62.2C-66.9,51.2,-78.2,37.7,-84.5,21.9C-90.9,6.1,-92.4,-12.1,-87.1,-28.2C-81.8,-44.3,-69.6,-58.4,-54.3,-65.2C-39,-72,-19.5,-71.5,-2.7,-68.2C14.2,-64.9,28.3,-58.8,44.7,-76.4Z" transform="translate(100 100)" />
+        </svg>
+        
+        <svg class="svg-decoration svg-2" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#764ba2" d="M39.3,-69.2C52.7,-62.9,66.5,-56.9,74.7,-46.1C82.9,-35.3,85.5,-19.6,83.9,-4.8C82.3,10.1,76.5,20.1,69.2,29.6C61.9,39.1,53,48,42.3,55.7C31.6,63.4,19,69.8,4.6,73.4C-9.8,77,-24.1,77.8,-35.8,72.6C-47.5,67.3,-56.6,56,-64.5,43.7C-72.4,31.4,-79.1,18.1,-81.2,3.8C-83.3,-10.5,-80.8,-25.9,-73.7,-38.1C-66.6,-50.3,-54.9,-59.4,-41.9,-65.9C-28.9,-72.4,-14.4,-76.3,-0.6,-75.4C13.2,-74.5,26.5,-68.8,39.3,-69.2Z" transform="translate(100 100)" />
+        </svg>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center hero-content">
+                <div class="text-primary">
+                    <p class="text-lg mb-4 opacity-90">Welcome to my</p>
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight heading-enhanced">
+                        Project <span class="gradient-text">Portfolio</span>
+                    </h1>
+                    <div class="text-xl mb-8">
+                        <span class="typing-text"></span>
+                        <span class="typewriter-cursor"></span>
+                    </div>
+                    <p class="text-lg mb-8 opacity-90 max-w-lg text-enhanced">
+                        A collection of my web design projects and learning exercises that demonstrate my growing skills and creative approach to problem-solving. Explore my work below.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#portfolio" class="btn-primary glow-effect">
+                            View Projects
+                        </a>
+                        <a href="#contact" class="btn-outline">
+                            Contact Me
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="w-80 h-80 mx-auto relative">
+                        <!-- Animated SVG Background -->
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 200 200">
+                            <path fill="#FFD700" d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.6,90,-16.3,89.5,-0.3C89,15.7,85.4,31.4,76.9,43.9C68.5,56.5,55.2,65.9,40.2,73.1C25.2,80.3,8.4,85.2,-7.9,83.5C-24.2,81.7,-39.9,73.2,-53.4,62.2C-66.9,51.2,-78.2,37.7,-84.5,21.9C-90.9,6.1,-92.4,-12.1,-87.1,-28.2C-81.8,-44.3,-69.6,-58.4,-54.3,-65.2C-39,-72,-19.5,-71.5,-2.7,-68.2C14.2,-64.9,28.3,-58.8,44.7,-76.4Z" transform="translate(100 100)" />
+                        </svg>
+                        <div class="absolute inset-8 bg-gradient-to-br from-purple-600 to-blue-500 rounded-full overflow-hidden shadow-2xl flex items-center justify-center">
+                            <i class="fas fa-laptop-code text-white text-6xl"></i>
+                        </div>
+                        <!-- Decorative elements -->
+                        <div class="absolute -top-4 -right-4 w-8 h-8 bg-blue-400 rounded-full floating" style="animation-delay: -1s;"></div>
+                        <div class="absolute -bottom-6 -left-6 w-6 h-6 bg-pink-400 rounded-full floating" style="animation-delay: -2s;"></div>
+                        <div class="absolute top-1/2 -right-8 w-4 h-4 bg-green-400 rounded-full floating" style="animation-delay: -3s;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <div class="flex flex-col items-center text-primary">
+                <span class="text-sm mb-2">Scroll Down</span>
+                <i class="fas fa-chevron-down animate-bounce"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 heading-enhanced">My Projects</h2>
+                <p class="text-secondary text-lg max-w-2xl mx-auto text-enhanced">
+                    A showcase of my web design projects and learning exercises that demonstrate my growing skills and creative approach to problem-solving.
+                </p>
+            </div>
+
+            <!-- Project Filters -->
+            <div class="project-filter">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="web">Web Design</button>
+                <button class="filter-btn" data-filter="ui">UI/UX</button>
+                <button class="filter-btn" data-filter="responsive">Responsive</button>
+                <button class="filter-btn" data-filter="javascript">JavaScript</button>
+            </div>
+
+            <div class="responsive-grid" id="projects-container">
+                <!-- Projects will be loaded here by JavaScript -->
+            </div>
+
+            <div class="text-center mt-12">
+                <button id="load-more-btn" class="btn-primary">
+                    Load More Projects
+                </button>
+                <div id="no-more-projects" class="hidden mt-4 text-secondary">
+                    <p>No more projects to load.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-primary mb-4 heading-enhanced">Get In Touch</h2>
+                <p class="text-secondary text-lg max-w-2xl mx-auto text-enhanced">
+                    Interested in working together or have questions about my projects? Feel free to reach out!
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <div class="section-bg">
+                        <h3 class="text-2xl font-bold mb-6 text-primary">Muhammad Rizwan Zafar</h3>
+                        <p class="text-lg mb-6 text-secondary">Aspiring AI/ML Engineer & UI/UX Designer</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone w-6 text-yellow-400"></i>
+                                <span class="ml-3 text-primary">0326-7304987</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope w-6 text-yellow-400"></i>
+                                <span class="ml-3 text-primary">rizwanzafar7894@gmail.com</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt w-6 text-yellow-400"></i>
+                                <span class="ml-3 text-primary">Pakistan</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <h4 class="font-semibold mb-4 text-primary">Follow My Journey</h4>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                    <i class="fab fa-linkedin-in text-secondary"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                    <i class="fab fa-github text-secondary"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-primary rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                    <i class="fab fa-twitter text-secondary"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="section-bg">
+                        <form class="space-y-6" id="contact-form">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-primary mb-2">Name</label>
+                                    <input type="text" id="name" name="name" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                           placeholder="Your Name" required>
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-primary mb-2">Email</label>
+                                    <input type="email" id="email" name="email" 
+                                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                           placeholder="your.email@example.com" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-primary mb-2">Subject</label>
+                                <input type="text" id="subject" name="subject" 
+                                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                       placeholder="What's this about?" required>
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-primary mb-2">Message</label>
+                                <textarea id="message" name="message" rows="5"
+                                          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                          placeholder="Your message..." required></textarea>
+                            </div>
+                            <button type="submit" 
+                                    class="w-full btn-primary">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-12 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="bg-gradient-to-r from-purple-600 to-blue-500 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+                    MRZ
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Project Portfolio</h3>
+                <p class="text-secondary mb-8 max-w-md mx-auto text-enhanced">
+                    A showcase of my web design projects and learning journey.
+                </p>
+                <div class="flex justify-center space-x-6 mb-8">
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
+                        <i class="fab fa-linkedin-in text-xl"></i>
+                    </a>
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-secondary hover:text-white transition-colors">
+                        <i class="fab fa-twitter text-xl"></i>
+                    </a>
+                </div>
+                <div class="border-t border-secondary pt-8">
+                    <p class="text-secondary">&copy; 2024 Muhammad Rizwan Zafar. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Project data with URLs
+        const projects = [
+            {
+                id: 1,
+                title: "Fitness Tracker",
+                category: "responsive javascript",
+                description: "A fitness tracking application that allows users to log workouts, track progress, and set fitness goals. Features data visualization and progress tracking over time.",
+                tags: ["JavaScript", "Responsive", "Data Visualization", "Fitness"],
+                color: "green",
+                icon: "running",
+                url: "demo.html"
+            },
+            {
+                id: 2,
+                title: "Responsive Portfolio Website",
+                category: "web responsive",
+                description: "A fully responsive portfolio website built with HTML, CSS, and JavaScript to showcase skills and projects. Features modern design principles and smooth animations.",
+                tags: ["HTML", "CSS", "JavaScript", "Responsive"],
+                color: "blue",
+                icon: "laptop-code",
+                url: "portfolio-demo.html"
+            },
+            {
+                id: 3,
+                title: "Mobile-First Landing Page",
+                category: "ui responsive",
+                description: "A mobile-first approach to designing a landing page with emphasis on user experience and visual hierarchy. Created with careful attention to typography and spacing.",
+                tags: ["UI Design", "Responsive", "Figma", "Mobile-First"],
+                color: "purple",
+                icon: "mobile-alt",
+                url: "landing-demo.html"
+            },
+            {
+                id: 4,
+                title: "Design System Components",
+                category: "ui web",
+                description: "A collection of reusable UI components designed with consistency and accessibility in mind. Includes buttons, forms, cards, and navigation elements with detailed documentation.",
+                tags: ["Design System", "Components", "Accessibility", "Documentation"],
+                color: "green",
+                icon: "palette",
+                url: "design-system-demo.html"
+            },
+            {
+                id: 5,
+                title: "Interactive Dashboard",
+                category: "web javascript",
+                description: "An interactive dashboard with dynamic charts and data visualization. Built with JavaScript and Chart.js to display real-time metrics and analytics in an engaging way.",
+                tags: ["JavaScript", "Chart.js", "Data Visualization", "API Integration"],
+                color: "yellow",
+                icon: "chart-line",
+                url: "dashboard-demo.html"
+            },
+            {
+                id: 6,
+                title: "E-commerce Product Page",
+                category: "ui responsive",
+                description: "A modern e-commerce product page design focused on conversion optimization. Features intuitive navigation, high-quality image galleries, and clear call-to-action elements.",
+                tags: ["UI/UX Design", "E-commerce", "Conversion", "Responsive"],
+                color: "red",
+                icon: "shopping-cart",
+                url: "ecommerce-demo.html"
+            },
+            {
+                id: 7,
+                title: "Task Management App",
+                category: "web javascript",
+                description: "A task management application with drag-and-drop functionality, local storage, and priority settings. Helps users organize their workflow efficiently with an intuitive interface.",
+                tags: ["JavaScript", "Local Storage", "Drag & Drop", "Productivity"],
+                color: "indigo",
+                icon: "tasks",
+                url: "taskmanager-demo.html"
+            },
+            {
+                id: 8,
+                title: "Blog Platform UI",
+                category: "ui web",
+                description: "A clean and modern blog platform interface with focus on readability and content presentation. Features a card-based layout, typography hierarchy, and social sharing options.",
+                tags: ["UI Design", "Typography", "Blog", "Content"],
+                color: "pink",
+                icon: "blog",
+                url: "blog-demo.html"
+            },
+            {
+                id: 9,
+                title: "Restaurant Website",
+                category: "responsive javascript",
+                description: "A fully responsive restaurant website with online menu, reservation system, and location map. Features an elegant design that works seamlessly across all device sizes.",
+                tags: ["Responsive", "JavaScript", "Google Maps API", "Booking System"],
+                color: "teal",
+                icon: "utensils",
+                url: "restaurant-demo.html"
+            },
+            {
+                id: 10,
+                title: "Weather App",
+                category: "javascript responsive",
+                description: "A weather application that displays current conditions and forecasts using a third-party API. Features a clean interface with dynamic background changes based on weather conditions.",
+                tags: ["JavaScript", "API Integration", "Responsive", "Dynamic UI"],
+                color: "blue",
+                icon: "cloud-sun",
+                url: "weather-demo.html"
+            },
+            {
+                id: 11,
+                title: "Social Media Dashboard",
+                category: "ui web javascript",
+                description: "A comprehensive social media dashboard that aggregates data from multiple platforms. Provides analytics, scheduling features, and engagement metrics in one interface.",
+                tags: ["UI Design", "JavaScript", "Analytics", "Dashboard"],
+                color: "purple",
+                icon: "chart-bar",
+                url: "social-demo.html"
+            },
+            {
+                id: 12,
+                title: "Recipe Finder",
+                category: "web javascript",
+                description: "A recipe finder application that allows users to search for recipes by ingredients, dietary restrictions, or cuisine type. Features favorites and meal planning capabilities.",
+                tags: ["JavaScript", "API Integration", "Search", "Meal Planning"],
+                color: "orange",
+                icon: "utensils",
+                url: "recipe-demo.html"
+            }
+        ];
+
+        // Create starry background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                const duration = Math.random() * 5 + 3;
+                star.style.setProperty('--duration', `${duration}s`);
+                
+                starsContainer.appendChild(star);
+            }
+            
+            // Create shooting stars
+            createShootingStars();
+        }
+        
+        function createShootingStars() {
+            const starsContainer = document.getElementById('stars');
+            const shootingStarCount = 5;
+            
+            for (let i = 0; i < shootingStarCount; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.classList.add('shooting-star');
+                
+                shootingStar.style.left = `${Math.random() * 20}%`;
+                shootingStar.style.top = `${Math.random() * 20}%`;
+                
+                const duration = Math.random() * 10 + 5;
+                shootingStar.style.setProperty('--duration', `${duration}s`);
+                shootingStar.style.animationDelay = `${Math.random() * 20}s`;
+                
+                starsContainer.appendChild(shootingStar);
+            }
+        }
+
+        // Typing animation
+        function initTypingAnimation() {
+            const typingText = document.querySelector('.typing-text');
+            const texts = [
+                "Web Design Projects",
+                "UI/UX Design Exercises",
+                "JavaScript Applications",
+                "Responsive Websites"
+            ];
+            let textIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentText = texts[textIndex];
+                
+                if (isDeleting) {
+                    typingText.textContent = currentText.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    typingText.textContent = currentText.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                if (!isDeleting && charIndex === currentText.length) {
+                    isDeleting = true;
+                    setTimeout(type, 2000);
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % texts.length;
+                    setTimeout(type, 500);
+                } else {
+                    setTimeout(type, isDeleting ? 50 : 100);
+                }
+            }
+
+            // Start typing animation
+            setTimeout(type, 1000);
+        }
+
+        // Project filtering and loading functionality
+        function initProjectLoader() {
+            const projectsContainer = document.getElementById('projects-container');
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const noMoreProjects = document.getElementById('no-more-projects');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            let currentFilter = 'all';
+            let visibleCount = 6; // Initial number of visible projects
+            const projectsPerLoad = 3; // Number of projects to load each time
+            
+            // Render projects
+            function renderProjects(filter = 'all', count = visibleCount) {
+                // Filter projects based on current filter
+                const filteredProjects = filter === 'all' 
+                    ? projects 
+                    : projects.filter(project => project.category.includes(filter));
+                
+                // Clear container
+                projectsContainer.innerHTML = '';
+                
+                // Show projects up to the current count
+                const projectsToShow = filteredProjects.slice(0, count);
+                
+                if (projectsToShow.length === 0) {
+                    projectsContainer.innerHTML = '<p class="text-center text-secondary col-span-full">No projects found for this filter.</p>';
+                    loadMoreBtn.style.display = 'none';
+                    return;
+                }
+                
+                // Render each project
+                projectsToShow.forEach(project => {
+                    const projectCard = createProjectCard(project);
+                    projectsContainer.appendChild(projectCard);
+                });
+                
+                // Update load more button visibility
+                if (count >= filteredProjects.length) {
+                    loadMoreBtn.style.display = 'none';
+                    noMoreProjects.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.style.display = 'inline-block';
+                    noMoreProjects.classList.add('hidden');
+                }
+            }
+            
+            // Create project card HTML
+            function createProjectCard(project) {
+                const card = document.createElement('div');
+                card.className = 'section-bg card-hover project-card';
+                card.setAttribute('data-category', project.category);
+                
+                card.innerHTML = `
+                    <div class="h-48 bg-gradient-to-br from-${project.color}-900 to-${project.color}-800 relative overflow-hidden rounded-t-2xl">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-${project.icon} text-6xl text-${project.color}-400"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-primary mb-2">${project.title}</h3>
+                        <p class="text-secondary text-sm mb-4">${project.category.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' & ')} Project</p>
+                        <p class="text-secondary leading-relaxed mb-4 text-enhanced">
+                            ${project.description}
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${project.tags.map(tag => `<span class="bg-${project.color}-900 text-${project.color}-400 text-xs px-2 py-1 rounded transition-colors duration-300">${tag}</span>`).join('')}
+                        </div>
+                        <a href="${project.url}" class="inline-flex items-center text-${project.color}-400 font-semibold hover:text-${project.color}-300">
+                            View Project <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="project-overlay">
+                        <h3 class="text-white text-xl font-bold mb-2">${project.title}</h3>
+                        <p class="text-white text-center mb-4">${project.description}</p>
+                        <div class="flex space-x-4">
+                            <a href="${project.url}" class="bg-white text-${project.color}-900 px-4 py-2 rounded-lg font-semibold">Live Demo</a>
+                            <a href="#" class="bg-transparent border border-white text-white px-4 py-2 rounded-lg font-semibold">Source Code</a>
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            }
+            
+            // Filter button event listeners
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update current filter
+                    currentFilter = this.getAttribute('data-filter');
+                    
+                    // Reset visible count
+                    visibleCount = 6;
+                    
+                    // Render filtered projects
+                    renderProjects(currentFilter, visibleCount);
+                });
+            });
+            
+            // Load more button event listener
+            loadMoreBtn.addEventListener('click', function() {
+                visibleCount += projectsPerLoad;
+                renderProjects(currentFilter, visibleCount);
+            });
+            
+            // Initial render
+            renderProjects();
+        }
+
+        // Dark/Light mode toggle
+        function initThemeToggle() {
+            const themeToggle = document.querySelector('.dark-mode-toggle');
+            const icon = themeToggle.querySelector('i');
+            
+            // Check for saved theme preference or default to dark
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', currentTheme);
+            
+            // Update icon based on current theme
+            if (currentTheme === 'light') {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Update theme
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Update icon
+                if (newTheme === 'light') {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        }
+
+        // Back to top functionality
+        function initBackToTop() {
+            const backToTopButton = document.querySelector('.back-to-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.classList.add('active');
+                } else {
+                    backToTopButton.classList.remove('active');
+                }
+            });
+
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        // Mobile menu functionality
+        function initMobileMenu() {
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+
+                // Close mobile menu when clicking on a link
+                const mobileMenuLinks = document.querySelectorAll('.mobile-menu a');
+                mobileMenuLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+        }
+
+        // Smooth scrolling for navigation links
+        function initSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Contact form submission
+        function initContactForm() {
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form data
+                    const formData = new FormData(this);
+                    const name = formData.get('name');
+                    const email = formData.get('email');
+                    const subject = formData.get('subject');
+                    const message = formData.get('message');
+                    
+                    // Here you would typically send the data to a server
+                    // For now, we'll just show an alert
+                    alert(`Thank you, ${name}! Your message has been sent. I'll get back to you soon at ${email}.`);
+                    
+                    // Reset form
+                    this.reset();
+                });
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            initTypingAnimation();
+            initProjectLoader();
+            initThemeToggle();
+            initBackToTop();
+            initMobileMenu();
+            initSmoothScrolling();
+            initContactForm();
+        });
+    </script>
+</body>
+</html>
