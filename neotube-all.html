@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoTube - YouTube-Style Video Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Configuration for Inter Font and Dark Mode -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-red': '#FF0000',
+                        'dark-bg': '#0f0f0f',
+                        'card-bg': '#272727',
+                        'hover-bg': '#3f3f3f',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Ensuring the icons are rendered */
+        [lucide] {
+            stroke-width: 2.5;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #212121;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4F46E5;
+            border-radius: 4px;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #272727;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        /* Line clamp for text overflow */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* Video player styling */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container iframe,
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* Custom file upload button */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        /* Animation for loading */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        /* Category filter buttons */
+        .category-btn {
+            transition: all 0.2s ease;
+        }
+        .category-btn.active {
+            background-color: #3f3f3f;
+            color: white;
+        }
+        /* Like animation */
+        @keyframes like {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .liked {
+            animation: like 0.3s ease;
+            color: #3b82f6;
+        }
+        /* Progress bar for upload */
+        .progress-bar {
+            height: 6px;
+            background-color: #3f3f3f;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4F46E5;
+            transition: width 0.3s ease;
+        }
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #272727;
+            border-top: 1px solid #3f3f3f;
+            z-index: 100;
+        }
+        /* Shorts container */
+        .shorts-container {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            margin: 0 auto;
+            position: relative;
+        }
+        .shorts-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .shorts-video.active {
+            display: block;
+        }
+        .shorts-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .shorts-controls {
+            position: absolute;
+            right: 10px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .shorts-control-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .shorts-control-btn i {
+            margin-bottom: 5px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            padding: 8px;
+        }
+        .shorts-control-btn span {
+            font-size: 12px;
+        }
+        /* Library container */
+        .library-container {
+            display: none;
+        }
+        /* Modern video player */
+        .modern-player {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .modern-player video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .player-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modern-player:hover .player-controls,
+        .modern-player.controls-visible .player-controls {
+            opacity: 1;
+        }
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-bar-player {
+            height: 100%;
+            background: #FF0000;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .progress-hover {
+            position: absolute;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            width: 0%;
+            pointer-events: none;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .left-controls, .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .volume-slider {
+            width: 70px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        .volume-level {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 100%;
+        }
+        .time-display {
+            font-size: 14px;
+            color: white;
+        }
+        /* Fullscreen video player */
+        .fullscreen-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+        }
+        .fullscreen-video-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fullscreen-video {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .fullscreen-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .fullscreen-player:hover .fullscreen-controls,
+        .fullscreen-player.controls-visible .fullscreen-controls {
+            opacity: 1;
+        }
+        .fullscreen-progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+        .fullscreen-progress-bar {
+            height: 100%;
+            background: #FF0000;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .fullscreen-progress-hover {
+            position: absolute;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            width: 0%;
+            pointer-events: none;
+        }
+        .fullscreen-control-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .fullscreen-left-controls, .fullscreen-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .fullscreen-control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .fullscreen-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fullscreen-volume-slider {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        .fullscreen-volume-level {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 100%;
+        }
+        .fullscreen-time-display {
+            font-size: 16px;
+            color: white;
+        }
+        /* Watch history */
+        .history-item {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover {
+            background: #3f3f3f;
+        }
+        .history-thumbnail {
+            width: 160px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .history-info {
+            flex-grow: 1;
+        }
+        /* Playlist functionality */
+        .playlist-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .playlist-item:hover {
+            background: #3f3f3f;
+        }
+        .playlist-thumbnail {
+            width: 120px;
+            height: 68px;
+            border-radius: 4px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: flex;
+            }
+            .history-thumbnail {
+                width: 120px;
+                height: 68px;
+            }
+            .playlist-thumbnail {
+                width: 80px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-white font-sans min-h-screen">
+
+    <!-- Username Modal -->
+    <div id="username-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Welcome to NeoTube</h2>
+            <p class="text-gray-300 mb-6">Please enter a username to continue:</p>
+            <input type="text" id="username-input" placeholder="Enter your username" 
+                   class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200 mb-4">
+            <button id="save-username" class="w-full bg-primary-red hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Upload Video Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Upload Video</h2>
+                <button id="close-upload-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="upload-form" class="space-y-4">
+                <div>
+                    <label for="video-url" class="block text-sm font-medium mb-1">Video URL (Optional)</label>
+                    <input type="url" id="video-url"
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="https://example.com/video.mp4">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Or Upload Video File (Max 10MB)</label>
+                    <div class="file-upload">
+                        <input type="file" id="video-file" accept="video/*">
+                        <div class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 text-center cursor-pointer hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="upload" class="w-5 h-5 inline-block mr-2"></i>
+                            <span id="file-name">Choose video file</span>
+                        </div>
+                    </div>
+                    <div id="upload-progress" class="mt-2 hidden">
+                        <div class="progress-bar">
+                            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="upload-status" class="text-xs text-gray-400 mt-1">Uploading: 0%</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="video-title" class="block text-sm font-medium mb-1">Video Title</label>
+                    <input type="text" id="video-title" required
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="Enter video title">
+                </div>
+                <div>
+                    <label for="thumbnail-url" class="block text-sm font-medium mb-1">Thumbnail URL</label>
+                    <input type="url" id="thumbnail-url"
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="https://example.com/thumbnail.jpg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Or Upload Thumbnail</label>
+                    <div class="file-upload">
+                        <input type="file" id="thumbnail-file" accept="image/*">
+                        <div class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 text-center cursor-pointer hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="image" class="w-5 h-5 inline-block mr-2"></i>
+                            <span id="thumbnail-name">Choose thumbnail image</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="video-category" class="block text-sm font-medium mb-1">Category</label>
+                    <select id="video-category" required
+                            class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200">
+                        <option value="">Select a category</option>
+                        <option value="scifi">Sci-Fi</option>
+                        <option value="fantasy">Fantasy</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="drama">Drama</option>
+                        <option value="movie">Movie</option>
+                        <option value="romance">Romance</option>
+                        <option value="action">Action</option>
+                        <option value="thriller">Thriller</option>
+                        <option value="shorts">Shorts</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="video-description" class="block text-sm font-medium mb-1">Description (max 300 words)</label>
+                    <textarea id="video-description" required maxlength="1500"
+                              class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200 h-32 resize-none"
+                              placeholder="Enter video description (max 300 words)"></textarea>
+                    <div class="text-right text-xs text-gray-400 mt-1">
+                        <span id="char-count">0</span>/1500 characters
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancel-upload" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-red hover:bg-red-700 rounded-lg transition duration-200">
+                        Upload Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="video-player-modal" class="modal">
+        <div class="modal-content w-full max-w-4xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="player-video-title" class="text-xl font-bold"></h2>
+                <button id="close-player-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="modern-player mb-4" id="normal-player">
+                <video id="fullscreen-video" controls>
+                    Your browser does not support the video tag.
+                </video>
+                <div class="player-controls">
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar-player" id="progress-bar-player"></div>
+                        <div class="progress-hover" id="progress-hover"></div>
+                    </div>
+                    <div class="control-buttons">
+                        <div class="left-controls">
+                            <button id="player-play-btn" class="control-btn">
+                                <i data-lucide="play" class="w-5 h-5"></i>
+                            </button>
+                            <div class="volume-container">
+                                <button id="player-mute-btn" class="control-btn">
+                                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                                </button>
+                                <div class="volume-slider" id="volume-slider">
+                                    <div class="volume-level" id="volume-level"></div>
+                                </div>
+                            </div>
+                            <div class="time-display">
+                                <span id="current-time">0:00</span> / <span id="duration-time">0:00</span>
+                            </div>
+                        </div>
+                        <div class="right-controls">
+                            <button id="player-pip-btn" class="control-btn">
+                                <i data-lucide="picture-in-picture" class="w-5 h-5"></i>
+                            </button>
+                            <button id="player-fullscreen-btn" class="control-btn">
+                                <i data-lucide="maximize" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button id="player-like-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+                        <span id="player-like-count">0</span>
+                    </button>
+                    <button id="player-share-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                        <span>Share</span>
+                    </button>
+                    <button id="player-save-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="bookmark" class="w-5 h-5"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4 bg-card-bg rounded-lg p-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold">
+                        C
+                    </div>
+                    <div class="flex-grow">
+                        <p class="font-semibold" id="player-channel-name">Channel Name</p>
+                        <p class="text-sm text-gray-400" id="player-views">0 views</p>
+                        <p class="mt-2 text-sm" id="player-description">Video description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Video Player -->
+    <div id="fullscreen-player" class="fullscreen-player">
+        <div class="fullscreen-video-container">
+            <video id="fullscreen-video-element" class="fullscreen-video" controls>
+                Your browser does not support the video tag.
+            </video>
+            <div class="fullscreen-controls">
+                <div class="fullscreen-progress-container" id="fullscreen-progress-container">
+                    <div class="fullscreen-progress-bar" id="fullscreen-progress-bar"></div>
+                    <div class="fullscreen-progress-hover" id="fullscreen-progress-hover"></div>
+                </div>
+                <div class="fullscreen-control-buttons">
+                    <div class="fullscreen-left-controls">
+                        <button id="fullscreen-play-btn" class="fullscreen-control-btn">
+                            <i data-lucide="play" class="w-6 h-6"></i>
+                        </button>
+                        <div class="fullscreen-volume-container">
+                            <button id="fullscreen-mute-btn" class="fullscreen-control-btn">
+                                <i data-lucide="volume-2" class="w-6 h-6"></i>
+                            </button>
+                            <div class="fullscreen-volume-slider" id="fullscreen-volume-slider">
+                                <div class="fullscreen-volume-level" id="fullscreen-volume-level"></div>
+                            </div>
+                        </div>
+                        <div class="fullscreen-time-display">
+                            <span id="fullscreen-current-time">0:00</span> / <span id="fullscreen-duration-time">0:00</span>
+                        </div>
+                    </div>
+                    <div class="fullscreen-right-controls">
+                        <button id="fullscreen-pip-btn" class="fullscreen-control-btn">
+                            <i data-lucide="picture-in-picture" class="w-6 h-6"></i>
+                        </button>
+                        <button id="fullscreen-exit-btn" class="fullscreen-control-btn">
+                            <i data-lucide="minimize" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Share Video</h2>
+                <button id="close-share-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="flex space-x-4 mb-6">
+                <button class="share-option flex flex-col items-center p-3 bg-card-bg rounded-lg hover:bg-hover-bg transition duration-200">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mb-2">
+                        <i data-lucide="message-circle" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-sm">Message</span>
+                </button>
+                <button class="share-option flex flex-col items-center p-3 bg-card-bg rounded-lg hover:bg-hover-bg transition duration-200">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mb-2">
+                        <i data-lucide="mail" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-sm">Email</span>
+                </button>
+                <button class="share-option flex flex-col items-center p-3 bg-card-bg rounded-lg hover:bg-hover-bg transition duration-200">
+                    <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center mb-2">
+                        <i data-lucide="facebook" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-sm">Facebook</span>
+                </button>
+                <button class="share-option flex flex-col items-center p-3 bg-card-bg rounded-lg hover:bg-hover-bg transition duration-200">
+                    <div class="w-12 h-12 bg-blue-300 rounded-full flex items-center justify-center mb-2">
+                        <i data-lucide="twitter" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-sm">Twitter</span>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Share Link</label>
+                <div class="flex">
+                    <input type="text" id="share-link" readonly
+                           class="flex-grow p-3 rounded-l-lg bg-card-bg border border-gray-600 border-r-0 outline-none">
+                    <button id="copy-link" class="bg-primary-red hover:bg-red-700 text-white px-4 rounded-r-lg transition duration-200">
+                        Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navigation Bar -->
+    <header class="sticky top-0 z-50 p-4 bg-dark-bg/95 backdrop-blur-sm border-b border-gray-800 shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center space-x-4">
+            <!-- Logo/Title -->
+            <div class="flex items-center space-x-2">
+                <div class="text-primary-red text-3xl font-bold">
+                    <i data-lucide="youtube"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight">NeoTube</h1>
+            </div>
+
+            <!-- Search Bar (Centered on larger screens) -->
+            <div class="flex-grow max-w-xl mx-4">
+                <div class="relative hidden md:flex">
+                    <input id="search-input" type="text" placeholder="Search videos, channels, and more..."
+                           class="w-full p-2.5 rounded-l-full bg-card-bg text-white placeholder-gray-400 border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200">
+                    <button class="bg-card-bg hover:bg-hover-bg p-2.5 rounded-r-full border border-gray-600 border-l-0 transition duration-200" onclick="handleSearch()">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <!-- Mobile Search Button -->
+                <button id="mobile-search-btn" class="md:hidden p-2 hover:bg-hover-bg rounded-full transition duration-200">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- User Actions / Profile -->
+            <div class="flex items-center space-x-4">
+                <button id="upload-button" title="Create Video" class="p-2 hover:bg-hover-bg rounded-full transition duration-200">
+                    <i data-lucide="video-plus" class="w-6 h-6"></i>
+                </button>
+                <!-- Notification button removed as requested -->
+                <div id="user-avatar" class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center font-semibold cursor-pointer border-2 border-primary-red">
+                    U
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Search Bar -->
+        <div id="mobile-search-bar" class="mt-4 md:hidden hidden">
+            <div class="relative flex">
+                <input id="mobile-search-input" type="text" placeholder="Search videos, channels, and more..."
+                       class="w-full p-2.5 rounded-l-full bg-card-bg text-white placeholder-gray-400 border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200">
+                <button class="bg-card-bg hover:bg-hover-bg p-2.5 rounded-r-full border border-gray-600 border-l-0 transition duration-200" onclick="handleMobileSearch()">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Category Filter -->
+    <div class="max-w-7xl mx-auto px-4 py-2 overflow-x-auto">
+        <div class="flex space-x-2">
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm active">All</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="scifi">Sci-Fi</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="fantasy">Fantasy</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="comedy">Comedy</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="drama">Drama</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="movie">Movie</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="romance">Romance</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="action">Action</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="thriller">Thriller</button>
+            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm" data-category="shorts">Shorts</button>
+        </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto p-4 md:p-6 pb-20 md:pb-6">
+        <!-- Home Content - Default View -->
+        <div id="home-content">
+            <!-- Video Grid -->
+            <div id="videos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Video cards will be inserted here by JavaScript -->
+            </div>
+
+            <!-- No Results Message -->
+            <p id="no-results-message" class="text-gray-400 mt-8 text-center hidden">No videos found matching your search.</p>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="flex justify-center mt-8 hidden">
+                <div class="loading text-primary-red text-lg font-semibold">Loading videos...</div>
+            </div>
+        </div>
+
+        <!-- Shorts Content -->
+        <div id="shorts-content" class="shorts-container">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">NeoTube Shorts</h2>
+                <button id="upload-shorts-btn" class="px-4 py-2 bg-primary-red hover:bg-red-700 rounded-lg transition duration-200 flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Upload Short
+                </button>
+            </div>
+            <div id="shorts-videos-container" class="space-y-4">
+                <!-- Shorts videos will be inserted here by JavaScript -->
+            </div>
+            <p id="no-shorts-message" class="text-gray-400 mt-8 text-center hidden">No shorts available. Upload the first one!</p>
+        </div>
+
+        <!-- Library Content -->
+        <div id="library-content" class="library-container">
+            <div class="flex space-x-4 mb-6">
+                <button id="library-uploads-btn" class="px-4 py-2 bg-primary-red rounded-lg">Uploads</button>
+                <button id="library-history-btn" class="px-4 py-2 bg-card-bg hover:bg-hover-bg rounded-lg transition duration-200">History</button>
+                <button id="library-saved-btn" class="px-4 py-2 bg-card-bg hover:bg-hover-bg rounded-lg transition duration-200">Saved Videos</button>
+                <button id="library-playlists-btn" class="px-4 py-2 bg-card-bg hover:bg-hover-bg rounded-lg transition duration-200">Playlists</button>
+            </div>
+            
+            <!-- Uploaded Videos Section -->
+            <div id="user-videos-section">
+                <h2 class="text-2xl font-bold mb-6">Your Uploaded Videos</h2>
+                <div id="user-videos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- User uploaded videos will be inserted here by JavaScript -->
+                </div>
+                <p id="no-user-videos-message" class="text-gray-400 mt-8 text-center hidden">You haven't uploaded any videos yet.</p>
+            </div>
+            
+            <!-- Watch History Section -->
+            <div id="history-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6">Watch History</h2>
+                <div id="history-container" class="space-y-4">
+                    <!-- History items will be inserted here by JavaScript -->
+                </div>
+                <p id="no-history-message" class="text-gray-400 mt-8 text-center hidden">You haven't watched any videos yet.</p>
+            </div>
+            
+            <!-- Saved Videos Section -->
+            <div id="saved-videos-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-6">Saved Videos</h2>
+                <div id="saved-videos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Saved videos will be inserted here by JavaScript -->
+                </div>
+                <p id="no-saved-videos-message" class="text-gray-400 mt-8 text-center hidden">You haven't saved any videos yet.</p>
+            </div>
+            
+            <!-- Playlists Section -->
+            <div id="playlists-section" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Your Playlists</h2>
+                    <button id="create-playlist-btn" class="px-4 py-2 bg-primary-red hover:bg-red-700 rounded-lg transition duration-200">
+                        Create Playlist
+                    </button>
+                </div>
+                <div id="playlists-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Playlists will be inserted here by JavaScript -->
+                </div>
+                <p id="no-playlists-message" class="text-gray-400 mt-8 text-center hidden">You haven't created any playlists yet.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-menu">
+        <div class="flex justify-around w-full py-3">
+            <button id="mobile-home-btn" class="flex flex-col items-center text-white transition duration-200">
+                <i data-lucide="home" class="w-5 h-5 mb-1"></i>
+                <span class="text-xs">Home</span>
+            </button>
+            <button id="mobile-shorts-btn" class="flex flex-col items-center text-gray-400 hover:text-white transition duration-200">
+                <i data-lucide="clapperboard" class="w-5 h-5 mb-1"></i>
+                <span class="text-xs">Shorts</span>
+            </button>
+            <button id="mobile-upload-btn" class="flex flex-col items-center text-gray-400 hover:text-white transition duration-200">
+                <i data-lucide="plus-circle" class="w-5 h-5 mb-1"></i>
+                <span class="text-xs">Upload</span>
+            </button>
+            <button id="mobile-library-btn" class="flex flex-col items-center text-gray-400 hover:text-white transition duration-200">
+                <i data-lucide="library" class="w-5 h-5 mb-1"></i>
+                <span class="text-xs">Library</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DATA STORAGE AND INITIALIZATION ---
+        
+        // Initialize data in localStorage if not exists
+        function initializeData() {
+            if (!localStorage.getItem('neotube_videos')) {
+                // Sample videos data with working video URLs
+                const sampleVideos = [
+                    { 
+                        id: 'v1', 
+                        title: 'The Future of UI/UX: Neo-Glass Interfaces and AI', 
+                        channel: 'Artificial Arts', 
+                        views: '1.2M', 
+                        time: '3 days ago', 
+                        duration: '15:30', 
+                        description: 'Dive deep into the world of Neo-Glass design and how Artificial Intelligence is revolutionizing user interaction.', 
+                        thumbnailColor: '4F46E5', 
+                        thumbnailText: 'AI-UI',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/4F46E5/FFFFFF?text=AI-UI',
+                        category: 'scifi',
+                        likes: 12500,
+                        uploader: 'admin',
+                        actualDuration: 930, // in seconds
+                        uploadDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    { 
+                        id: 'v2', 
+                        title: 'Next Gen Dashboards - Interactive Data', 
+                        channel: 'Data Sense', 
+                        views: '240K', 
+                        time: '1 week ago', 
+                        duration: '8:45', 
+                        description: 'Explore the future of data visualization with interactive dashboards.', 
+                        thumbnailColor: '10B981', 
+                        thumbnailText: 'DATA',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/10B981/FFFFFF?text=DATA',
+                        category: 'scifi',
+                        likes: 8500,
+                        uploader: 'admin',
+                        actualDuration: 525, // in seconds
+                        uploadDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    { 
+                        id: 'v3', 
+                        title: 'Cyberpunk Cityscape - 4K Ambient', 
+                        channel: 'Neon Dreams', 
+                        views: '3.4M', 
+                        time: '2 months ago', 
+                        duration: '1:02:15', 
+                        description: 'Immerse yourself in this stunning 4K ambient video of a futuristic cyberpunk city.', 
+                        thumbnailColor: '8B5CF6', 
+                        thumbnailText: 'NEON',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/8B5CF6/FFFFFF?text=NEON',
+                        category: 'scifi',
+                        likes: 42100,
+                        uploader: 'admin',
+                        actualDuration: 3735, // in seconds
+                        uploadDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // Shorts videos
+                    { 
+                        id: 's1', 
+                        title: 'Quick Tech Tips #1', 
+                        channel: 'Tech Shorts', 
+                        views: '2.5M', 
+                        time: '2 hours ago', 
+                        duration: '0:30', 
+                        description: 'Quick tech tips you need to know!', 
+                        thumbnailColor: 'FF0000', 
+                        thumbnailText: 'SHORT',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/FF0000/FFFFFF?text=SHORT',
+                        category: 'shorts',
+                        likes: 125000,
+                        uploader: 'shorts_creator',
+                        actualDuration: 30,
+                        uploadDate: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+                    },
+                    { 
+                        id: 's2', 
+                        title: 'Funny Cat Moments', 
+                        channel: 'Animal Lovers', 
+                        views: '5.7M', 
+                        time: '1 day ago', 
+                        duration: '0:45', 
+                        description: 'Cats being hilarious!', 
+                        thumbnailColor: 'FF9900', 
+                        thumbnailText: 'CATS',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/FF9900/FFFFFF?text=CATS',
+                        category: 'shorts',
+                        likes: 280000,
+                        uploader: 'animal_lover',
+                        actualDuration: 45,
+                        uploadDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    { 
+                        id: 's3', 
+                        title: 'Cooking Hack #23', 
+                        channel: 'Quick Recipes', 
+                        views: '3.2M', 
+                        time: '3 days ago', 
+                        duration: '0:35', 
+                        description: 'Amazing cooking hack you need to try!', 
+                        thumbnailColor: '00FF00', 
+                        thumbnailText: 'FOOD',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        thumbnailUrl: 'https://placehold.co/160x90/00FF00/FFFFFF?text=FOOD',
+                        category: 'shorts',
+                        likes: 165000,
+                        uploader: 'chef_quick',
+                        actualDuration: 35,
+                        uploadDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('neotube_videos', JSON.stringify(sampleVideos));
+            }
+            
+            if (!localStorage.getItem('neotube_username')) {
+                localStorage.setItem('neotube_username', 'User');
+            }
+            
+            if (!localStorage.getItem('neotube_watch_history')) {
+                localStorage.setItem('neotube_watch_history', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('neotube_saved_videos')) {
+                localStorage.setItem('neotube_saved_videos', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('neotube_playlists')) {
+                localStorage.setItem('neotube_playlists', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('neotube_liked_videos')) {
+                localStorage.setItem('neotube_liked_videos', JSON.stringify([]));
+            }
+        }
+        
+        // --- 2. DOM ELEMENTS ---
+        
+        const elements = {
+            // Modals
+            usernameModal: document.getElementById('username-modal'),
+            uploadModal: document.getElementById('upload-modal'),
+            videoPlayerModal: document.getElementById('video-player-modal'),
+            shareModal: document.getElementById('share-modal'),
+            
+            // Inputs
+            usernameInput: document.getElementById('username-input'),
+            videoFile: document.getElementById('video-file'),
+            thumbnailFile: document.getElementById('thumbnail-file'),
+            videoTitle: document.getElementById('video-title'),
+            thumbnailUrl: document.getElementById('thumbnail-url'),
+            videoUrl: document.getElementById('video-url'),
+            videoCategory: document.getElementById('video-category'),
+            videoDescription: document.getElementById('video-description'),
+            searchInput: document.getElementById('search-input'),
+            mobileSearchInput: document.getElementById('mobile-search-input'),
+            
+            // Buttons
+            saveUsername: document.getElementById('save-username'),
+            uploadButton: document.getElementById('upload-button'),
+            closeUploadModal: document.getElementById('close-upload-modal'),
+            cancelUpload: document.getElementById('cancel-upload'),
+            uploadForm: document.getElementById('upload-form'),
+            closePlayerModal: document.getElementById('close-player-modal'),
+            closeShareModal: document.getElementById('close-share-modal'),
+            copyLink: document.getElementById('copy-link'),
+            mobileSearchBtn: document.getElementById('mobile-search-btn'),
+            
+            // Content sections
+            homeContent: document.getElementById('home-content'),
+            shortsContent: document.getElementById('shorts-content'),
+            libraryContent: document.getElementById('library-content'),
+            
+            // Mobile navigation
+            mobileHomeBtn: document.getElementById('mobile-home-btn'),
+            mobileShortsBtn: document.getElementById('mobile-shorts-btn'),
+            mobileUploadBtn: document.getElementById('mobile-upload-btn'),
+            mobileLibraryBtn: document.getElementById('mobile-library-btn'),
+            
+            // Containers
+            videosContainer: document.getElementById('videos-container'),
+            userVideosContainer: document.getElementById('user-videos-container'),
+            historyContainer: document.getElementById('history-container'),
+            savedVideosContainer: document.getElementById('saved-videos-container'),
+            playlistsContainer: document.getElementById('playlists-container'),
+            shortsVideosContainer: document.getElementById('shorts-videos-container'),
+            
+            // Library sections
+            userVideosSection: document.getElementById('user-videos-section'),
+            historySection: document.getElementById('history-section'),
+            savedVideosSection: document.getElementById('saved-videos-section'),
+            playlistsSection: document.getElementById('playlists-section'),
+            
+            // Library buttons
+            libraryUploadsBtn: document.getElementById('library-uploads-btn'),
+            libraryHistoryBtn: document.getElementById('library-history-btn'),
+            librarySavedBtn: document.getElementById('library-saved-btn'),
+            libraryPlaylistsBtn: document.getElementById('library-playlists-btn'),
+            
+            // Video player elements
+            fullscreenVideo: document.getElementById('fullscreen-video'),
+            fullscreenVideoElement: document.getElementById('fullscreen-video-element'),
+            playerVideoTitle: document.getElementById('player-video-title'),
+            playerChannelName: document.getElementById('player-channel-name'),
+            playerViews: document.getElementById('player-views'),
+            playerDescription: document.getElementById('player-description'),
+            playerLikeCount: document.getElementById('player-like-count'),
+            playerPlayBtn: document.getElementById('player-play-btn'),
+            playerMuteBtn: document.getElementById('player-mute-btn'),
+            playerPipBtn: document.getElementById('player-pip-btn'),
+            playerFullscreenBtn: document.getElementById('player-fullscreen-btn'),
+            playerLikeBtn: document.getElementById('player-like-btn'),
+            playerShareBtn: document.getElementById('player-share-btn'),
+            playerSaveBtn: document.getElementById('player-save-btn'),
+            progressBarPlayer: document.getElementById('progress-bar-player'),
+            progressContainer: document.getElementById('progress-container'),
+            progressHover: document.getElementById('progress-hover'),
+            currentTime: document.getElementById('current-time'),
+            durationTime: document.getElementById('duration-time'),
+            
+            // Fullscreen player elements
+            fullscreenPlayer: document.getElementById('fullscreen-player'),
+            fullscreenPlayBtn: document.getElementById('fullscreen-play-btn'),
+            fullscreenMuteBtn: document.getElementById('fullscreen-mute-btn'),
+            fullscreenPipBtn: document.getElementById('fullscreen-pip-btn'),
+            fullscreenExitBtn: document.getElementById('fullscreen-exit-btn'),
+            fullscreenProgressBar: document.getElementById('fullscreen-progress-bar'),
+            fullscreenProgressContainer: document.getElementById('fullscreen-progress-container'),
+            fullscreenProgressHover: document.getElementById('fullscreen-progress-hover'),
+            fullscreenCurrentTime: document.getElementById('fullscreen-current-time'),
+            fullscreenDurationTime: document.getElementById('fullscreen-duration-time'),
+            
+            // Other
+            fileName: document.getElementById('file-name'),
+            thumbnailName: document.getElementById('thumbnail-name'),
+            uploadProgress: document.getElementById('upload-progress'),
+            progressBarFill: document.getElementById('progress-bar-fill'),
+            uploadStatus: document.getElementById('upload-status'),
+            charCount: document.getElementById('char-count'),
+            shareLink: document.getElementById('share-link'),
+            mobileSearchBar: document.getElementById('mobile-search-bar'),
+            noResultsMessage: document.getElementById('no-results-message'),
+            loadingIndicator: document.getElementById('loading-indicator'),
+            userAvatar: document.getElementById('user-avatar'),
+            noUserVideosMessage: document.getElementById('no-user-videos-message'),
+            noHistoryMessage: document.getElementById('no-history-message'),
+            noSavedVideosMessage: document.getElementById('no-saved-videos-message'),
+            noPlaylistsMessage: document.getElementById('no-playlists-message'),
+            createPlaylistBtn: document.getElementById('create-playlist-btn'),
+            uploadShortsBtn: document.getElementById('upload-shorts-btn'),
+            noShortsMessage: document.getElementById('no-shorts-message')
+        };
+        
+        // --- 3. APPLICATION STATE ---
+        
+        let currentState = {
+            username: '',
+            currentVideo: null,
+            currentCategory: 'all',
+            searchQuery: '',
+            isPlaying: false,
+            isMuted: false,
+            currentVolume: 1,
+            currentTime: 0,
+            duration: 0,
+            librarySection: 'uploads',
+            likedVideos: [],
+            savedVideos: [],
+            watchHistory: [],
+            playlists: [],
+            isFullscreen: false,
+            isPip: false,
+            currentShortsIndex: 0,
+            shortsVideos: []
+        };
+        
+        // --- 4. INITIALIZATION ---
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize data
+            initializeData();
+            
+            // Load state from localStorage
+            currentState.username = localStorage.getItem('neotube_username');
+            currentState.likedVideos = JSON.parse(localStorage.getItem('neotube_liked_videos') || '[]');
+            currentState.savedVideos = JSON.parse(localStorage.getItem('neotube_saved_videos') || '[]');
+            currentState.watchHistory = JSON.parse(localStorage.getItem('neotube_watch_history') || '[]');
+            currentState.playlists = JSON.parse(localStorage.getItem('neotube_playlists') || '[]');
+            
+            // Set username in avatar
+            if (currentState.username) {
+                elements.userAvatar.textContent = currentState.username.charAt(0).toUpperCase();
+            }
+            
+            // Show username modal if no username is set
+            if (!currentState.username || currentState.username === 'User') {
+                elements.usernameModal.style.display = 'flex';
+            }
+            
+            // Initialize icons
+            lucide.createIcons();
+            
+            // Render videos
+            renderVideos();
+            
+            // Set up event listeners
+            setupEventListeners();
+        });
+        
+        // --- 5. EVENT LISTENERS ---
+        
+        function setupEventListeners() {
+            // Username modal
+            elements.saveUsername.addEventListener('click', saveUsername);
+            
+            // Upload functionality
+            elements.uploadButton.addEventListener('click', openUploadModal);
+            elements.closeUploadModal.addEventListener('click', closeUploadModal);
+            elements.cancelUpload.addEventListener('click', closeUploadModal);
+            elements.uploadForm.addEventListener('submit', handleVideoUpload);
+            elements.videoFile.addEventListener('change', updateFileName);
+            elements.thumbnailFile.addEventListener('change', updateThumbnailName);
+            elements.videoDescription.addEventListener('input', updateCharCount);
+            
+            // Video player
+            elements.closePlayerModal.addEventListener('click', closeVideoPlayer);
+            elements.playerPlayBtn.addEventListener('click', togglePlay);
+            elements.playerMuteBtn.addEventListener('click', toggleMute);
+            elements.playerPipBtn.addEventListener('click', togglePip);
+            elements.playerFullscreenBtn.addEventListener('click', enterFullscreen);
+            elements.playerLikeBtn.addEventListener('click', toggleLike);
+            elements.playerShareBtn.addEventListener('click', openShareModal);
+            elements.playerSaveBtn.addEventListener('click', toggleSave);
+            elements.fullscreenVideo.addEventListener('timeupdate', updateProgress);
+            elements.fullscreenVideo.addEventListener('loadedmetadata', updateDuration);
+            
+            // Progress bar seeking
+            elements.progressContainer.addEventListener('click', seekVideo);
+            elements.progressContainer.addEventListener('mousemove', showHoverProgress);
+            elements.progressContainer.addEventListener('mouseleave', hideHoverProgress);
+            
+            // Fullscreen player
+            elements.fullscreenPlayBtn.addEventListener('click', togglePlay);
+            elements.fullscreenMuteBtn.addEventListener('click', toggleMute);
+            elements.fullscreenPipBtn.addEventListener('click', togglePip);
+            elements.fullscreenExitBtn.addEventListener('click', exitFullscreen);
+            elements.fullscreenVideoElement.addEventListener('timeupdate', updateFullscreenProgress);
+            elements.fullscreenVideoElement.addEventListener('loadedmetadata', updateFullscreenDuration);
+            
+            // Fullscreen progress bar seeking
+            elements.fullscreenProgressContainer.addEventListener('click', seekFullscreenVideo);
+            elements.fullscreenProgressContainer.addEventListener('mousemove', showFullscreenHoverProgress);
+            elements.fullscreenProgressContainer.addEventListener('mouseleave', hideFullscreenHoverProgress);
+            
+            // Share functionality
+            elements.closeShareModal.addEventListener('click', closeShareModal);
+            elements.copyLink.addEventListener('click', copyShareLink);
+            
+            // Search functionality
+            elements.searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+            
+            elements.mobileSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleMobileSearch();
+                }
+            });
+            
+            elements.mobileSearchBtn.addEventListener('click', toggleMobileSearch);
+            
+            // Category filter
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.dataset.category) {
+                        currentState.currentCategory = this.dataset.category;
+                    } else {
+                        currentState.currentCategory = 'all';
+                    }
+                    
+                    renderVideos();
+                });
+            });
+            
+            // Mobile navigation
+            elements.mobileHomeBtn.addEventListener('click', showHome);
+            elements.mobileShortsBtn.addEventListener('click', showShorts);
+            elements.mobileUploadBtn.addEventListener('click', openUploadModal);
+            elements.mobileLibraryBtn.addEventListener('click', showLibrary);
+            
+            // Library navigation
+            elements.libraryUploadsBtn.addEventListener('click', () => showLibrarySection('uploads'));
+            elements.libraryHistoryBtn.addEventListener('click', () => showLibrarySection('history'));
+            elements.librarySavedBtn.addEventListener('click', () => showLibrarySection('saved'));
+            elements.libraryPlaylistsBtn.addEventListener('click', () => showLibrarySection('playlists'));
+            
+            // Playlist creation
+            elements.createPlaylistBtn.addEventListener('click', createPlaylist);
+            
+            // Shorts upload
+            elements.uploadShortsBtn.addEventListener('click', openUploadModal);
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === elements.usernameModal) {
+                    elements.usernameModal.style.display = 'none';
+                }
+                if (e.target === elements.uploadModal) {
+                    closeUploadModal();
+                }
+                if (e.target === elements.videoPlayerModal) {
+                    closeVideoPlayer();
+                }
+                if (e.target === elements.shareModal) {
+                    closeShareModal();
+                }
+            });
+        }
+        
+        // --- 6. CORE FUNCTIONS ---
+        
+        function saveUsername() {
+            const username = elements.usernameInput.value.trim();
+            if (username) {
+                currentState.username = username;
+                localStorage.setItem('neotube_username', username);
+                elements.userAvatar.textContent = username.charAt(0).toUpperCase();
+                elements.usernameModal.style.display = 'none';
+            } else {
+                alert('Please enter a username');
+            }
+        }
+        
+        function openUploadModal() {
+            elements.uploadModal.style.display = 'flex';
+        }
+        
+        function closeUploadModal() {
+            elements.uploadModal.style.display = 'none';
+            elements.uploadForm.reset();
+            elements.fileName.textContent = 'Choose video file';
+            elements.thumbnailName.textContent = 'Choose thumbnail image';
+            elements.uploadProgress.classList.add('hidden');
+            updateCharCount();
+        }
+        
+        function updateFileName() {
+            const file = elements.videoFile.files[0];
+            if (file) {
+                elements.fileName.textContent = file.name;
+            }
+        }
+        
+        function updateThumbnailName() {
+            const file = elements.thumbnailFile.files[0];
+            if (file) {
+                elements.thumbnailName.textContent = file.name;
+            }
+        }
+        
+        function updateCharCount() {
+            const count = elements.videoDescription.value.length;
+            elements.charCount.textContent = count;
+        }
+        
+        function handleVideoUpload(e) {
+            e.preventDefault();
+            
+            const videoUrl = elements.videoUrl.value.trim();
+            const videoFile = elements.videoFile.files[0];
+            const title = elements.videoTitle.value.trim();
+            const thumbnailUrl = elements.thumbnailUrl.value.trim();
+            const thumbnailFile = elements.thumbnailFile.files[0];
+            const category = elements.videoCategory.value;
+            const description = elements.videoDescription.value.trim();
+            
+            if (!title || !category || !description) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (!videoUrl && !videoFile) {
+                alert('Please provide either a video URL or upload a video file');
+                return;
+            }
+            
+            // Simulate upload progress
+            elements.uploadProgress.classList.remove('hidden');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Create new video object
+                    const newVideo = {
+                        id: 'v' + Date.now(),
+                        title: title,
+                        channel: currentState.username,
+                        views: '0',
+                        time: 'Just now',
+                        duration: '0:00',
+                        description: description,
+                        thumbnailColor: getRandomColor(),
+                        thumbnailText: title.substring(0, 3).toUpperCase(),
+                        videoUrl: videoUrl || URL.createObjectURL(videoFile),
+                        thumbnailUrl: thumbnailUrl || (thumbnailFile ? URL.createObjectURL(thumbnailFile) : `https://placehold.co/160x90/${getRandomColor()}/FFFFFF?text=${title.substring(0, 3).toUpperCase()}`),
+                        category: category,
+                        likes: 0,
+                        uploader: currentState.username,
+                        actualDuration: 0, // Will be updated when video is loaded
+                        uploadDate: new Date().toISOString()
+                    };
+                    
+                    // Save to localStorage
+                    const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+                    videos.unshift(newVideo);
+                    localStorage.setItem('neotube_videos', JSON.stringify(videos));
+                    
+                    // Close modal and refresh videos
+                    closeUploadModal();
+                    renderVideos();
+                    
+                    // Show success message
+                    alert('Video uploaded successfully!');
+                }
+                
+                elements.progressBarFill.style.width = progress + '%';
+                elements.uploadStatus.textContent = `Uploading: ${Math.round(progress)}%`;
+            }, 200);
+        }
+        
+        function getRandomColor() {
+            const colors = ['4F46E5', '10B981', '8B5CF6', 'EC4899', 'F59E0B', 'DC2626', '059669', '7C3AED'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function renderVideos() {
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            let filteredVideos = videos;
+            
+            // Apply category filter
+            if (currentState.currentCategory !== 'all') {
+                filteredVideos = videos.filter(video => video.category === currentState.currentCategory);
+            }
+            
+            // Apply search filter
+            if (currentState.searchQuery) {
+                const query = currentState.searchQuery.toLowerCase();
+                filteredVideos = filteredVideos.filter(video => 
+                    video.title.toLowerCase().includes(query) || 
+                    video.channel.toLowerCase().includes(query) ||
+                    video.description.toLowerCase().includes(query)
+                );
+            }
+            
+            // Show/hide loading and no results
+            if (filteredVideos.length === 0) {
+                elements.noResultsMessage.classList.remove('hidden');
+                elements.videosContainer.innerHTML = '';
+            } else {
+                elements.noResultsMessage.classList.add('hidden');
+                
+                // Render video cards
+                elements.videosContainer.innerHTML = filteredVideos.map(video => `
+                    <div class="video-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.02] hover:shadow-xl" data-id="${video.id}">
+                        <div class="relative">
+                            <div class="video-thumbnail w-full aspect-video bg-gray-800 relative overflow-hidden">
+                                ${video.thumbnailUrl ? 
+                                    `<img src="${video.thumbnailUrl}" alt="${video.title}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center" style="background-color: #${video.thumbnailColor};">
+                                        <span class="text-white text-xl font-bold">${video.thumbnailText}</span>
+                                    </div>`
+                                }
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1.5 py-1 rounded">
+                                    ${video.duration}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex">
+                                <div class="w-9 h-9 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white mr-3">
+                                    ${video.channel.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="font-semibold line-clamp-2 text-sm mb-1">${video.title}</h3>
+                                    <p class="text-gray-400 text-xs">${video.channel}</p>
+                                    <p class="text-gray-400 text-xs">${video.views} views • ${video.time}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to video cards
+                document.querySelectorAll('.video-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const videoId = this.dataset.id;
+                        openVideoPlayer(videoId);
+                    });
+                });
+            }
+        }
+        
+        function openVideoPlayer(videoId) {
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            const video = videos.find(v => v.id === videoId);
+            
+            if (!video) {
+                console.error('Video not found:', videoId);
+                return;
+            }
+            
+            currentState.currentVideo = video;
+            
+            // Update player elements
+            elements.playerVideoTitle.textContent = video.title;
+            elements.playerChannelName.textContent = video.channel;
+            elements.playerViews.textContent = `${video.views} views`;
+            elements.playerDescription.textContent = video.description;
+            elements.playerLikeCount.textContent = formatNumber(video.likes);
+            
+            // Set video source for both players
+            elements.fullscreenVideo.src = video.videoUrl;
+            elements.fullscreenVideoElement.src = video.videoUrl;
+            
+            // Check if video is liked
+            if (currentState.likedVideos.includes(videoId)) {
+                elements.playerLikeBtn.classList.add('liked');
+            } else {
+                elements.playerLikeBtn.classList.remove('liked');
+            }
+            
+            // Check if video is saved
+            if (currentState.savedVideos.includes(videoId)) {
+                elements.playerSaveBtn.innerHTML = '<i data-lucide="bookmark" class="w-5 h-5"></i><span>Saved</span>';
+            } else {
+                elements.playerSaveBtn.innerHTML = '<i data-lucide="bookmark" class="w-5 h-5"></i><span>Save</span>';
+            }
+            
+            // Update icons
+            lucide.createIcons();
+            
+            // Show modal
+            elements.videoPlayerModal.style.display = 'flex';
+            
+            // Add to watch history
+            addToWatchHistory(videoId);
+        }
+        
+        function closeVideoPlayer() {
+            elements.videoPlayerModal.style.display = 'none';
+            elements.fullscreenVideo.pause();
+            currentState.isPlaying = false;
+            updatePlayButton();
+        }
+        
+        function togglePlay() {
+            const video = currentState.isFullscreen ? elements.fullscreenVideoElement : elements.fullscreenVideo;
+            
+            if (video.paused) {
+                video.play().then(() => {
+                    currentState.isPlaying = true;
+                    updatePlayButton();
+                }).catch(error => {
+                    console.error('Error playing video:', error);
+                    alert('Error playing video. Please check the video URL or file.');
+                });
+            } else {
+                video.pause();
+                currentState.isPlaying = false;
+                updatePlayButton();
+            }
+        }
+        
+        function updatePlayButton() {
+            const playBtn = currentState.isFullscreen ? elements.fullscreenPlayBtn : elements.playerPlayBtn;
+            
+            if (currentState.isPlaying) {
+                playBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5"></i>';
+            } else {
+                playBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i>';
+            }
+            lucide.createIcons();
+        }
+        
+        function toggleMute() {
+            const video = currentState.isFullscreen ? elements.fullscreenVideoElement : elements.fullscreenVideo;
+            const muteBtn = currentState.isFullscreen ? elements.fullscreenMuteBtn : elements.playerMuteBtn;
+            
+            currentState.isMuted = !currentState.isMuted;
+            video.muted = currentState.isMuted;
+            
+            if (currentState.isMuted) {
+                muteBtn.innerHTML = '<i data-lucide="volume-x" class="w-5 h-5"></i>';
+            } else {
+                if (currentState.currentVolume > 0.5) {
+                    muteBtn.innerHTML = '<i data-lucide="volume-2" class="w-5 h-5"></i>';
+                } else if (currentState.currentVolume > 0) {
+                    muteBtn.innerHTML = '<i data-lucide="volume-1" class="w-5 h-5"></i>';
+                } else {
+                    muteBtn.innerHTML = '<i data-lucide="volume" class="w-5 h-5"></i>';
+                }
+            }
+            lucide.createIcons();
+        }
+        
+        function togglePip() {
+            const video = currentState.isFullscreen ? elements.fullscreenVideoElement : elements.fullscreenVideo;
+            
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture().catch(error => {
+                    console.error('Error exiting Picture-in-Picture:', error);
+                });
+            } else if (document.pictureInPictureEnabled && video.readyState >= 2) {
+                video.requestPictureInPicture().catch(error => {
+                    console.error('Error entering Picture-in-Picture:', error);
+                    alert('Picture-in-Picture is not supported by your browser or there was an error.');
+                });
+            } else {
+                alert('Picture-in-Picture is not supported by your browser.');
+            }
+        }
+        
+        function enterFullscreen() {
+            if (!currentState.currentVideo) return;
+            
+            // Hide the normal player modal
+            elements.videoPlayerModal.style.display = 'none';
+            
+            // Show the fullscreen player
+            elements.fullscreenPlayer.style.display = 'flex';
+            
+            // Set the video to play in fullscreen
+            elements.fullscreenVideoElement.currentTime = elements.fullscreenVideo.currentTime;
+            
+            // Play the video if it was playing
+            if (currentState.isPlaying) {
+                elements.fullscreenVideoElement.play();
+            }
+            
+            currentState.isFullscreen = true;
+            
+            // Update controls visibility
+            elements.fullscreenPlayer.classList.add('controls-visible');
+            setTimeout(() => {
+                elements.fullscreenPlayer.classList.remove('controls-visible');
+            }, 3000);
+        }
+        
+        function exitFullscreen() {
+            // Hide the fullscreen player
+            elements.fullscreenPlayer.style.display = 'none';
+            
+            // Show the normal player modal
+            elements.videoPlayerModal.style.display = 'flex';
+            
+            // Sync the time back to the normal player
+            elements.fullscreenVideo.currentTime = elements.fullscreenVideoElement.currentTime;
+            
+            // Play the video if it was playing
+            if (currentState.isPlaying) {
+                elements.fullscreenVideo.play();
+            }
+            
+            currentState.isFullscreen = false;
+        }
+        
+        function updateProgress() {
+            const currentTime = elements.fullscreenVideo.currentTime;
+            const duration = elements.fullscreenVideo.duration;
+            
+            if (duration) {
+                const progressPercent = (currentTime / duration) * 100;
+                elements.progressBarPlayer.style.width = `${progressPercent}%`;
+                
+                // Update time display
+                elements.currentTime.textContent = formatTime(currentTime);
+                elements.durationTime.textContent = formatTime(duration);
+            }
+        }
+        
+        function updateFullscreenProgress() {
+            const currentTime = elements.fullscreenVideoElement.currentTime;
+            const duration = elements.fullscreenVideoElement.duration;
+            
+            if (duration) {
+                const progressPercent = (currentTime / duration) * 100;
+                elements.fullscreenProgressBar.style.width = `${progressPercent}%`;
+                
+                // Update time display
+                elements.fullscreenCurrentTime.textContent = formatTime(currentTime);
+                elements.fullscreenDurationTime.textContent = formatTime(duration);
+            }
+        }
+        
+        function updateDuration() {
+            const duration = elements.fullscreenVideo.duration;
+            elements.durationTime.textContent = formatTime(duration);
+            
+            // Update video duration in storage if needed
+            if (currentState.currentVideo && currentState.currentVideo.actualDuration !== duration) {
+                const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+                const videoIndex = videos.findIndex(v => v.id === currentState.currentVideo.id);
+                
+                if (videoIndex !== -1) {
+                    videos[videoIndex].actualDuration = duration;
+                    videos[videoIndex].duration = formatTime(duration);
+                    localStorage.setItem('neotube_videos', JSON.stringify(videos));
+                }
+            }
+        }
+        
+        function updateFullscreenDuration() {
+            const duration = elements.fullscreenVideoElement.duration;
+            elements.fullscreenDurationTime.textContent = formatTime(duration);
+        }
+        
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        function seekVideo(e) {
+            const progressContainer = elements.progressContainer;
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const duration = elements.fullscreenVideo.duration;
+            
+            if (duration) {
+                elements.fullscreenVideo.currentTime = percent * duration;
+            }
+        }
+        
+        function seekFullscreenVideo(e) {
+            const progressContainer = elements.fullscreenProgressContainer;
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const duration = elements.fullscreenVideoElement.duration;
+            
+            if (duration) {
+                elements.fullscreenVideoElement.currentTime = percent * duration;
+            }
+        }
+        
+        function showHoverProgress(e) {
+            const progressContainer = elements.progressContainer;
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            elements.progressHover.style.width = `${percent * 100}%`;
+        }
+        
+        function showFullscreenHoverProgress(e) {
+            const progressContainer = elements.fullscreenProgressContainer;
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            elements.fullscreenProgressHover.style.width = `${percent * 100}%`;
+        }
+        
+        function hideHoverProgress() {
+            elements.progressHover.style.width = '0%';
+        }
+        
+        function hideFullscreenHoverProgress() {
+            elements.fullscreenProgressHover.style.width = '0%';
+        }
+        
+        function toggleLike() {
+            if (!currentState.currentVideo) return;
+            
+            const videoId = currentState.currentVideo.id;
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            const videoIndex = videos.findIndex(v => v.id === videoId);
+            
+            if (videoIndex === -1) return;
+            
+            if (currentState.likedVideos.includes(videoId)) {
+                // Unlike
+                currentState.likedVideos = currentState.likedVideos.filter(id => id !== videoId);
+                videos[videoIndex].likes--;
+                elements.playerLikeBtn.classList.remove('liked');
+            } else {
+                // Like
+                currentState.likedVideos.push(videoId);
+                videos[videoIndex].likes++;
+                elements.playerLikeBtn.classList.add('liked');
+            }
+            
+            // Update UI
+            elements.playerLikeCount.textContent = formatNumber(videos[videoIndex].likes);
+            
+            // Save to storage
+            localStorage.setItem('neotube_videos', JSON.stringify(videos));
+            localStorage.setItem('neotube_liked_videos', JSON.stringify(currentState.likedVideos));
+        }
+        
+        function toggleSave() {
+            if (!currentState.currentVideo) return;
+            
+            const videoId = currentState.currentVideo.id;
+            
+            if (currentState.savedVideos.includes(videoId)) {
+                // Unsave
+                currentState.savedVideos = currentState.savedVideos.filter(id => id !== videoId);
+                elements.playerSaveBtn.innerHTML = '<i data-lucide="bookmark" class="w-5 h-5"></i><span>Save</span>';
+            } else {
+                // Save
+                currentState.savedVideos.push(videoId);
+                elements.playerSaveBtn.innerHTML = '<i data-lucide="bookmark" class="w-5 h-5"></i><span>Saved</span>';
+            }
+            
+            // Save to storage
+            localStorage.setItem('neotube_saved_videos', JSON.stringify(currentState.savedVideos));
+            
+            // Update icons
+            lucide.createIcons();
+        }
+        
+        function openShareModal() {
+            if (!currentState.currentVideo) return;
+            
+            // Generate share link
+            const shareUrl = `${window.location.origin}${window.location.pathname}?v=${currentState.currentVideo.id}`;
+            elements.shareLink.value = shareUrl;
+            
+            // Show modal
+            elements.shareModal.style.display = 'flex';
+        }
+        
+        function closeShareModal() {
+            elements.shareModal.style.display = 'none';
+        }
+        
+        function copyShareLink() {
+            elements.shareLink.select();
+            document.execCommand('copy');
+            
+            // Show copied message
+            const originalText = elements.copyLink.textContent;
+            elements.copyLink.textContent = 'Copied!';
+            setTimeout(() => {
+                elements.copyLink.textContent = originalText;
+            }, 2000);
+        }
+        
+        function handleSearch() {
+            currentState.searchQuery = elements.searchInput.value.trim();
+            renderVideos();
+        }
+        
+        function handleMobileSearch() {
+            currentState.searchQuery = elements.mobileSearchInput.value.trim();
+            renderVideos();
+            toggleMobileSearch(); // Hide search bar after search
+        }
+        
+        function toggleMobileSearch() {
+            elements.mobileSearchBar.classList.toggle('hidden');
+        }
+        
+        function showHome() {
+            elements.homeContent.style.display = 'block';
+            elements.shortsContent.style.display = 'none';
+            elements.libraryContent.style.display = 'none';
+            
+            // Update mobile nav active state
+            updateMobileNavActive('home');
+        }
+        
+        function showShorts() {
+            elements.homeContent.style.display = 'none';
+            elements.shortsContent.style.display = 'block';
+            elements.libraryContent.style.display = 'none';
+            
+            // Update mobile nav active state
+            updateMobileNavActive('shorts');
+            
+            // Load shorts
+            loadShorts();
+        }
+        
+        function showLibrary() {
+            elements.homeContent.style.display = 'none';
+            elements.shortsContent.style.display = 'none';
+            elements.libraryContent.style.display = 'block';
+            
+            // Update mobile nav active state
+            updateMobileNavActive('library');
+            
+            // Load user videos
+            loadUserVideos();
+        }
+        
+        function updateMobileNavActive(active) {
+            // Reset all
+            elements.mobileHomeBtn.classList.remove('text-white');
+            elements.mobileHomeBtn.classList.add('text-gray-400');
+            elements.mobileShortsBtn.classList.remove('text-white');
+            elements.mobileShortsBtn.classList.add('text-gray-400');
+            elements.mobileLibraryBtn.classList.remove('text-white');
+            elements.mobileLibraryBtn.classList.add('text-gray-400');
+            
+            // Set active
+            if (active === 'home') {
+                elements.mobileHomeBtn.classList.remove('text-gray-400');
+                elements.mobileHomeBtn.classList.add('text-white');
+            } else if (active === 'shorts') {
+                elements.mobileShortsBtn.classList.remove('text-gray-400');
+                elements.mobileShortsBtn.classList.add('text-white');
+            } else if (active === 'library') {
+                elements.mobileLibraryBtn.classList.remove('text-gray-400');
+                elements.mobileLibraryBtn.classList.add('text-white');
+            }
+        }
+        
+        function loadShorts() {
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            const shortsVideos = videos.filter(video => video.category === 'shorts');
+            
+            if (shortsVideos.length === 0) {
+                elements.noShortsMessage.classList.remove('hidden');
+                elements.shortsVideosContainer.innerHTML = '';
+            } else {
+                elements.noShortsMessage.classList.add('hidden');
+                
+                // Render shorts videos
+                elements.shortsVideosContainer.innerHTML = shortsVideos.map(video => `
+                    <div class="shorts-video-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.02] hover:shadow-xl" data-id="${video.id}">
+                        <div class="relative">
+                            <div class="video-thumbnail w-full aspect-[9/16] bg-gray-800 relative overflow-hidden">
+                                ${video.thumbnailUrl ? 
+                                    `<img src="${video.thumbnailUrl}" alt="${video.title}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center" style="background-color: #${video.thumbnailColor};">
+                                        <span class="text-white text-xl font-bold">${video.thumbnailText}</span>
+                                    </div>`
+                                }
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1.5 py-1 rounded">
+                                    ${video.duration}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex">
+                                <div class="w-9 h-9 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white mr-3">
+                                    ${video.channel.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="font-semibold line-clamp-2 text-sm mb-1">${video.title}</h3>
+                                    <p class="text-gray-400 text-xs">${video.channel}</p>
+                                    <p class="text-gray-400 text-xs">${video.views} views • ${video.time}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to shorts cards
+                document.querySelectorAll('.shorts-video-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const videoId = this.dataset.id;
+                        openVideoPlayer(videoId);
+                    });
+                });
+            }
+        }
+        
+        function showLibrarySection(section) {
+            currentState.librarySection = section;
+            
+            // Hide all sections
+            elements.userVideosSection.style.display = 'none';
+            elements.historySection.style.display = 'none';
+            elements.savedVideosSection.style.display = 'none';
+            elements.playlistsSection.style.display = 'none';
+            
+            // Reset button styles
+            elements.libraryUploadsBtn.classList.remove('bg-primary-red');
+            elements.libraryUploadsBtn.classList.add('bg-card-bg');
+            elements.libraryHistoryBtn.classList.remove('bg-primary-red');
+            elements.libraryHistoryBtn.classList.add('bg-card-bg');
+            elements.librarySavedBtn.classList.remove('bg-primary-red');
+            elements.librarySavedBtn.classList.add('bg-card-bg');
+            elements.libraryPlaylistsBtn.classList.remove('bg-primary-red');
+            elements.libraryPlaylistsBtn.classList.add('bg-card-bg');
+            
+            // Show selected section and update button
+            if (section === 'uploads') {
+                elements.userVideosSection.style.display = 'block';
+                elements.libraryUploadsBtn.classList.remove('bg-card-bg');
+                elements.libraryUploadsBtn.classList.add('bg-primary-red');
+                loadUserVideos();
+            } else if (section === 'history') {
+                elements.historySection.style.display = 'block';
+                elements.libraryHistoryBtn.classList.remove('bg-card-bg');
+                elements.libraryHistoryBtn.classList.add('bg-primary-red');
+                loadWatchHistory();
+            } else if (section === 'saved') {
+                elements.savedVideosSection.style.display = 'block';
+                elements.librarySavedBtn.classList.remove('bg-card-bg');
+                elements.librarySavedBtn.classList.add('bg-primary-red');
+                loadSavedVideos();
+            } else if (section === 'playlists') {
+                elements.playlistsSection.style.display = 'block';
+                elements.libraryPlaylistsBtn.classList.remove('bg-card-bg');
+                elements.libraryPlaylistsBtn.classList.add('bg-primary-red');
+                loadPlaylists();
+            }
+        }
+        
+        function loadUserVideos() {
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            const userVideos = videos.filter(video => video.uploader === currentState.username);
+            
+            if (userVideos.length === 0) {
+                elements.noUserVideosMessage.classList.remove('hidden');
+                elements.userVideosContainer.innerHTML = '';
+            } else {
+                elements.noUserVideosMessage.classList.add('hidden');
+                
+                elements.userVideosContainer.innerHTML = userVideos.map(video => `
+                    <div class="video-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.02] hover:shadow-xl" data-id="${video.id}">
+                        <div class="relative">
+                            <div class="video-thumbnail w-full aspect-video bg-gray-800 relative overflow-hidden">
+                                ${video.thumbnailUrl ? 
+                                    `<img src="${video.thumbnailUrl}" alt="${video.title}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center" style="background-color: #${video.thumbnailColor};">
+                                        <span class="text-white text-xl font-bold">${video.thumbnailText}</span>
+                                    </div>`
+                                }
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1.5 py-1 rounded">
+                                    ${video.duration}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex">
+                                <div class="w-9 h-9 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white mr-3">
+                                    ${video.channel.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="font-semibold line-clamp-2 text-sm mb-1">${video.title}</h3>
+                                    <p class="text-gray-400 text-xs">${video.channel}</p>
+                                    <p class="text-gray-400 text-xs">${video.views} views • ${video.time}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to video cards
+                document.querySelectorAll('.video-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const videoId = this.dataset.id;
+                        openVideoPlayer(videoId);
+                    });
+                });
+            }
+        }
+        
+        function loadWatchHistory() {
+            const history = currentState.watchHistory;
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            
+            if (history.length === 0) {
+                elements.noHistoryMessage.classList.remove('hidden');
+                elements.historyContainer.innerHTML = '';
+            } else {
+                elements.noHistoryMessage.classList.add('hidden');
+                
+                // Get history videos in reverse chronological order
+                const historyVideos = history.map(entry => {
+                    const video = videos.find(v => v.id === entry.videoId);
+                    return { ...video, watchDate: entry.date };
+                }).reverse();
+                
+                elements.historyContainer.innerHTML = historyVideos.map(video => `
+                    <div class="history-item" data-id="${video.id}">
+                        <img src="${video.thumbnailUrl || `https://placehold.co/160x90/${video.thumbnailColor}/FFFFFF?text=${video.thumbnailText}`}" 
+                             alt="${video.title}" class="history-thumbnail">
+                        <div class="history-info">
+                            <h3 class="font-semibold line-clamp-2">${video.title}</h3>
+                            <p class="text-gray-400 text-sm">${video.channel}</p>
+                            <p class="text-gray-400 text-sm">Watched on ${new Date(video.watchDate).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to history items
+                document.querySelectorAll('.history-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const videoId = this.dataset.id;
+                        openVideoPlayer(videoId);
+                    });
+                });
+            }
+        }
+        
+        function loadSavedVideos() {
+            const savedVideoIds = currentState.savedVideos;
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            const savedVideos = videos.filter(video => savedVideoIds.includes(video.id));
+            
+            if (savedVideos.length === 0) {
+                elements.noSavedVideosMessage.classList.remove('hidden');
+                elements.savedVideosContainer.innerHTML = '';
+            } else {
+                elements.noSavedVideosMessage.classList.add('hidden');
+                
+                elements.savedVideosContainer.innerHTML = savedVideos.map(video => `
+                    <div class="video-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.02] hover:shadow-xl" data-id="${video.id}">
+                        <div class="relative">
+                            <div class="video-thumbnail w-full aspect-video bg-gray-800 relative overflow-hidden">
+                                ${video.thumbnailUrl ? 
+                                    `<img src="${video.thumbnailUrl}" alt="${video.title}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center" style="background-color: #${video.thumbnailColor};">
+                                        <span class="text-white text-xl font-bold">${video.thumbnailText}</span>
+                                    </div>`
+                                }
+                                <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-1.5 py-1 rounded">
+                                    ${video.duration}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <div class="flex">
+                                <div class="w-9 h-9 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white mr-3">
+                                    ${video.channel.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow">
+                                    <h3 class="font-semibold line-clamp-2 text-sm mb-1">${video.title}</h3>
+                                    <p class="text-gray-400 text-xs">${video.channel}</p>
+                                    <p class="text-gray-400 text-xs">${video.views} views • ${video.time}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to video cards
+                document.querySelectorAll('.video-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const videoId = this.dataset.id;
+                        openVideoPlayer(videoId);
+                    });
+                });
+            }
+        }
+        
+        function loadPlaylists() {
+            const playlists = currentState.playlists;
+            
+            if (playlists.length === 0) {
+                elements.noPlaylistsMessage.classList.remove('hidden');
+                elements.playlistsContainer.innerHTML = '';
+            } else {
+                elements.noPlaylistsMessage.classList.add('hidden');
+                
+                elements.playlistsContainer.innerHTML = playlists.map(playlist => `
+                    <div class="playlist-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transform transition duration-300 hover:scale-[1.02] hover:shadow-xl" data-id="${playlist.id}">
+                        <div class="relative">
+                            <div class="playlist-thumbnail w-full aspect-video bg-gray-800 relative overflow-hidden grid grid-cols-2 grid-rows-2">
+                                ${playlist.videos.slice(0, 4).map(videoId => {
+                                    const video = getVideoById(videoId);
+                                    if (video) {
+                                        return `<div class="flex items-center justify-center text-white text-xs font-bold" style="background-color: #${video.thumbnailColor};">
+                                            ${video.thumbnailText}
+                                        </div>`;
+                                    }
+                                    return `<div class="bg-gray-700 flex items-center justify-center text-white text-xs font-bold">
+                                        VID
+                                    </div>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <h3 class="font-semibold line-clamp-2 text-sm mb-1">${playlist.name}</h3>
+                            <p class="text-gray-400 text-xs">${playlist.videos.length} videos</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click event to playlist cards
+                document.querySelectorAll('.playlist-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const playlistId = this.dataset.id;
+                        openPlaylist(playlistId);
+                    });
+                });
+            }
+        }
+        
+        function getVideoById(videoId) {
+            const videos = JSON.parse(localStorage.getItem('neotube_videos') || '[]');
+            return videos.find(v => v.id === videoId);
+        }
+        
+        function addToWatchHistory(videoId) {
+            // Check if video is already in history
+            const existingIndex = currentState.watchHistory.findIndex(entry => entry.videoId === videoId);
+            
+            if (existingIndex !== -1) {
+                // Update the date
+                currentState.watchHistory[existingIndex].date = new Date().toISOString();
+            } else {
+                // Add new entry
+                currentState.watchHistory.push({
+                    videoId: videoId,
+                    date: new Date().toISOString()
+                });
+            }
+            
+            // Limit history to 100 entries
+            if (currentState.watchHistory.length > 100) {
+                currentState.watchHistory = currentState.watchHistory.slice(-100);
+            }
+            
+            // Save to storage
+            localStorage.setItem('neotube_watch_history', JSON.stringify(currentState.watchHistory));
+        }
+        
+        function createPlaylist() {
+            const name = prompt('Enter playlist name:');
+            if (name) {
+                const newPlaylist = {
+                    id: 'p' + Date.now(),
+                    name: name,
+                    videos: [],
+                    created: new Date().toISOString()
+                };
+                
+                currentState.playlists.push(newPlaylist);
+                localStorage.setItem('neotube_playlists', JSON.stringify(currentState.playlists));
+                
+                // Refresh playlists
+                loadPlaylists();
+            }
+        }
+        
+        function openPlaylist(playlistId) {
+            const playlist = currentState.playlists.find(p => p.id === playlistId);
+            if (!playlist) return;
+            
+            // For now, just show an alert with playlist info
+            alert(`Playlist: ${playlist.name}\nVideos: ${playlist.videos.length}`);
+            
+            // In a full implementation, you would show a modal with the playlist videos
+        }
+        
+        // Initialize the app
+        showHome();
+    </script>
+</body>
+</html>
