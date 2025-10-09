@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoTube - YouTube-Style Video Platform</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Configuration for Inter Font and Dark Mode -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-red': '#FF0000',
+                        'dark-bg': '#0f0f0f',
+                        'card-bg': '#272727',
+                        'hover-bg': '#3f3f3f',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Ensuring the icons are rendered */
+        [lucide] {
+            stroke-width: 2.5;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #212121;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4F46E5;
+            border-radius: 4px;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #272727;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        /* Line clamp for text overflow */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* Video player styling */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+        .video-container iframe,
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* Custom file upload button */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        /* Animation for loading */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+        /* Category filter buttons */
+        .category-btn {
+            transition: all 0.2s ease;
+        }
+        .category-btn.active {
+            background-color: #3f3f3f;
+            color: white;
+        }
+        /* Like animation */
+        @keyframes like {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .liked {
+            animation: like 0.3s ease;
+            color: #3b82f6;
+        }
+        /* Progress bar for upload */
+        .progress-bar {
+            height: 6px;
+            background-color: #3f3f3f;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4F46E5;
+            transition: width 0.3s ease;
+        }
+        /* Mobile menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #272727;
+            border-top: 1px solid #3f3f3f;
+            z-index: 100;
+        }
+        /* Shorts container */
+        .shorts-container {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            height: 80vh;
+            margin: 0 auto;
+            position: relative;
+        }
+        .shorts-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .shorts-video.active {
+            display: block;
+        }
+        .shorts-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .shorts-controls {
+            position: absolute;
+            right: 10px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .shorts-control-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .shorts-control-btn i {
+            margin-bottom: 5px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            padding: 8px;
+        }
+        .shorts-control-btn span {
+            font-size: 12px;
+        }
+        /* Library container */
+        .library-container {
+            display: none;
+        }
+        /* Modern video player */
+        .modern-player {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .modern-player video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .player-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modern-player:hover .player-controls,
+        .modern-player.controls-visible .player-controls {
+            opacity: 1;
+        }
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-bar-player {
+            height: 100%;
+            background: #FF0000;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .progress-hover {
+            position: absolute;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            width: 0%;
+            pointer-events: none;
+        }
+        .control-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .left-controls, .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .volume-slider {
+            width: 70px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        .volume-level {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 100%;
+        }
+        .time-display {
+            font-size: 14px;
+            color: white;
+        }
+        /* Fullscreen video player */
+        .fullscreen-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+        }
+        .fullscreen-video-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fullscreen-video {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .fullscreen-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .fullscreen-player:hover .fullscreen-controls,
+        .fullscreen-player.controls-visible .fullscreen-controls {
+            opacity: 1;
+        }
+        .fullscreen-progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+        .fullscreen-progress-bar {
+            height: 100%;
+            background: #FF0000;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s;
+        }
+        .fullscreen-progress-hover {
+            position: absolute;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            width: 0%;
+            pointer-events: none;
+        }
+        .fullscreen-control-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .fullscreen-left-controls, .fullscreen-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .fullscreen-control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .fullscreen-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fullscreen-volume-slider {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+        .fullscreen-volume-level {
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            width: 100%;
+        }
+        .fullscreen-time-display {
+            font-size: 16px;
+            color: white;
+        }
+        /* Watch history */
+        .history-item {
+            display: flex;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover {
+            background: #3f3f3f;
+        }
+        .history-thumbnail {
+            width: 160px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .history-info {
+            flex-grow: 1;
+        }
+        /* Playlist functionality */
+        .playlist-item {
+            display: flex;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .playlist-thumbnail {
+            width: 120px;
+            height: 68px;
+            border-radius: 4px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        /* CORS error overlay */
+        .cors-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+        }
+        /* Shorts grid layout */
+        .shorts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+        .shorts-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .shorts-card:hover {
+            transform: scale(1.03);
+        }
+        .shorts-thumbnail {
+            width: 100%;
+            aspect-ratio: 9/16;
+            object-fit: cover;
+            background-color: #272727;
+        }
+        .shorts-info {
+            padding: 8px;
+        }
+        .shorts-title {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.3;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .shorts-views {
+            font-size: 12px;
+            color: #aaa;
+        }
+        /* Back button for shorts player */
+        .back-button {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+        /* Delete button */
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .video-card:hover .delete-btn,
+        .shorts-card:hover .delete-btn {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .mobile-menu {
+                display: flex;
+            }
+            .history-thumbnail {
+                width: 120px;
+                height: 68px;
+            }
+            .playlist-thumbnail {
+                width: 80px;
+                height: 45px;
+            }
+            .shorts-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-white font-sans min-h-screen">
+
+    <!-- Username Modal -->
+    <div id="username-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Welcome to NeoTube</h2>
+            <p class="text-gray-300 mb-6">Please enter a username to continue:</p>
+            <input type="text" id="username-input" placeholder="Enter your username" 
+                   class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200 mb-4">
+            <button id="save-username" class="w-full bg-primary-red hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Upload Video Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Upload Video</h2>
+                <button id="close-upload-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="upload-form" class="space-y-4">
+                <div>
+                    <label for="video-url" class="block text-sm font-medium mb-1">Video URL (Optional)</label>
+                    <input type="url" id="video-url"
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="https://example.com/video.mp4">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Or Upload Video File (Max 10MB)</label>
+                    <div class="file-upload">
+                        <input type="file" id="video-file" accept="video/*">
+                        <div class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 text-center cursor-pointer hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="upload" class="w-5 h-5 inline-block mr-2"></i>
+                            <span id="file-name">Choose video file</span>
+                        </div>
+                    </div>
+                    <div id="upload-progress" class="mt-2 hidden">
+                        <div class="progress-bar">
+                            <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="upload-status" class="text-xs text-gray-400 mt-1">Uploading: 0%</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="video-title" class="block text-sm font-medium mb-1">Video Title</label>
+                    <input type="text" id="video-title" required
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="Enter video title">
+                </div>
+                <div>
+                    <label for="thumbnail-url" class="block text-sm font-medium mb-1">Thumbnail URL</label>
+                    <input type="url" id="thumbnail-url"
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="https://example.com/thumbnail.jpg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Or Upload Thumbnail</label>
+                    <div class="file-upload">
+                        <input type="file" id="thumbnail-file" accept="image/*">
+                        <div class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 text-center cursor-pointer hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="image" class="w-5 h-5 inline-block mr-2"></i>
+                            <span id="thumbnail-name">Choose thumbnail image</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label for="video-category" class="block text-sm font-medium mb-1">Category (Max 4)</label>
+                    <div class="flex flex-wrap gap-2 mt-2" id="category-checkboxes">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="scifi" class="mr-2">
+                            <span>Sci-Fi</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="fantasy" class="mr-2">
+                            <span>Fantasy</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="comedy" class="mr-2">
+                            <span>Comedy</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="drama" class="mr-2">
+                            <span>Drama</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="movie" class="mr-2">
+                            <span>Movie</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="romance" class="mr-2">
+                            <span>Romance</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="action" class="mr-2">
+                            <span>Action</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="category" value="thriller" class="mr-2">
+                            <span>Thriller</span>
+                        </label>
+                    </div>
+                    <p id="category-warning" class="text-xs text-red-500 mt-1 hidden">You can select up to 4 categories only.</p>
+                </div>
+                <div>
+                    <label for="video-description" class="block text-sm font-medium mb-1">Description (max 300 words)</label>
+                    <textarea id="video-description" required maxlength="1500"
+                              class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200 h-32 resize-none"
+                              placeholder="Enter video description (max 300 words)"></textarea>
+                    <div class="text-right text-xs text-gray-400 mt-1">
+                        <span id="char-count">0</span>/1500 characters
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancel-upload" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-red hover:bg-red-700 rounded-lg transition duration-200">
+                        Upload Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Shorts Modal -->
+    <div id="upload-shorts-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Upload Shorts</h2>
+                <button id="close-shorts-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <form id="upload-shorts-form" class="space-y-4">
+                <div>
+                    <label for="shorts-url" class="block text-sm font-medium mb-1">Shorts URL (Optional)</label>
+                    <input type="url" id="shorts-url"
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="https://example.com/shorts.mp4">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Or Upload Shorts File (Max 10MB)</label>
+                    <div class="file-upload">
+                        <input type="file" id="shorts-file" accept="video/*">
+                        <div class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 text-center cursor-pointer hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="upload" class="w-5 h-5 inline-block mr-2"></i>
+                            <span id="shorts-file-name">Choose shorts file</span>
+                        </div>
+                    </div>
+                    <div id="shorts-upload-progress" class="mt-2 hidden">
+                        <div class="progress-bar">
+                            <div id="shorts-progress-bar-fill" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="shorts-upload-status" class="text-xs text-gray-400 mt-1">Uploading: 0%</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="shorts-title" class="block text-sm font-medium mb-1">Shorts Title</label>
+                    <input type="text" id="shorts-title" required
+                           class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200"
+                           placeholder="Enter shorts title">
+                </div>
+                <div>
+                    <label for="shorts-description" class="block text-sm font-medium mb-1">Description (max 150 words)</label>
+                    <textarea id="shorts-description" required maxlength="750"
+                              class="w-full p-3 rounded-lg bg-card-bg border border-gray-600 focus:ring-2 focus:ring-primary-red focus:border-transparent outline-none transition duration-200 h-24 resize-none"
+                              placeholder="Enter shorts description (max 150 words)"></textarea>
+                    <div class="text-right text-xs text-gray-400 mt-1">
+                        <span id="shorts-char-count">0</span>/750 characters
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="cancel-shorts-upload" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-primary-red hover:bg-red-700 rounded-lg transition duration-200">
+                        Upload Shorts
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="video-player-modal" class="modal">
+        <div class="modal-content w-full max-w-4xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="player-video-title" class="text-xl font-bold"></h2>
+                <button id="close-player-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="modern-player mb-4" id="normal-player">
+                <video id="fullscreen-video" controls>
+                    Your browser does not support the video tag.
+                </video>
+                <div class="player-controls">
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-bar-player" id="progress-bar-player"></div>
+                        <div class="progress-hover" id="progress-hover"></div>
+                    </div>
+                    <div class="control-buttons">
+                        <div class="left-controls">
+                            <button id="player-play-btn" class="control-btn">
+                                <i data-lucide="play" class="w-5 h-5"></i>
+                            </button>
+                            <div class="volume-container">
+                                <button id="player-mute-btn" class="control-btn">
+                                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                                </button>
+                                <div class="volume-slider" id="volume-slider">
+                                    <div class="volume-level" id="volume-level"></div>
+                                </div>
+                            </div>
+                            <div class="time-display">
+                                <span id="current-time">0:00</span> / <span id="duration-time">0:00</span>
+                            </div>
+                        </div>
+                        <div class="right-controls">
+                            <button id="player-pip-btn" class="control-btn">
+                                <i data-lucide="picture-in-picture" class="w-5 h-5"></i>
+                            </button>
+                            <button id="player-fullscreen-btn" class="control-btn">
+                                <i data-lucide="maximize" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button id="player-like-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+                        <span id="player-like-count">0</span>
+                    </button>
+                    <button id="player-share-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                        <span>Share</span>
+                    </button>
+                    <button id="player-save-btn" class="flex items-center space-x-1 p-2 bg-card-bg rounded-full hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="bookmark" class="w-5 h-5"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-4 bg-card-bg rounded-lg p-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 bg-purple-500 rounded-full flex-shrink-0 flex items-center justify-center font-semibold">
+                        C
+                    </div>
+                    <div class="flex-grow">
+                        <p class="font-semibold" id="player-channel-name">Channel Name</p>
+                        <p class="text-sm text-gray-400" id="player-views">0 views</p>
+                        <p class="mt-2 text-sm" id="player-description">Video description</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Video Player -->
+    <div id="fullscreen-player" class="fullscreen-player">
+        <div class="fullscreen-video-container">
+            <video id="fullscreen-video-element" class="fullscreen-video" controls>
+                Your browser does not support the video tag.
+            </video>
+            <div class="fullscreen-controls">
+                <div class="fullscreen-progress-container" id="fullscreen-progress-container">
+                    <div class="fullscreen-progress-bar" id="fullscreen-progress-bar"></div>
+                    <div class="fullscreen-progress-hover" id="fullscreen-progress-hover"></div>
+                </div>
+                <div class="fullscreen-control-buttons">
+                    <div class="fullscreen-left-controls">
+                        <button id="fullscreen-play-btn" class="fullscreen-control-btn">
+                            <i data-lucide="play" class="w-6 h-6"></i>
+                        </button>
+                        <div class="fullscreen-volume-container">
+                            <button id="fullscreen-mute-btn" class="fullscreen-control-btn">
+                                <i data-lucide="volume-2" class="w-6 h-6"></i>
+                            </button>
+                            <div class="fullscreen-volume-slider" id="fullscreen-volume-slider">
+                                <div class="fullscreen-volume-level" id="fullscreen-volume-level"></div>
+                            </div>
+                        </div>
+                        <div class="fullscreen-time-display">
+                            <span id="fullscreen-current-time">0:00</span> / <span id="fullscreen-duration-time">0:00</span>
+                        </div>
+                    </div>
+                    <div class="fullscreen-right-controls">
+                        <button id="fullscreen-pip-btn" class="fullscreen-control-btn">
+                            <i data-lucide="picture-in-picture" class="w-6 h-6"></i>
+                        </button>
+                        <button id="fullscreen-exit-btn" class="fullscreen-control-btn">
+                            <i data-lucide="minimize" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Shorts Player -->
+    <div id="fullscreen-shorts-player" class="fullscreen-player">
+        <button class="back-button" id="shorts-back-btn">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+        </button>
+        <div class="fullscreen-video-container">
+            <video id="fullscreen-shorts-video" class="fullscreen-video" loop>
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <div class="shorts-controls">
+            <button class="shorts-control-btn like-short" id="fullscreen-shorts-like">
+                <i data-lucide="thumbs-up" class="w-6 h-6"></i>
+                <span id="fullscreen-shorts-likes">0</span>
+            </button>
+            <button class="shorts-control-btn comment-short">
+                <i data-lucide="message-circle" class="w-6 h-6"></i>
+                <span>Comment</span>
+            </button>
+            <button class="shorts-control-btn share-short">
+                <i data-lucide="share-2" class="w-6 h-6"></i>
+                <span>Share</span>
+            </button>
+        </div>
+        <div class="absolute bottom-4 left-4 text-white">
+            <h3 id="fullscreen-shorts-title" class="font-bold"></h3>
+            <p id="fullscreen-shorts-channel" class="text-sm"></p>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Share Video</h2>
+                <button id="close-share-modal" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="bg-card-bg rounded-lg p-4 mb-4">
+                <p id="share-url" class="text-sm break-all"></p>
+            </div>
+            <div class="flex justify-center space-x-4">
+                <button class="p-3 bg-blue-600 hover:bg-blue-700 rounded-full transition duration-200">
+                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                </button>
+                <button class="p-3 bg-blue-400 hover:bg-blue-500 rounded-full transition duration-200">
+                    <i data-lucide="twitter" class="w-5 h-5"></i>
+                </button>
+                <button class="p-3 bg-red-600 hover:bg-red-700 rounded-full transition duration-200">
+                    <i data-lucide="youtube" class="w-5 h-5"></i>
+                </button>
+                <button class="p-3 bg-green-600 hover:bg-green-700 rounded-full transition duration-200">
+                    <i data-lucide="whatsapp" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="mt-6">
+                <button id="copy-link" class="w-full bg-primary-red hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                    Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="bg-dark-bg border-b border-gray-800 sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="menu-toggle" class="lg:hidden text-white">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div class="flex items-center space-x-2 cursor-pointer">
+                        <i data-lucide="play-circle" class="w-8 h-8 text-primary-red"></i>
+                        <span class="text-xl font-bold">NeoTube</span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex flex-1 max-w-2xl mx-4">
+                    <div class="flex w-full">
+                        <input type="text" id="search-input" placeholder="Search" 
+                               class="w-full px-4 py-2 bg-card-bg border border-gray-600 rounded-l-full focus:outline-none focus:ring-1 focus:ring-primary-red">
+                        <button id="search-btn" class="px-6 bg-card-bg border border-l-0 border-gray-600 rounded-r-full hover:bg-hover-bg transition duration-200">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button id="upload-btn" class="hidden md:flex items-center space-x-1 bg-primary-red hover:bg-red-700 px-4 py-2 rounded-full transition duration-200">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        <span>Upload</span>
+                    </button>
+                    <button id="upload-shorts-btn" class="hidden md:flex items-center space-x-1 bg-card-bg hover:bg-hover-bg px-4 py-2 rounded-full transition duration-200">
+                        <i data-lucide="video" class="w-5 h-5"></i>
+                        <span>Shorts</span>
+                    </button>
+                    <div class="relative">
+                        <button id="user-menu-btn" class="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center font-semibold">
+                            <span id="user-initial">U</span>
+                        </button>
+                        <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-card-bg rounded-lg shadow-lg py-1 hidden z-50">
+                            <a href="#" class="block px-4 py-2 hover:bg-hover-bg transition duration-200">Your Channel</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-hover-bg transition duration-200">Settings</a>
+                            <a href="#" class="block px-4 py-2 hover:bg-hover-bg transition duration-200">Help</a>
+                            <div class="border-t border-gray-700 my-1"></div>
+                            <a href="#" id="logout-btn" class="block px-4 py-2 hover:bg-hover-bg transition duration-200">Sign Out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="w-64 bg-dark-bg border-r border-gray-800 hidden lg:block fixed h-full overflow-y-auto z-40">
+                <nav class="p-4 space-y-2">
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200 active">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="compass" class="w-5 h-5"></i>
+                        <span>Explore</span>
+                    </a>
+                    <a href="#" id="shorts-link" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="play-square" class="w-5 h-5"></i>
+                        <span>Shorts</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Subscriptions</span>
+                    </a>
+                </nav>
+                
+                <div class="border-t border-gray-800 my-2"></div>
+                
+                <nav class="p-4 space-y-2">
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="library" class="w-5 h-5"></i>
+                        <span>Library</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                        <span>History</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                        <span>Watch Later</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                        <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+                        <span>Liked Videos</span>
+                    </a>
+                </nav>
+                
+                <div class="border-t border-gray-800 my-2"></div>
+                
+                <div class="p-4">
+                    <h3 class="font-semibold text-gray-400 text-sm uppercase mb-2">Subscriptions</h3>
+                    <div class="space-y-2">
+                        <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                            <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+                            <span>Channel 1</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                            <div class="w-6 h-6 bg-blue-500 rounded-full"></div>
+                            <span>Channel 2</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 p-2 rounded-lg hover:bg-hover-bg transition duration-200">
+                            <div class="w-6 h-6 bg-green-500 rounded-full"></div>
+                            <span>Channel 3</span>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 lg:ml-64">
+                <!-- Home Content -->
+                <div id="home-content">
+                    <!-- Categories -->
+                    <div class="px-4 py-3 overflow-x-auto">
+                        <div class="flex space-x-2">
+                            <button class="category-btn active px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                All
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Sci-Fi
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Fantasy
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Comedy
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Drama
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Movie
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Romance
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Action
+                            </button>
+                            <button class="category-btn px-3 py-1 bg-card-bg rounded-full text-sm whitespace-nowrap transition duration-200">
+                                Thriller
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Videos Grid -->
+                    <div class="p-4">
+                        <h2 class="text-xl font-bold mb-4">Recommended Videos</h2>
+                        <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <!-- Videos will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shorts Content -->
+                <div id="shorts-content" class="hidden">
+                    <div class="p-4">
+                        <h2 class="text-xl font-bold mb-4">Shorts</h2>
+                        <div id="shorts-grid" class="shorts-grid">
+                            <!-- Shorts will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Library Content -->
+                <div id="library-content" class="library-container p-4">
+                    <h2 class="text-xl font-bold mb-4">Your Library</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-card-bg rounded-lg p-4">
+                            <h3 class="font-semibold mb-2">Your Videos</h3>
+                            <div id="user-videos" class="space-y-2">
+                                <!-- User videos will be loaded here -->
+                            </div>
+                        </div>
+                        <div class="bg-card-bg rounded-lg p-4">
+                            <h3 class="font-semibold mb-2">Your Shorts</h3>
+                            <div id="user-shorts" class="space-y-2">
+                                <!-- User shorts will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu lg:hidden">
+            <div class="flex justify-around items-center py-2">
+                <a href="#" class="flex flex-col items-center text-xs p-2 rounded-lg transition duration-200 active">
+                    <i data-lucide="home" class="w-5 h-5 mb-1"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-xs p-2 rounded-lg transition duration-200">
+                    <i data-lucide="compass" class="w-5 h-5 mb-1"></i>
+                    <span>Explore</span>
+                </a>
+                <a href="#" id="mobile-shorts-link" class="flex flex-col items-center text-xs p-2 rounded-lg transition duration-200">
+                    <i data-lucide="play-square" class="w-5 h-5 mb-1"></i>
+                    <span>Shorts</span>
+                </a>
+                <a href="#" class="flex flex-col items-center text-xs p-2 rounded-lg transition duration-200">
+                    <i data-lucide="library" class="w-5 h-5 mb-1"></i>
+                    <span>Library</span>
+                </a>
+                <button id="mobile-upload-btn" class="flex flex-col items-center text-xs p-2 rounded-lg transition duration-200">
+                    <i data-lucide="plus" class="w-5 h-5 mb-1"></i>
+                    <span>Upload</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // App State
+        const state = {
+            username: localStorage.getItem('neotube-username') || '',
+            videos: JSON.parse(localStorage.getItem('neotube-videos')) || [],
+            shorts: JSON.parse(localStorage.getItem('neotube-shorts')) || [],
+            currentVideo: null,
+            currentShort: null,
+            isPlaying: false,
+            volume: 1,
+            isMuted: false,
+            currentTime: 0,
+            duration: 0,
+            isFullscreen: false,
+            currentShortsIndex: 0
+        };
+
+        // DOM Elements
+        const elements = {
+            // Modals
+            usernameModal: document.getElementById('username-modal'),
+            uploadModal: document.getElementById('upload-modal'),
+            uploadShortsModal: document.getElementById('upload-shorts-modal'),
+            videoPlayerModal: document.getElementById('video-player-modal'),
+            fullscreenPlayer: document.getElementById('fullscreen-player'),
+            fullscreenShortsPlayer: document.getElementById('fullscreen-shorts-player'),
+            shareModal: document.getElementById('share-modal'),
+
+            // Buttons
+            saveUsername: document.getElementById('save-username'),
+            usernameInput: document.getElementById('username-input'),
+            userInitial: document.getElementById('user-initial'),
+            uploadBtn: document.getElementById('upload-btn'),
+            mobileUploadBtn: document.getElementById('mobile-upload-btn'),
+            uploadShortsBtn: document.getElementById('upload-shorts-btn'),
+            closeUploadModal: document.getElementById('close-upload-modal'),
+            closeShortsModal: document.getElementById('close-shorts-modal'),
+            closePlayerModal: document.getElementById('close-player-modal'),
+            closeShareModal: document.getElementById('close-share-modal'),
+            cancelUpload: document.getElementById('cancel-upload'),
+            cancelShortsUpload: document.getElementById('cancel-shorts-upload'),
+            userMenuBtn: document.getElementById('user-menu-btn'),
+            userDropdown: document.getElementById('user-dropdown'),
+            logoutBtn: document.getElementById('logout-btn'),
+            menuToggle: document.getElementById('menu-toggle'),
+            shortsLink: document.getElementById('shorts-link'),
+            mobileShortsLink: document.getElementById('mobile-shorts-link'),
+            shortsBackBtn: document.getElementById('shorts-back-btn'),
+
+            // Forms
+            uploadForm: document.getElementById('upload-form'),
+            uploadShortsForm: document.getElementById('upload-shorts-form'),
+            videoFile: document.getElementById('video-file'),
+            shortsFile: document.getElementById('shorts-file'),
+            fileName: document.getElementById('file-name'),
+            shortsFileName: document.getElementById('shorts-file-name'),
+            thumbnailFile: document.getElementById('thumbnail-file'),
+            thumbnailName: document.getElementById('thumbnail-name'),
+
+            // Content Areas
+            homeContent: document.getElementById('home-content'),
+            shortsContent: document.getElementById('shorts-content'),
+            libraryContent: document.getElementById('library-content'),
+
+            // Video Grids
+            videosGrid: document.getElementById('videos-grid'),
+            shortsGrid: document.getElementById('shorts-grid'),
+            userVideos: document.getElementById('user-videos'),
+            userShorts: document.getElementById('user-shorts'),
+
+            // Video Player Elements
+            fullscreenVideo: document.getElementById('fullscreen-video'),
+            fullscreenVideoElement: document.getElementById('fullscreen-video-element'),
+            fullscreenShortsVideo: document.getElementById('fullscreen-shorts-video'),
+            playerVideoTitle: document.getElementById('player-video-title'),
+            playerLikeCount: document.getElementById('player-like-count'),
+            playerChannelName: document.getElementById('player-channel-name'),
+            playerViews: document.getElementById('player-views'),
+            playerDescription: document.getElementById('player-description'),
+
+            // Player Controls
+            playerPlayBtn: document.getElementById('player-play-btn'),
+            playerMuteBtn: document.getElementById('player-mute-btn'),
+            playerPipBtn: document.getElementById('player-pip-btn'),
+            playerFullscreenBtn: document.getElementById('player-fullscreen-btn'),
+            playerLikeBtn: document.getElementById('player-like-btn'),
+            playerShareBtn: document.getElementById('player-share-btn'),
+            playerSaveBtn: document.getElementById('player-save-btn'),
+            progressContainer: document.getElementById('progress-container'),
+            progressBarPlayer: document.getElementById('progress-bar-player'),
+            progressHover: document.getElementById('progress-hover'),
+            volumeSlider: document.getElementById('volume-slider'),
+            volumeLevel: document.getElementById('volume-level'),
+            currentTime: document.getElementById('current-time'),
+            durationTime: document.getElementById('duration-time'),
+
+            // Fullscreen Player Controls
+            fullscreenPlayBtn: document.getElementById('fullscreen-play-btn'),
+            fullscreenMuteBtn: document.getElementById('fullscreen-mute-btn'),
+            fullscreenPipBtn: document.getElementById('fullscreen-pip-btn'),
+            fullscreenExitBtn: document.getElementById('fullscreen-exit-btn'),
+            fullscreenProgressContainer: document.getElementById('fullscreen-progress-container'),
+            fullscreenProgressBar: document.getElementById('fullscreen-progress-bar'),
+            fullscreenProgressHover: document.getElementById('fullscreen-progress-hover'),
+            fullscreenVolumeSlider: document.getElementById('fullscreen-volume-slider'),
+            fullscreenVolumeLevel: document.getElementById('fullscreen-volume-level'),
+            fullscreenCurrentTime: document.getElementById('fullscreen-current-time'),
+            fullscreenDurationTime: document.getElementById('fullscreen-duration-time'),
+
+            // Fullscreen Shorts Elements
+            fullscreenShortsTitle: document.getElementById('fullscreen-shorts-title'),
+            fullscreenShortsChannel: document.getElementById('fullscreen-shorts-channel'),
+            fullscreenShortsLikes: document.getElementById('fullscreen-shorts-likes'),
+            fullscreenShortsLike: document.getElementById('fullscreen-shorts-like'),
+
+            // Share Modal
+            shareUrl: document.getElementById('share-url'),
+            copyLink: document.getElementById('copy-link'),
+
+            // Category Checkboxes
+            categoryCheckboxes: document.querySelectorAll('input[name="category"]'),
+            categoryWarning: document.getElementById('category-warning'),
+
+            // Character Counters
+            charCount: document.getElementById('char-count'),
+            shortsCharCount: document.getElementById('shorts-char-count')
+        };
+
+        // Initialize the app
+        function initApp() {
+            // Check if username exists
+            if (!state.username) {
+                elements.usernameModal.style.display = 'flex';
+            } else {
+                elements.userInitial.textContent = state.username.charAt(0).toUpperCase();
+            }
+
+            // Load sample data if storage is empty
+            if (state.videos.length === 0) {
+                loadSampleVideos();
+            }
+            if (state.shorts.length === 0) {
+                loadSampleShorts();
+            }
+
+            // Render videos and shorts
+            renderVideos();
+            renderShorts();
+            renderUserVideos();
+            renderUserShorts();
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        // Load sample videos
+        function loadSampleVideos() {
+            const sampleVideos = [
+                {
+                    id: '1',
+                    title: 'The Future of AI - A Documentary',
+                    description: 'Explore how artificial intelligence is shaping our world and what the future holds for this transformative technology.',
+                    thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                    views: 12500,
+                    likes: 850,
+                    channel: 'Tech Insights',
+                    categories: ['scifi', 'movie'],
+                    timestamp: Date.now() - 86400000 // 1 day ago
+                },
+                {
+                    id: '2',
+                    title: 'Exploring Deep Space - The James Webb Telescope',
+                    description: 'Join us on a journey through the cosmos with the incredible images captured by the James Webb Space Telescope.',
+                    thumbnail: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                    views: 9800,
+                    likes: 720,
+                    channel: 'Space Explorers',
+                    categories: ['scifi', 'fantasy'],
+                    timestamp: Date.now() - 172800000 // 2 days ago
+                },
+                {
+                    id: '3',
+                    title: 'Virtual Reality Gaming - The Next Level',
+                    description: 'Experience the future of gaming with the latest VR technology and immersive gameplay experiences.',
+                    thumbnail: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                    views: 15600,
+                    likes: 1100,
+                    channel: 'Gaming World',
+                    categories: ['action', 'scifi'],
+                    timestamp: Date.now() - 259200000 // 3 days ago
+                },
+                {
+                    id: '4',
+                    title: 'The Art of Cinematography - A Masterclass',
+                    description: 'Learn from industry experts about the techniques and creative decisions that go into creating stunning visual stories.',
+                    thumbnail: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                    views: 8200,
+                    likes: 540,
+                    channel: 'Film School',
+                    categories: ['drama', 'movie'],
+                    timestamp: Date.now() - 345600000 // 4 days ago
+                },
+                {
+                    id: '5',
+                    title: 'AI Generated Art - Creativity or Code?',
+                    description: 'Dive into the world of AI-generated art and explore the intersection of technology and creativity.',
+                    thumbnail: 'https://images.unsplash.com/photo-1677442135337-6d64f8c34c6a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+                    views: 11200,
+                    likes: 890,
+                    channel: 'Digital Artistry',
+                    categories: ['scifi', 'fantasy'],
+                    timestamp: Date.now() - 432000000 // 5 days ago
+                },
+                {
+                    id: '6',
+                    title: 'The Science of Time Travel - Fact vs Fiction',
+                    description: 'Explore the scientific theories behind time travel and how they compare to popular depictions in movies and TV shows.',
+                    thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+                    views: 14300,
+                    likes: 1020,
+                    channel: 'Science Explained',
+                    categories: ['scifi', 'thriller'],
+                    timestamp: Date.now() - 518400000 // 6 days ago
+                }
+            ];
+
+            state.videos = sampleVideos;
+            saveVideos();
+        }
+
+        // Load sample shorts
+        function loadSampleShorts() {
+            const sampleShorts = [
+                {
+                    id: 's1',
+                    title: 'Quick Tech Tip: Speed Up Your Computer',
+                    description: 'Simple tricks to make your computer run faster in just 60 seconds.',
+                    thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+                    views: 125000,
+                    likes: 8500,
+                    channel: 'Tech Tips',
+                    timestamp: Date.now() - 3600000 // 1 hour ago
+                },
+                {
+                    id: 's2',
+                    title: 'Amazing Science Experiment You Can Do at Home',
+                    description: 'Watch this incredible chemical reaction that you can recreate with household items.',
+                    thumbnail: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+                    views: 98000,
+                    likes: 7200,
+                    channel: 'Science Fun',
+                    timestamp: Date.now() - 7200000 // 2 hours ago
+                },
+                {
+                    id: 's3',
+                    title: '5-Minute Workout for Busy People',
+                    description: 'Get your heart pumping with this quick and effective workout routine.',
+                    thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+                    views: 156000,
+                    likes: 11000,
+                    channel: 'Fitness Quick',
+                    timestamp: Date.now() - 10800000 // 3 hours ago
+                },
+                {
+                    id: 's4',
+                    title: 'Easy Recipe: 3-Ingredient Dessert',
+                    description: 'Create a delicious dessert with just three simple ingredients in minutes.',
+                    thumbnail: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+                    views: 82000,
+                    likes: 5400,
+                    channel: 'Quick Cooking',
+                    timestamp: Date.now() - 14400000 // 4 hours ago
+                },
+                {
+                    id: 's5',
+                    title: 'Mind-Blowing Magic Trick Revealed',
+                    description: 'Learn how this incredible magic trick works and amaze your friends.',
+                    thumbnail: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+                    views: 112000,
+                    likes: 8900,
+                    channel: 'Magic Secrets',
+                    timestamp: Date.now() - 18000000 // 5 hours ago
+                },
+                {
+                    id: 's6',
+                    title: 'Quick DIY Home Organization Hack',
+                    description: 'Transform your cluttered space with this simple organization trick.',
+                    thumbnail: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80',
+                    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+                    views: 143000,
+                    likes: 10200,
+                    channel: 'Home Hacks',
+                    timestamp: Date.now() - 21600000 // 6 hours ago
+                }
+            ];
+
+            state.shorts = sampleShorts;
+            saveShorts();
+        }
+
+        // Render videos to the grid
+        function renderVideos() {
+            elements.videosGrid.innerHTML = '';
+
+            state.videos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card bg-card-bg rounded-lg overflow-hidden cursor-pointer transition duration-200 hover:scale-[1.02]';
+                videoCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${video.thumbnail}" alt="${video.title}" class="w-full h-48 object-cover">
+                        <button class="delete-btn" data-id="${video.id}">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                        <div class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
+                            ${formatDuration(180)} <!-- Assuming 3 minutes for all videos -->
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-semibold line-clamp-2 mb-1">${video.title}</h3>
+                        <p class="text-sm text-gray-400">${video.channel}</p>
+                        <div class="flex text-sm text-gray-400 mt-1">
+                            <span>${formatViews(video.views)} views</span>
+                            <span class="mx-1">•</span>
+                            <span>${formatTimeAgo(video.timestamp)}</span>
+                        </div>
+                    </div>
+                `;
+
+                videoCard.addEventListener('click', (e) => {
+                    if (!e.target.closest('.delete-btn')) {
+                        playVideo(video);
+                    }
+                });
+
+                const deleteBtn = videoCard.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteVideo(video.id);
+                });
+
+                elements.videosGrid.appendChild(videoCard);
+            });
+
+            // Re-initialize icons in the new elements
+            lucide.createIcons();
+        }
+
+        // Render shorts to the grid
+        function renderShorts() {
+            elements.shortsGrid.innerHTML = '';
+
+            state.shorts.forEach(short => {
+                const shortCard = document.createElement('div');
+                shortCard.className = 'shorts-card';
+                shortCard.innerHTML = `
+                    <div class="relative">
+                        <img src="${short.thumbnail}" alt="${short.title}" class="shorts-thumbnail">
+                        <button class="delete-btn" data-id="${short.id}">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div class="shorts-info">
+                        <h3 class="shorts-title">${short.title}</h3>
+                        <p class="shorts-views">${formatViews(short.views)} views</p>
+                    </div>
+                `;
+
+                shortCard.addEventListener('click', (e) => {
+                    if (!e.target.closest('.delete-btn')) {
+                        playShort(short);
+                    }
+                });
+
+                const deleteBtn = shortCard.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteShort(short.id);
+                });
+
+                elements.shortsGrid.appendChild(shortCard);
+            });
+
+            // Re-initialize icons in the new elements
+            lucide.createIcons();
+        }
+
+        // Render user videos in library
+        function renderUserVideos() {
+            elements.userVideos.innerHTML = '';
+
+            const userVideos = state.videos.filter(video => video.userUploaded);
+            
+            if (userVideos.length === 0) {
+                elements.userVideos.innerHTML = '<p class="text-gray-400 text-sm">You haven\'t uploaded any videos yet.</p>';
+                return;
+            }
+
+            userVideos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'history-item';
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="${video.title}" class="history-thumbnail">
+                    <div class="history-info">
+                        <h4 class="font-semibold line-clamp-2">${video.title}</h4>
+                        <p class="text-sm text-gray-400">${formatViews(video.views)} views • ${formatTimeAgo(video.timestamp)}</p>
+                    </div>
+                `;
+
+                videoItem.addEventListener('click', () => {
+                    playVideo(video);
+                });
+
+                elements.userVideos.appendChild(videoItem);
+            });
+        }
+
+        // Render user shorts in library
+        function renderUserShorts() {
+            elements.userShorts.innerHTML = '';
+
+            const userShorts = state.shorts.filter(short => short.userUploaded);
+            
+            if (userShorts.length === 0) {
+                elements.userShorts.innerHTML = '<p class="text-gray-400 text-sm">You haven\'t uploaded any shorts yet.</p>';
+                return;
+            }
+
+            userShorts.forEach(short => {
+                const shortItem = document.createElement('div');
+                shortItem.className = 'history-item';
+                shortItem.innerHTML = `
+                    <img src="${short.thumbnail}" alt="${short.title}" class="history-thumbnail">
+                    <div class="history-info">
+                        <h4 class="font-semibold line-clamp-2">${short.title}</h4>
+                        <p class="text-sm text-gray-400">${formatViews(short.views)} views • ${formatTimeAgo(short.timestamp)}</p>
+                    </div>
+                `;
+
+                shortItem.addEventListener('click', () => {
+                    playShort(short);
+                });
+
+                elements.userShorts.appendChild(shortItem);
+            });
+        }
+
+        // Play a video
+        function playVideo(video) {
+            state.currentVideo = video;
+            
+            // Update video player modal
+            elements.playerVideoTitle.textContent = video.title;
+            elements.playerChannelName.textContent = video.channel;
+            elements.playerViews.textContent = `${formatViews(video.views)} views`;
+            elements.playerDescription.textContent = video.description;
+            elements.playerLikeCount.textContent = formatViews(video.likes);
+            
+            // Set video source with CORS proxy fallback
+            setVideoSourceWithFallback(elements.fullscreenVideo, video.videoUrl);
+            
+            // Show the modal
+            elements.videoPlayerModal.style.display = 'flex';
+            
+            // Increment views
+            video.views++;
+            saveVideos();
+            
+            // Update the video grid
+            renderVideos();
+        }
+
+        // Play a short
+        function playShort(short) {
+            state.currentShort = short;
+            
+            // Update shorts player
+            elements.fullscreenShortsTitle.textContent = short.title;
+            elements.fullscreenShortsChannel.textContent = short.channel;
+            elements.fullscreenShortsLikes.textContent = formatViews(short.likes);
+            
+            // Set video source with CORS proxy fallback
+            setVideoSourceWithFallback(elements.fullscreenShortsVideo, short.videoUrl);
+            
+            // Show the fullscreen shorts player
+            elements.fullscreenShortsPlayer.style.display = 'flex';
+            
+            // Play the video
+            setTimeout(() => {
+                elements.fullscreenShortsVideo.play().catch(e => {
+                    console.error('Error playing short:', e);
+                });
+            }, 100);
+            
+            // Increment views
+            short.views++;
+            saveShorts();
+            
+            // Update the shorts grid
+            renderShorts();
+        }
+
+        // Set video source with CORS proxy fallback
+        function setVideoSourceWithFallback(videoElement, url) {
+            // First try to play directly
+            videoElement.src = url;
+            videoElement.load();
+            
+            // Add error listener to try CORS proxies if direct loading fails
+            videoElement.addEventListener('error', function handleError() {
+                console.log('Direct loading failed, trying CORS proxies...');
+                
+                // Remove the error listener to prevent infinite loop
+                videoElement.removeEventListener('error', handleError);
+                
+                // Try corsproxy.io
+                const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                videoElement.src = proxyUrl1;
+                videoElement.load();
+                
+                videoElement.addEventListener('error', function handleError2() {
+                    console.log('First proxy failed, trying second proxy...');
+                    
+                    // Remove the error listener
+                    videoElement.removeEventListener('error', handleError2);
+                    
+                    // Try allorigins.win
+                    const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    videoElement.src = proxyUrl2;
+                    videoElement.load();
+                    
+                    videoElement.addEventListener('error', function handleError3() {
+                        console.log('All proxies failed, showing error message');
+                        
+                        // Show error overlay
+                        const errorOverlay = document.createElement('div');
+                        errorOverlay.className = 'cors-overlay';
+                        errorOverlay.innerHTML = `
+                            <i data-lucide="alert-circle" class="w-12 h-12 mb-4"></i>
+                            <h3 class="text-lg font-semibold mb-2">Video Playback Not Supported</h3>
+                            <p class="text-gray-300">This video cannot be played due to CORS restrictions.</p>
+                        `;
+                        
+                        videoElement.parentNode.appendChild(errorOverlay);
+                        lucide.createIcons();
+                    });
+                });
+            });
+        }
+
+        // Delete a video
+        function deleteVideo(id) {
+            if (confirm('Are you sure you want to delete this video?')) {
+                state.videos = state.videos.filter(video => video.id !== id);
+                saveVideos();
+                renderVideos();
+                renderUserVideos();
+            }
+        }
+
+        // Delete a short
+        function deleteShort(id) {
+            if (confirm('Are you sure you want to delete this short?')) {
+                state.shorts = state.shorts.filter(short => short.id !== id);
+                saveShorts();
+                renderShorts();
+                renderUserShorts();
+            }
+        }
+
+        // Save videos to localStorage
+        function saveVideos() {
+            localStorage.setItem('neotube-videos', JSON.stringify(state.videos));
+        }
+
+        // Save shorts to localStorage
+        function saveShorts() {
+            localStorage.setItem('neotube-shorts', JSON.stringify(state.shorts));
+        }
+
+        // Format views count
+        function formatViews(views) {
+            if (views >= 1000000) {
+                return (views / 1000000).toFixed(1) + 'M';
+            } else if (views >= 1000) {
+                return (views / 1000).toFixed(1) + 'K';
+            }
+            return views.toString();
+        }
+
+        // Format duration
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Format time ago
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            if (diff < 60000) {
+                return 'Just now';
+            } else if (diff < 3600000) {
+                return Math.floor(diff / 60000) + ' minutes ago';
+            } else if (diff < 86400000) {
+                return Math.floor(diff / 3600000) + ' hours ago';
+            } else {
+                return Math.floor(diff / 86400000) + ' days ago';
+            }
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Username modal
+            elements.saveUsername.addEventListener('click', () => {
+                const username = elements.usernameInput.value.trim();
+                if (username) {
+                    state.username = username;
+                    localStorage.setItem('neotube-username', username);
+                    elements.userInitial.textContent = username.charAt(0).toUpperCase();
+                    elements.usernameModal.style.display = 'none';
+                }
+            });
+
+            // Upload modals
+            elements.uploadBtn.addEventListener('click', () => {
+                elements.uploadModal.style.display = 'flex';
+            });
+
+            elements.mobileUploadBtn.addEventListener('click', () => {
+                elements.uploadModal.style.display = 'flex';
+            });
+
+            elements.uploadShortsBtn.addEventListener('click', () => {
+                elements.uploadShortsModal.style.display = 'flex';
+            });
+
+            elements.closeUploadModal.addEventListener('click', () => {
+                elements.uploadModal.style.display = 'none';
+            });
+
+            elements.closeShortsModal.addEventListener('click', () => {
+                elements.uploadShortsModal.style.display = 'none';
+            });
+
+            elements.closePlayerModal.addEventListener('click', () => {
+                elements.videoPlayerModal.style.display = 'none';
+                elements.fullscreenVideo.pause();
+            });
+
+            elements.closeShareModal.addEventListener('click', () => {
+                elements.shareModal.style.display = 'none';
+            });
+
+            elements.cancelUpload.addEventListener('click', () => {
+                elements.uploadModal.style.display = 'none';
+            });
+
+            elements.cancelShortsUpload.addEventListener('click', () => {
+                elements.uploadShortsModal.style.display = 'none';
+            });
+
+            // User menu
+            elements.userMenuBtn.addEventListener('click', () => {
+                elements.userDropdown.classList.toggle('hidden');
+            });
+
+            // Logout
+            elements.logoutBtn.addEventListener('click', () => {
+                localStorage.removeItem('neotube-username');
+                state.username = '';
+                elements.usernameModal.style.display = 'flex';
+                elements.userDropdown.classList.add('hidden');
+            });
+
+            // Menu toggle
+            elements.menuToggle.addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('hidden');
+            });
+
+            // Navigation
+            elements.shortsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                elements.homeContent.classList.add('hidden');
+                elements.shortsContent.classList.remove('hidden');
+                elements.libraryContent.classList.add('hidden');
+            });
+
+            elements.mobileShortsLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                elements.homeContent.classList.add('hidden');
+                elements.shortsContent.classList.remove('hidden');
+                elements.libraryContent.classList.add('hidden');
+            });
+
+            // Back button for shorts
+            elements.shortsBackBtn.addEventListener('click', () => {
+                elements.fullscreenShortsPlayer.style.display = 'none';
+                elements.fullscreenShortsVideo.pause();
+            });
+
+            // Video file input
+            elements.videoFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    elements.fileName.textContent = file.name;
+                }
+            });
+
+            // Shorts file input
+            elements.shortsFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    elements.shortsFileName.textContent = file.name;
+                }
+            });
+
+            // Thumbnail file input
+            elements.thumbnailFile.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    elements.thumbnailName.textContent = file.name;
+                }
+            });
+
+            // Category selection limit
+            elements.categoryCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    const checkedCount = document.querySelectorAll('input[name="category"]:checked').length;
+                    if (checkedCount > 4) {
+                        elements.categoryWarning.classList.remove('hidden');
+                        checkbox.checked = false;
+                    } else {
+                        elements.categoryWarning.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Character counters
+            elements.charCount.parentElement.previousElementSibling.addEventListener('input', (e) => {
+                elements.charCount.textContent = e.target.value.length;
+            });
+
+            elements.shortsCharCount.parentElement.previousElementSibling.addEventListener('input', (e) => {
+                elements.shortsCharCount.textContent = e.target.value.length;
+            });
+
+            // Video upload form
+            elements.uploadForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const videoUrl = document.getElementById('video-url').value;
+                const videoFile = elements.videoFile.files[0];
+                const title = document.getElementById('video-title').value;
+                const thumbnailUrl = document.getElementById('thumbnail-url').value;
+                const thumbnailFile = elements.thumbnailFile.files[0];
+                const description = document.getElementById('video-description').value;
+                const categories = Array.from(document.querySelectorAll('input[name="category"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                // Validate inputs
+                if (!title || !description) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                if (!videoUrl && !videoFile) {
+                    alert('Please provide either a video URL or upload a video file');
+                    return;
+                }
+                
+                // Create new video object
+                const newVideo = {
+                    id: 'v' + Date.now(),
+                    title: title,
+                    description: description,
+                    thumbnail: thumbnailUrl || (thumbnailFile ? URL.createObjectURL(thumbnailFile) : 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'),
+                    videoUrl: videoUrl || URL.createObjectURL(videoFile),
+                    views: 0,
+                    likes: 0,
+                    channel: state.username || 'User',
+                    categories: categories,
+                    timestamp: Date.now(),
+                    userUploaded: true
+                };
+                
+                // Add to videos array
+                state.videos.unshift(newVideo);
+                saveVideos();
+                
+                // Reset form and close modal
+                elements.uploadForm.reset();
+                elements.uploadModal.style.display = 'none';
+                elements.charCount.textContent = '0';
+                
+                // Update UI
+                renderVideos();
+                renderUserVideos();
+                
+                alert('Video uploaded successfully!');
+            });
+
+            // Shorts upload form
+            elements.uploadShortsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const shortsUrl = document.getElementById('shorts-url').value;
+                const shortsFile = elements.shortsFile.files[0];
+                const title = document.getElementById('shorts-title').value;
+                const description = document.getElementById('shorts-description').value;
+                
+                // Validate inputs
+                if (!title || !description) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                if (!shortsUrl && !shortsFile) {
+                    alert('Please provide either a shorts URL or upload a shorts file');
+                    return;
+                }
+                
+                // Create new short object
+                const newShort = {
+                    id: 's' + Date.now(),
+                    title: title,
+                    description: description,
+                    thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80', // Default thumbnail
+                    videoUrl: shortsUrl || URL.createObjectURL(shortsFile),
+                    views: 0,
+                    likes: 0,
+                    channel: state.username || 'User',
+                    timestamp: Date.now(),
+                    userUploaded: true
+                };
+                
+                // Add to shorts array
+                state.shorts.unshift(newShort);
+                saveShorts();
+                
+                // Reset form and close modal
+                elements.uploadShortsForm.reset();
+                elements.uploadShortsModal.style.display = 'none';
+                elements.shortsCharCount.textContent = '0';
+                
+                // Update UI
+                renderShorts();
+                renderUserShorts();
+                
+                alert('Shorts uploaded successfully!');
+            });
+
+            // Video player controls
+            setupVideoPlayerControls();
+            
+            // Fullscreen video player controls
+            setupFullscreenPlayerControls();
+            
+            // Fullscreen shorts controls
+            setupFullscreenShortsControls();
+            
+            // Share functionality
+            setupShareFunctionality();
+        }
+
+        // Setup video player controls
+        function setupVideoPlayerControls() {
+            const video = elements.fullscreenVideo;
+            
+            // Play/Pause button
+            elements.playerPlayBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                    elements.playerPlayBtn.innerHTML = '<i data-lucide="pause" class="w-5 h-5"></i>';
+                } else {
+                    video.pause();
+                    elements.playerPlayBtn.innerHTML = '<i data-lucide="play" class="w-5 h-5"></i>';
+                }
+            });
+            
+            // Mute/Unmute button
+            elements.playerMuteBtn.addEventListener('click', () => {
+                video.muted = !video.muted;
+                elements.playerMuteBtn.innerHTML = video.muted ? 
+                    '<i data-lucide="volume-x" class="w-5 h-5"></i>' : 
+                    '<i data-lucide="volume-2" class="w-5 h-5"></i>';
+            });
+            
+            // Volume slider
+            elements.volumeSlider.addEventListener('click', (e) => {
+                const rect = elements.volumeSlider.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                video.volume = Math.max(0, Math.min(1, percent));
+                elements.volumeLevel.style.width = `${video.volume * 100}%`;
+            });
+            
+            // Progress bar
+            elements.progressContainer.addEventListener('click', (e) => {
+                const rect = elements.progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                video.currentTime = percent * video.duration;
+            });
+            
+            // Progress bar hover
+            elements.progressContainer.addEventListener('mousemove', (e) => {
+                const rect = elements.progressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                elements.progressHover.style.width = `${percent * 100}%`;
+            });
+            
+            elements.progressContainer.addEventListener('mouseleave', () => {
+                elements.progressHover.style.width = '0%';
+            });
+            
+            // Picture in Picture
+            elements.playerPipBtn.addEventListener('click', () => {
+                if (document.pictureInPictureElement) {
+                    document.exitPictureInPicture();
+                } else if (document.pictureInPictureEnabled) {
+                    video.requestPictureInPicture();
+                }
+            });
+            
+            // Fullscreen button
+            elements.playerFullscreenBtn.addEventListener('click', () => {
+                elements.videoPlayerModal.style.display = 'none';
+                elements.fullscreenPlayer.style.display = 'flex';
+                
+                // Set the video source for fullscreen player
+                elements.fullscreenVideoElement.src = video.src;
+                elements.fullscreenVideoElement.currentTime = video.currentTime;
+                
+                if (!video.paused) {
+                    elements.fullscreenVideoElement.play();
+                }
+            });
+            
+            // Like button
+            elements.playerLikeBtn.addEventListener('click', () => {
+                if (state.currentVideo) {
+                    state.currentVideo.likes++;
+                    elements.playerLikeCount.textContent = formatViews(state.currentVideo.likes);
+                    elements.playerLikeBtn.classList.add('liked');
+                    saveVideos();
+                    
+                    setTimeout(() => {
+                        elements.playerLikeBtn.classList.remove('liked');
+                    }, 300);
+                }
+            });
+            
+            // Share button
+            elements.playerShareBtn.addEventListener('click', () => {
+                if (state.currentVideo) {
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?video=${state.currentVideo.id}`;
+                    elements.shareUrl.textContent = shareUrl;
+                    elements.shareModal.style.display = 'flex';
+                }
+            });
+            
+            // Video time update
+            video.addEventListener('timeupdate', () => {
+                const currentTime = video.currentTime;
+                const duration = video.duration;
+                
+                if (duration) {
+                    const percent = (currentTime / duration) * 100;
+                    elements.progressBarPlayer.style.width = `${percent}%`;
+                    
+                    elements.currentTime.textContent = formatTime(currentTime);
+                    elements.durationTime.textContent = formatTime(duration);
+                }
+            });
+            
+            // Video loaded metadata
+            video.addEventListener('loadedmetadata', () => {
+                elements.durationTime.textContent = formatTime(video.duration);
+            });
+        }
+
+        // Setup fullscreen player controls
+        function setupFullscreenPlayerControls() {
+            const video = elements.fullscreenVideoElement;
+            
+            // Play/Pause button
+            elements.fullscreenPlayBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                    elements.fullscreenPlayBtn.innerHTML = '<i data-lucide="pause" class="w-6 h-6"></i>';
+                } else {
+                    video.pause();
+                    elements.fullscreenPlayBtn.innerHTML = '<i data-lucide="play" class="w-6 h-6"></i>';
+                }
+            });
+            
+            // Mute/Unmute button
+            elements.fullscreenMuteBtn.addEventListener('click', () => {
+                video.muted = !video.muted;
+                elements.fullscreenMuteBtn.innerHTML = video.muted ? 
+                    '<i data-lucide="volume-x" class="w-6 h-6"></i>' : 
+                    '<i data-lucide="volume-2" class="w-6 h-6"></i>';
+            });
+            
+            // Volume slider
+            elements.fullscreenVolumeSlider.addEventListener('click', (e) => {
+                const rect = elements.fullscreenVolumeSlider.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                video.volume = Math.max(0, Math.min(1, percent));
+                elements.fullscreenVolumeLevel.style.width = `${video.volume * 100}%`;
+            });
+            
+            // Progress bar
+            elements.fullscreenProgressContainer.addEventListener('click', (e) => {
+                const rect = elements.fullscreenProgressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                video.currentTime = percent * video.duration;
+            });
+            
+            // Progress bar hover
+            elements.fullscreenProgressContainer.addEventListener('mousemove', (e) => {
+                const rect = elements.fullscreenProgressContainer.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                elements.fullscreenProgressHover.style.width = `${percent * 100}%`;
+            });
+            
+            elements.fullscreenProgressContainer.addEventListener('mouseleave', () => {
+                elements.fullscreenProgressHover.style.width = '0%';
+            });
+            
+            // Picture in Picture
+            elements.fullscreenPipBtn.addEventListener('click', () => {
+                if (document.pictureInPictureElement) {
+                    document.exitPictureInPicture();
+                } else if (document.pictureInPictureEnabled) {
+                    video.requestPictureInPicture();
+                }
+            });
+            
+            // Exit fullscreen
+            elements.fullscreenExitBtn.addEventListener('click', () => {
+                elements.fullscreenPlayer.style.display = 'none';
+                elements.videoPlayerModal.style.display = 'flex';
+                
+                // Set the video source back to normal player
+                elements.fullscreenVideo.src = video.src;
+                elements.fullscreenVideo.currentTime = video.currentTime;
+                
+                if (!video.paused) {
+                    elements.fullscreenVideo.play();
+                }
+            });
+            
+            // Video time update
+            video.addEventListener('timeupdate', () => {
+                const currentTime = video.currentTime;
+                const duration = video.duration;
+                
+                if (duration) {
+                    const percent = (currentTime / duration) * 100;
+                    elements.fullscreenProgressBar.style.width = `${percent}%`;
+                    
+                    elements.fullscreenCurrentTime.textContent = formatTime(currentTime);
+                    elements.fullscreenDurationTime.textContent = formatTime(duration);
+                }
+            });
+            
+            // Video loaded metadata
+            video.addEventListener('loadedmetadata', () => {
+                elements.fullscreenDurationTime.textContent = formatTime(video.duration);
+            });
+        }
+
+        // Setup fullscreen shorts controls
+        function setupFullscreenShortsControls() {
+            const video = elements.fullscreenShortsVideo;
+            
+            // Like button
+            elements.fullscreenShortsLike.addEventListener('click', () => {
+                if (state.currentShort) {
+                    state.currentShort.likes++;
+                    elements.fullscreenShortsLikes.textContent = formatViews(state.currentShort.likes);
+                    elements.fullscreenShortsLike.classList.add('liked');
+                    saveShorts();
+                    
+                    setTimeout(() => {
+                        elements.fullscreenShortsLike.classList.remove('liked');
+                    }, 300);
+                }
+            });
+            
+            // Auto-play next short when current ends
+            video.addEventListener('ended', () => {
+                const currentIndex = state.shorts.findIndex(short => short.id === state.currentShort.id);
+                const nextIndex = (currentIndex + 1) % state.shorts.length;
+                playShort(state.shorts[nextIndex]);
+            });
+        }
+
+        // Setup share functionality
+        function setupShareFunctionality() {
+            elements.copyLink.addEventListener('click', () => {
+                const shareUrl = elements.shareUrl.textContent;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            });
+        }
+
+        // Format time (mm:ss)
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
