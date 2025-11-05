@@ -1,0 +1,33 @@
+body#layout div.section {background-color:transparent;border:0;font-family:sans-serif;margin:0;overflow:visible;padding:0;position:relative}
+body#layout .top-tab-widget-menu ul,body#layout ul,#layout ul,body#layout div.section h4,#layout div.section h4 {display:none;}
+body#layout .draggable-widget .widget-wrap2 {background:#17CC90}
+body#layout .add_widget {background-color: rgba(84, 84, 84, 0.75);}
+body#layout .add_widget a {color: white}
+body#layout .editlink {color:#fff !important;background-color: #3D3D45;padding: 2px; padding-left: 15px; padding-right: 15px; border-radius: 50px;}
+
+
+body#layout #header {width:30%;margin:4px;float:left; background-color: #EBFFFB; padding:5px!important; border: 1px solid #D8D6D6; margin-bottom: 10px;}
+body#layout #header:before {content: &quot;Header&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+
+body#layout #header-right {width:60%;margin:4px;float:right; background-color: #EBFFFB; padding:5px!important; border: 1px solid #D8D6D6; margin-bottom: 10px;}
+body#layout #header-right:before {content: &quot;Header Ad Slot (728x90px)&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+body#layout #header-right .widget {width:90%;left: 20px;}
+
+body#layout #slider-box {width:100%;margin:4px; background-color: #EBFFFB; padding:5px!important; border: 1px solid #D8D6D6; margin-bottom: 10px;}
+body#layout #slider-box:before {content: &quot;Slider&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+body#layout #slider-box .widget {width:90%;left: 20px;}
+
+body#layout #sidebar-section:before {content: &quot;Sidebar&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+
+body#layout #recent-wid3:before {content: &quot;Home Layout Box (add unlimited widgets)&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+
+body#layout #footer-section:before {content: &quot;Footer Wrapper&quot;; font-size: 18px; color: #484848; display: inline-block; font-family: serif; font-weight: 700;margin-bottom: 10px;}
+body#layout #footer-section, body#layout #recent-wid3 {background-color: #EBFFFB; padding:5px!important; border: 1px solid #D8D6D6; margin-bottom: 10px;}
+
+body#layout #footx1,body#layout #footx2,body#layout #footx3{width:33.33%;float:left;}
+body#layout #post-wrapper {float:left;width:68%;}
+body#layout #sidebar-section {float:right;width:30%;background-color: #EBFFFB; padding:5px!important; border: 1px solid #D8D6D6; margin-bottom: 10px;}
+
+#layout #footer-section #column1,#layout #footer-section #column2{margin:0}
+#layout #main-wrapper{width:70%;float:left}
+#layout #sidebar-section{width:30%;left:0;padding:0;float:right}
