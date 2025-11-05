@@ -231,3 +231,66 @@ iframe#covervideo {height:300px;}
 .post-outer {float:left;margin:0;}
 #content-wrapper {padding:0;}
 h3.post-title a, h2.post-title a, h1.post-title a, h3.post-title, h2.post-title, h1.post-title,.post-information,.post-information span {text-overflow:initial;white-space:normal;overflow:visible;width:initial}
+.post {padding:0 10px 30px 10px;}
+.post-body {margin-bottom:10px;text-overflow:ellipsis;visibility:visible;width:initial;height:initial;opacity:1;}
+#outer-wrapper { margin: 5px; margin-top:0;margin-bottom:0;padding:5px; padding-top:0; padding-bottom:0;}
+.topbar-wrapper {margin:0;}
+.top-wrappers {margin:0;}
+#nav {margin:0;padding:0 20px;border-bottom:0;border-top:0;float:left;}
+.menu-nav &gt; li &gt; a.active {border-top:4px solid #f17c72;}
+.nav-plus li ul:before {display:none;}
+.nav-plus &gt; li {float:none;overflow:hidden;}
+.nav-plus ul {display:block;width:100%;float:none;}
+.menu-nav li ul {background:#373b47;box-shadow:none;}
+.menu-nav li ul li a{background:#373b47;}
+.menu-nav li li a:hover {background:#f17c72;}
+.menu-nav &gt; li &gt; a.active{padding:0 15px;}
+.nav-plus &gt; li.hover &gt; ul , .nav-plus li li.hover ul {position:static;}
+.menu-nav li .parent:after,.menu-nav li ul li .parent:after {content: &quot;\f0d7&quot;;font-family:FontAwesome;font-style:normal;font-weight:normal;text-decoration:inherit;padding-right:5px;float:right;color:#fff;}
+.menu-nav li:active .parent:after,.menu-nav li ul li:active .parent:after {background:#fff;}
+#search-form {width:100%;margin:0!important;float:none}
+#search-form table{width:100%;margin:20px 0;background:#f6f6f6;border-radius:5px}
+#search-form td.search-box {padding:0 10px!important;}
+#search-form td.search-button {padding:0 10px;width:1%;}
+#search-form input#search-box[type=&quot;text&quot;] {width:100%;margin:0;background:#f6f6f6;color:#666;padding: 0 10px;border: 0; border-radius: 3px;}
+#search-form input#search-button[type=&quot;submit&quot;]{margin:0 0 0 -6px;padding:14px 25px;color:#7f939d}
+#search-form input#search-box[type=&quot;text&quot;]:focus {background:#f6f6f6;outline:none;}
+#header a:before,#header a:after{display:none;}
+#post-wrapper {width:100%;max-width:100%;margin:20px auto;}
+.post-body img {max-width:90%;}
+.sidebar-inner, .post-inner {padding:0;}
+.mmmscredit {float:none;text-align:center;margin:10px auto;}
+ #slider-box, .most-viewed2 {display:none;}}
+
+@media only screen and (max-width:640px){
+#breakingnews {display:none;}
+.topbar-wrapper {margin:0 auto;}
+#header h1,#header h2,#header p,#header .description{font-size:200%;margin:0 auto 10px;width:100%;float:none;text-align:center;letter-spacing:1px;}
+#header {min-width:initial;background:none;padding:0 5px;}
+#header .description {margin:0 auto;width:100%;float:none;text-align:center;font-size:90%;line-height:1.5;text-transform:none;letter-spacing:0;}
+#footer-section{margin:20px 0 0 0;}
+#footer-sgwidget {width:100%;overflow:hidden;}
+#footer-sgwidget .footer-widget{display:block;clear:both;width:92%;float:none;margin-left:0;margin:0 auto 10px}
+.responsive-menu {margin:0;}
+.pvid ul li{width:49%;display:inline-block;overflow:hidden;margin-right:10px;}
+.pvid ul li:nth-child(2n),.pvid ul li:nth-child(4n),.pvid ul li:nth-child(6n) {margin-right:0}
+.pvid ul li{float:left}}
+
+@media only screen and (max-width:480px){
+.top-gridnav li {display:block;width:100%;text-align:left;border-right:none;}
+.post {margin:0 0 8px;padding:0!important;margin-right:0!important;}
+.more-link {display:none;}
+.box-title h2 a, .box-title10 h2 a {font-size:initial!important;}
+.pvid ul li{width:100%;display:inline-block;overflow:hidden;margin-bottom:15px;}
+.recent-block .recent-thumb {height:180px;}
+.pvid ul li .recent-thumb:before {height:180px;line-height:180px;}
+.post-outer {width:100%!important;margin-right:0;}
+.post-body {float:left;}
+.post-image img {height:180px!important;}
+.play-button, .overlayb {top: 68px!important; right: 135px!important;}
+iframe#covervideo { width: 100%; height: 200px; }
+.post-information2 {float:left!important;}
+ul#related-summary li {width:100%!important;margin-bottom:10px!important;}
+
+@media screen and (max-width:320px){}
+  
