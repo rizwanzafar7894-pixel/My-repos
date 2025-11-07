@@ -11,6 +11,7 @@
     <link rel="icon" type="image/png" href="favico.png">
     
     <style>
+        /* All the existing CSS remains the same */
         :root {
             --primary: #e50914;
             --primary-dark: #b81d24;
@@ -368,10 +369,23 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         
-        video {
+        .video-container {
+            position: relative;
             width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
             border-radius: 12px;
-            display: block;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
         }
         
         .player-back-btn {
@@ -392,98 +406,6 @@
         
         .player-back-btn:hover {
             background: rgba(0, 0, 0, 0.9);
-        }
-        
-        .controls-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.8));
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .custom-player:hover .controls-bar {
-            opacity: 1;
-        }
-        
-        .play-btn, .fullscreen-btn, .pip-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        
-        .play-btn:hover, .fullscreen-btn:hover, .pip-btn:hover {
-            color: var(--primary);
-        }
-        
-        .skip-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .skip-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .progress-container {
-            flex: 1;
-            margin: 0 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .time-display {
-            font-size: 13px;
-            color: var(--text-secondary);
-            min-width: 45px;
-        }
-        
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 3px;
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .progress {
-            height: 100%;
-            width: 0%;
-            border-radius: 3px;
-            background: var(--gradient);
-            position: relative;
-        }
-        
-        .progress-handle {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: white;
-            position: absolute;
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .progress-bar:hover .progress-handle {
-            opacity: 1;
         }
         
         .video-details {
@@ -873,10 +795,6 @@
             .video-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .skip-buttons {
-                display: none;
-            }
         }
     </style>
 </head>
@@ -979,31 +897,8 @@
             <div id="playerScreen" class="video-player">
                 <div class="custom-player mb-4">
                     <button class="player-back-btn" id="playerBackBtn"><i class="fas fa-arrow-left"></i></button>
-                    <video id="mainVideo" src=""></video>
-                    <div class="controls-bar">
-                        <div class="skip-buttons">
-                            <button class="skip-btn" id="skipBackward"><i class="fas fa-backward-step"></i> 10s</button>
-                        </div>
-                        &nbsp;&nbsp;&nbsp;
-                        <button id="playPause" class="play-btn"><i class="fas fa-play"></i></button>
-                        &nbsp;&nbsp;&nbsp;
-                        <div class="skip-buttons">
-                            <button class="skip-btn" id="skipForward"><i class="fas fa-forward-step"></i> 10s</button>
-                        </div>
-                        &nbsp;&nbsp;&nbsp;
-                        <div class="progress-container">
-                            <span class="time-display" id="currentTime">0:00</span>
-                            <div class="progress-bar" id="progressBar">
-                                <div class="progress" id="progress">
-                                    <div class="progress-handle"></div>
-                                </div>
-                            </div>
-                            <span class="time-display" id="duration">0:00</span>
-                        </div>
-                        &nbsp;&nbsp;
-                        <button id="pipBtn" class="pip-btn"><i class="fas fa-clone"></i></button>
-                        &nbsp;&nbsp;&nbsp;
-                        <button id="fullscreenBtn" class="fullscreen-btn"><i class="fas fa-expand"></i></button>
+                    <div class="video-container">
+                        <iframe id="videoIframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
                 </div>
 
@@ -1140,156 +1035,154 @@
                 date: "5 days ago",
                 likes: 43210,
                 dislikes: 987,
-                duration: "7:21",
+                duration: "4:56",
                 category: "drama",
                 comments: [
-                    { id: 1, author: "DramaQueen", time: "4 days ago", text: "This scene made me cry!", likes: 89, liked: false, disliked: false },
-                    { id: 2, author: "SeriesWatcher", time: "3 days ago", text: "The acting is superb.", likes: 45, liked: false, disliked: false }
+                    { id: 1, author: "DramaQueen", time: "3 days ago", text: "This scene made me cry!", likes: 23, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 5,
-                title: "Funny Comedy Short", 
-                thumbnail: "https://i.ytimg.com/vi/2G6kYzQpJ6Q/hqdefault.jpg", 
-                src: "comedy-short.mp4",
-                description: "Hilarious comedy short that will make you laugh out loud.",
+                title: "Tum Hi Ho (Slowed and Reverb) Song", 
+                thumbnail: "https://i.ytimg.com/vi/5PSNL1qE6VY/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/_MwrbYQ36eM?si=vSxhDmIP-sQO6kQu",
+                description: "Funny short video that will make you laugh out loud.",
                 views: 1234567,
                 date: "1 day ago",
                 likes: 98765,
-                dislikes: 2109,
+                dislikes: 1234,
                 duration: "0:45",
                 category: "shorts",
                 comments: [
-                    { id: 1, author: "LaughMaster", time: "20 hours ago", text: "I can't stop watching this!", likes: 124, liked: false, disliked: false },
-                    { id: 2, author: "ComedyFan", time: "15 hours ago", text: "Shared with all my friends!", likes: 76, liked: false, disliked: false },
-                    { id: 3, author: "ShortLover", time: "10 hours ago", text: "Perfect timing on the punchline!", likes: 53, liked: false, disliked: false }
+                    { id: 1, author: "LaughMaster", time: "12 hours ago", text: "Hilarious! Shared with all my friends.", likes: 89, liked: false, disliked: false },
+                    { id: 2, author: "FunnyGuy", time: "8 hours ago", text: "Can't stop watching this!", likes: 45, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 6,
                 title: "Latest Bollywood Song", 
-                thumbnail: "https://i.ytimg.com/vi/5ZfWt2l0G0Q/hqdefault.jpg", 
-                src: "bollywood-song.mp4",
+                thumbnail: "https://i.ytimg.com/vi/5IIU1pY9kz0/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/s9fZZzD-tVA?si=n08qjXVUYtNRpTPU",
                 description: "Brand new Bollywood song with amazing visuals and music.",
-                views: 4321098,
-                date: "12 hours ago",
-                likes: 210987,
-                dislikes: 5432,
-                duration: "4:32",
+                views: 543210,
+                date: "Just now",
+                likes: 32109,
+                dislikes: 543,
+                duration: "3:45",
                 category: "latest",
                 comments: [
-                    { id: 1, author: "MusicFanatic", time: "10 hours ago", text: "This song is already stuck in my head!", likes: 98, liked: false, disliked: false },
-                    { id: 2, author: "BollywoodLover", time: "8 hours ago", text: "The choreography is amazing!", likes: 67, liked: false, disliked: false }
+                    { id: 1, author: "MusicFan", time: "2 hours ago", text: "Love this new track!", likes: 12, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 7,
-                title: "Romantic Drama Series Episode", 
-                thumbnail: "https://i.ytimg.com/vi/6F2G6kYzQpJ/hqdefault.jpg", 
-                src: "romantic-drama.mp4",
-                description: "Latest episode from the popular romantic drama series.",
-                views: 987654,
-                date: "4 days ago",
-                likes: 54321,
-                dislikes: 1234,
-                duration: "42:15",
-                category: "drama",
+                title: "Action Movie Hindi Dubbed", 
+                thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC1W2M1Oxi960FYakbFoz09GutgYpkmS_kvqofa6iuEw&s=10", 
+                src: "https://www.youtube.com/embed/_MwrbYQ36eM?si=vSxhDmIP-sQO6kQu",
+                description: "Full Hindi dubbed action movie with thrilling sequences and drama.",
+                views: 3245678,
+                date: "2 days ago",
+                likes: 156789,
+                dislikes: 5432,
+                duration: "2:15:43",
+                category: "hindi-dubbed",
                 comments: [
-                    { id: 1, author: "RomanceFan", time: "3 days ago", text: "I can't wait for the next episode!", likes: 56, liked: false, disliked: false },
-                    { id: 2, author: "SeriesAddict", time: "2 days ago", text: "The chemistry between the leads is amazing.", likes: 34, liked: false, disliked: false }
+                    { id: 1, author: "MovieBuff", time: "1 day ago", text: "Amazing action sequences!", likes: 67, liked: false, disliked: false },
+                    { id: 2, author: "CinemaFan", time: "1 day ago", text: "Great dubbing quality.", likes: 34, liked: false, disliked: false },
+                    { id: 3, author: "ActionLover", time: "12 hours ago", text: "The climax was mind-blowing!", likes: 52, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 8,
-                title: "Latest Hindi Dubbed Thriller", 
-                thumbnail: "https://i.ytimg.com/vi/7F2G6kYzQpJ/hqdefault.jpg", 
-                src: "thriller-movie.mp4",
-                description: "Edge-of-your-seat thriller movie dubbed in Hindi.",
-                views: 2345678,
-                date: "6 days ago",
-                likes: 123456,
-                dislikes: 4321,
-                duration: "2:08:32",
-                category: "hindi-dubbed",
+                title: "Emotional Drama Scene", 
+                thumbnail: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThfVyNtuyHyVQhwuKsODfcqV04LyV7cM8dqOfE8C0iDw&s=10", 
+                src: "https://www.youtube.com/embed/s9fZZzD-tVA?si=n08qjXVUYtNRpTPU",
+                description: "Powerful emotional scene from a popular drama series.",
+                views: 765432,
+                date: "5 days ago",
+                likes: 43210,
+                dislikes: 987,
+                duration: "4:56",
+                category: "drama",
                 comments: [
-                    { id: 1, author: "ThrillerFan", time: "5 days ago", text: "The twist at the end got me!", likes: 78, liked: false, disliked: false },
-                    { id: 2, author: "MovieCritic", time: "4 days ago", text: "Great dubbing and suspense.", likes: 45, liked: false, disliked: false }
+                    { id: 1, author: "DramaQueen", time: "3 days ago", text: "This scene made me cry!", likes: 23, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 9,
-                title: "Dance Short Video", 
-                thumbnail: "https://i.ytimg.com/vi/8F2G6kYzQpJ/hqdefault.jpg", 
-                src: "dance-short.mp4",
-                description: "Amazing dance performance in a short video format.",
-                views: 876543,
-                date: "2 days ago",
-                likes: 65432,
-                dislikes: 987,
-                duration: "0:58",
+                title: "Funny Short Video", 
+                thumbnail: "https://i.ytimg.com/vi/5PSNL1qE6VY/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/_MwrbYQ36eM?si=vSxhDmIP-sQO6kQu",
+                description: "Funny short video that will make you laugh out loud.",
+                views: 1234567,
+                date: "1 day ago",
+                likes: 98765,
+                dislikes: 1234,
+                duration: "0:45",
                 category: "shorts",
                 comments: [
-                    { id: 1, author: "DanceLover", time: "1 day ago", text: "Incredible moves!", likes: 67, liked: false, disliked: false },
-                    { id: 2, author: "ShortVideoFan", time: "20 hours ago", text: "Watched this 10 times already!", likes: 43, liked: false, disliked: false }
+                    { id: 1, author: "LaughMaster", time: "12 hours ago", text: "Hilarious! Shared with all my friends.", likes: 89, liked: false, disliked: false },
+                    { id: 2, author: "FunnyGuy", time: "8 hours ago", text: "Can't stop watching this!", likes: 45, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 10,
-                title: "Latest Music Video Release", 
-                thumbnail: "https://i.ytimg.com/vi/9F2G6kYzQpJ/hqdefault.jpg", 
-                src: "new-music-video.mp4",
-                description: "Brand new music video just released today.",
+                title: "Latest Bollywood Song", 
+                thumbnail: "https://i.ytimg.com/vi/5IIU1pY9kz0/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/s9fZZzD-tVA?si=n08qjXVUYtNRpTPU",
+                description: "Brand new Bollywood song with amazing visuals and music.",
                 views: 543210,
-                date: "8 hours ago",
+                date: "Just now",
                 likes: 32109,
-                dislikes: 876,
+                dislikes: 543,
                 duration: "3:45",
                 category: "latest",
                 comments: [
-                    { id: 1, author: "MusicVideoFan", time: "6 hours ago", text: "The visuals are stunning!", likes: 54, liked: false, disliked: false },
-                    { id: 2, author: "NewMusicLover", time: "4 hours ago", text: "This is going to be a hit!", likes: 32, liked: false, disliked: false }
+                    { id: 1, author: "MusicFan", time: "2 hours ago", text: "Love this new track!", likes: 12, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 11,
-                title: "Classic Romantic Song", 
-                thumbnail: "https://i.ytimg.com/vi/10F2G6kYzQpJ/hqdefault.jpg", 
-                src: "classic-song.mp4",
-                description: "Timeless romantic song that never gets old.",
-                views: 3456789,
-                date: "2 weeks ago",
-                likes: 198765,
-                dislikes: 5432,
-                duration: "5:21",
+                title: "Romantic Song Collection", 
+                thumbnail: "https://i.ytimg.com/vi/5PSNL1qE6VY/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/_MwrbYQ36eM?si=vSxhDmIP-sQO6kQu",
+                description: "Beautiful collection of romantic songs for your special moments.",
+                views: 876543,
+                date: "1 week ago",
+                likes: 54321,
+                dislikes: 876,
+                duration: "1:23:45",
                 category: "songs",
                 comments: [
-                    { id: 1, author: "OldSchoolFan", time: "1 week ago", text: "This brings back so many memories!", likes: 87, liked: false, disliked: false },
-                    { id: 2, author: "RomanticAtHeart", time: "5 days ago", text: "The lyrics are so meaningful.", likes: 54, liked: false, disliked: false }
+                    { id: 1, author: "RomanticSoul", time: "4 days ago", text: "Perfect playlist for date night!", likes: 34, liked: false, disliked: false }
                 ]
             },
             { 
                 id: 12,
-                title: "Latest Drama Series Trailer", 
-                thumbnail: "https://i.ytimg.com/vi/11F2G6kYzQpJ/hqdefault.jpg", 
-                src: "drama-trailer.mp4",
-                description: "Official trailer for the upcoming drama series.",
-                views: 765432,
+                title: "Comedy Drama Episode", 
+                thumbnail: "https://i.ytimg.com/vi/5IIU1pY9kz0/hqdefault.jpg", 
+                src: "https://www.youtube.com/embed/s9fZZzD-tVA?si=n08qjXVUYtNRpTPU",
+                description: "Full episode of a popular comedy drama series.",
+                views: 987654,
                 date: "3 days ago",
-                likes: 43210,
-                dislikes: 987,
-                duration: "2:15",
+                likes: 65432,
+                dislikes: 765,
+                duration: "22:34",
                 category: "drama",
                 comments: [
-                    { id: 1, author: "TrailerWatcher", time: "2 days ago", text: "Can't wait for this to release!", likes: 65, liked: false, disliked: false },
-                    { id: 2, author: "SeriesFan", time: "1 day ago", text: "The cast looks amazing.", likes: 43, liked: false, disliked: false }
+                    { id: 1, author: "ComedyFan", time: "2 days ago", text: "This show always makes my day!", likes: 56, liked: false, disliked: false }
                 ]
             }
         ];
 
-        // DOM Elements
-        const contentSections = document.querySelectorAll('.content-section');
+        // DOM elements
+        const themeToggle = document.getElementById('themeToggle');
+        const searchIconMobile = document.getElementById('searchIconMobile');
+        const searchContainer = document.getElementById('searchContainer');
+        const logoBtn = document.getElementById('logoBtn');
         const sidebarItems = document.querySelectorAll('.sidebar li');
         const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
         const videoGrid = document.getElementById('videoGrid');
         const trendingGrid = document.getElementById('trendingGrid');
         const dramaGrid = document.getElementById('dramaGrid');
@@ -1299,17 +1192,8 @@
         const latestGrid = document.getElementById('latestGrid');
         const libraryContent = document.getElementById('libraryContent');
         const playerScreen = document.getElementById('playerScreen');
-        const mainVideo = document.getElementById('mainVideo');
         const playerBackBtn = document.getElementById('playerBackBtn');
-        const playPause = document.getElementById('playPause');
-        const skipForward = document.getElementById('skipForward');
-        const skipBackward = document.getElementById('skipBackward');
-        const progress = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
-        const currentTime = document.getElementById('currentTime');
-        const duration = document.getElementById('duration');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const pipBtn = document.getElementById('pipBtn');
+        const videoIframe = document.getElementById('videoIframe');
         const videoTitle = document.getElementById('videoTitle');
         const viewCount = document.getElementById('viewCount');
         const uploadDate = document.getElementById('uploadDate');
@@ -1318,23 +1202,16 @@
         const videoDescription = document.getElementById('videoDescription');
         const likeBtn = document.getElementById('likeBtn');
         const dislikeBtn = document.getElementById('dislikeBtn');
-        const shareBtn = document.getElementById('shareBtn');
-        const saveBtn = document.getElementById('saveBtn');
         const commentInput = document.getElementById('commentInput');
         const commentSubmit = document.getElementById('commentSubmit');
         const commentList = document.getElementById('commentList');
         const commentCount = document.getElementById('commentCount');
         const upNextList = document.getElementById('upNextList');
-        const themeToggle = document.getElementById('themeToggle');
-        const searchIconMobile = document.getElementById('searchIconMobile');
-        const searchContainer = document.getElementById('searchContainer');
         const categoryBtns = document.querySelectorAll('.category-btn');
-        const logoBtn = document.getElementById('logoBtn');
+        const searchInput = document.getElementById('search');
 
         // Current video being played
         let currentVideo = null;
-        let isPlaying = false;
-        let isDragging = false;
         let likedVideos = JSON.parse(localStorage.getItem('likedVideos')) || [];
         let savedVideos = JSON.parse(localStorage.getItem('savedVideos')) || [];
 
@@ -1345,62 +1222,64 @@
             updateLibrary();
         }
 
-        // Render videos to different sections
+        // Render videos to the grid
         function renderVideos() {
-            // Home page - Recommended
-            const recommendedVideos = videos.slice(0, 6);
+            // Clear all grids
             videoGrid.innerHTML = '';
-            recommendedVideos.forEach(video => {
+            trendingGrid.innerHTML = '';
+            dramaGrid.innerHTML = '';
+            songsGrid.innerHTML = '';
+            shortsGrid.innerHTML = '';
+            hindiDubbedGrid.innerHTML = '';
+            latestGrid.innerHTML = '';
+            
+            // Filter videos for different sections
+            const trendingVideos = [...videos].sort((a, b) => b.views - a.views).slice(0, 6);
+            const dramaVideos = videos.filter(video => video.category === 'drama');
+            const songsVideos = videos.filter(video => video.category === 'songs');
+            const shortsVideos = videos.filter(video => video.category === 'shorts');
+            const hindiDubbedVideos = videos.filter(video => video.category === 'hindi-dubbed');
+            const latestVideos = videos.filter(video => video.category === 'latest');
+            
+            // Render videos to respective grids
+            videos.forEach(video => {
                 videoGrid.appendChild(createVideoCard(video));
             });
-
-            // Home page - Trending
-            const trendingVideos = [...videos].sort((a, b) => b.views - a.views).slice(0, 6);
-            trendingGrid.innerHTML = '';
+            
             trendingVideos.forEach(video => {
                 trendingGrid.appendChild(createVideoCard(video));
             });
-
-            // Drama section
-            const dramaVideos = videos.filter(video => video.category === 'drama');
-            dramaGrid.innerHTML = '';
+            
             dramaVideos.forEach(video => {
                 dramaGrid.appendChild(createVideoCard(video));
             });
-
-            // Songs section
-            const songsVideos = videos.filter(video => video.category === 'songs');
-            songsGrid.innerHTML = '';
+            
             songsVideos.forEach(video => {
                 songsGrid.appendChild(createVideoCard(video));
             });
-
-            // Shorts section
-            const shortsVideos = videos.filter(video => video.category === 'shorts');
-            shortsGrid.innerHTML = '';
+            
             shortsVideos.forEach(video => {
                 shortsGrid.appendChild(createVideoCard(video));
             });
-
-            // Hindi Dubbed section
-            const hindiDubbedVideos = videos.filter(video => video.category === 'hindi-dubbed');
-            hindiDubbedGrid.innerHTML = '';
+            
             hindiDubbedVideos.forEach(video => {
                 hindiDubbedGrid.appendChild(createVideoCard(video));
             });
-
-            // Latest section
-            const latestVideos = videos.filter(video => video.category === 'latest');
-            latestGrid.innerHTML = '';
+            
             latestVideos.forEach(video => {
                 latestGrid.appendChild(createVideoCard(video));
             });
         }
 
-        // Create video card element
+        // Create a video card element
         function createVideoCard(video) {
             const card = document.createElement('div');
             card.className = 'video-card';
+            card.dataset.id = video.id;
+            
+            const isLiked = likedVideos.includes(video.id);
+            const isSaved = savedVideos.includes(video.id);
+            
             card.innerHTML = `
                 <div class="thumbnail-container">
                     <img src="${video.thumbnail}" alt="${video.title}">
@@ -1409,7 +1288,7 @@
                             <i class="fas fa-play"></i>
                         </div>
                     </div>
-                    <div class="badge">${video.duration}</div>
+                    <span class="badge">${video.duration}</span>
                 </div>
                 <div class="video-info">
                     <h5>${video.title}</h5>
@@ -1420,14 +1299,12 @@
                 </div>
             `;
             
-            card.addEventListener('click', () => {
-                playVideo(video);
-            });
+            card.addEventListener('click', () => playVideo(video));
             
             return card;
         }
 
-        // Play video function
+        // Play a video
         function playVideo(video) {
             currentVideo = video;
             
@@ -1438,7 +1315,7 @@
             playerScreen.style.display = 'block';
             
             // Set video details
-            mainVideo.src = video.src;
+            videoIframe.src = video.src;
             videoTitle.textContent = video.title;
             viewCount.textContent = formatViews(video.views);
             uploadDate.textContent = video.date;
@@ -1446,120 +1323,110 @@
             dislikeCount.textContent = formatViews(video.dislikes);
             videoDescription.textContent = video.description;
             
-            // Update like button state
-            if (likedVideos.includes(video.id)) {
-                likeBtn.classList.add('active');
-                likeBtn.innerHTML = '<i class="fas fa-thumbs-up"></i> Liked';
-            } else {
-                likeBtn.classList.remove('active');
-                likeBtn.innerHTML = '<i class="far fa-thumbs-up"></i> Like';
-            }
-            
-            // Update save button state
-            if (savedVideos.includes(video.id)) {
-                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-            } else {
-                saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save';
-            }
+            // Update like/dislike buttons
+            updateLikeDislikeButtons();
             
             // Render comments
-            renderComments(video.comments);
+            renderComments();
             
-            // Set up next videos
-            setupUpNext(video);
+            // Render up next
+            renderUpNext();
             
-            // Play the video
-            mainVideo.play();
-            isPlaying = true;
-            playPause.innerHTML = '<i class="fas fa-pause"></i>';
+            // Increment view count
+            video.views++;
+            viewCount.textContent = formatViews(video.views);
+        }
+
+        // Update like/dislike buttons
+        function updateLikeDislikeButtons() {
+            if (!currentVideo) return;
             
-            // Update video views (simulated)
-            video.views += 1;
+            const isLiked = likedVideos.includes(currentVideo.id);
+            
+            likeBtn.classList.toggle('active', isLiked);
+            likeBtn.innerHTML = isLiked ? 
+                '<i class="fas fa-thumbs-up"></i> Liked' : 
+                '<i class="far fa-thumbs-up"></i> Like';
+                
+            dislikeBtn.classList.toggle('active', !isLiked && dislikedVideos.includes(currentVideo.id));
         }
 
         // Render comments
-        function renderComments(comments) {
-            commentList.innerHTML = '';
-            commentCount.textContent = `(${comments.length})`;
+        function renderComments() {
+            if (!currentVideo) return;
             
-            comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
-                commentElement.innerHTML = `
+            commentList.innerHTML = '';
+            commentCount.textContent = `(${currentVideo.comments.length})`;
+            
+            currentVideo.comments.forEach(comment => {
+                const commentEl = document.createElement('div');
+                commentEl.className = 'comment';
+                
+                commentEl.innerHTML = `
                     <div class="comment-avatar">${comment.author.charAt(0)}</div>
                     <div class="comment-content">
                         <div class="comment-header">
                             <span class="comment-author">${comment.author}</span>
                             <span class="comment-time">${comment.time}</span>
                         </div>
-                        <div class="comment-text">${comment.text}</div>
+                        <p class="comment-text">${comment.text}</p>
                         <div class="comment-actions">
-                            <button class="comment-action like ${comment.liked ? 'liked' : ''}" data-id="${comment.id}">
+                            <button class="comment-action ${comment.liked ? 'liked' : ''}" data-id="${comment.id}" data-action="like">
                                 <i class="fas fa-thumbs-up"></i> <span>${comment.likes}</span>
                             </button>
-                            <button class="comment-action dislike ${comment.disliked ? 'disliked' : ''}" data-id="${comment.id}">
+                            <button class="comment-action ${comment.disliked ? 'disliked' : ''}" data-id="${comment.id}" data-action="dislike">
                                 <i class="fas fa-thumbs-down"></i>
                             </button>
                         </div>
                     </div>
                 `;
-                commentList.appendChild(commentElement);
+                
+                commentList.appendChild(commentEl);
             });
             
             // Add event listeners to comment actions
-            document.querySelectorAll('.comment-action.like').forEach(btn => {
+            document.querySelectorAll('.comment-action').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const commentId = parseInt(this.getAttribute('data-id'));
-                    const comment = comments.find(c => c.id === commentId);
-                    
-                    if (comment.liked) {
-                        comment.liked = false;
-                        comment.likes -= 1;
-                        this.classList.remove('liked');
-                    } else {
-                        comment.liked = true;
-                        comment.likes += 1;
-                        this.classList.add('liked');
-                        
-                        // If it was disliked, remove dislike
-                        if (comment.disliked) {
-                            comment.disliked = false;
-                            const dislikeBtn = this.parentElement.querySelector('.comment-action.dislike');
-                            dislikeBtn.classList.remove('disliked');
-                        }
-                    }
-                    
-                    this.querySelector('span').textContent = comment.likes;
-                });
-            });
-            
-            document.querySelectorAll('.comment-action.dislike').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const commentId = parseInt(this.getAttribute('data-id'));
-                    const comment = comments.find(c => c.id === commentId);
-                    
-                    if (comment.disliked) {
-                        comment.disliked = false;
-                        this.classList.remove('disliked');
-                    } else {
-                        comment.disliked = true;
-                        this.classList.add('disliked');
-                        
-                        // If it was liked, remove like
-                        if (comment.liked) {
-                            comment.liked = false;
-                            comment.likes -= 1;
-                            const likeBtn = this.parentElement.querySelector('.comment-action.like');
-                            likeBtn.classList.remove('liked');
-                            likeBtn.querySelector('span').textContent = comment.likes;
-                        }
-                    }
+                    const commentId = parseInt(this.dataset.id);
+                    const action = this.dataset.action;
+                    handleCommentAction(commentId, action);
                 });
             });
         }
 
-        // Set up "Up Next" section
-        function setupUpNext(currentVideo) {
+        // Handle comment actions (like/dislike)
+        function handleCommentAction(commentId, action) {
+            if (!currentVideo) return;
+            
+            const comment = currentVideo.comments.find(c => c.id === commentId);
+            if (!comment) return;
+            
+            if (action === 'like') {
+                if (comment.liked) {
+                    comment.likes--;
+                    comment.liked = false;
+                } else {
+                    comment.likes++;
+                    comment.liked = true;
+                    if (comment.disliked) {
+                        comment.disliked = false;
+                    }
+                }
+            } else if (action === 'dislike') {
+                comment.disliked = !comment.disliked;
+                if (comment.disliked && comment.liked) {
+                    comment.likes--;
+                    comment.liked = false;
+                }
+            }
+            
+            renderComments();
+        }
+
+        // Render up next videos
+        function renderUpNext() {
+            if (!currentVideo) return;
+            
             upNextList.innerHTML = '';
             
             // Get videos from the same category, excluding the current one
@@ -1567,31 +1434,18 @@
                 .filter(video => video.category === currentVideo.category && video.id !== currentVideo.id)
                 .slice(0, 5);
             
-            // If not enough videos in the same category, add some from other categories
-            if (relatedVideos.length < 5) {
-                const otherVideos = videos
-                    .filter(video => video.category !== currentVideo.category && video.id !== currentVideo.id)
-                    .slice(0, 5 - relatedVideos.length);
-                
-                relatedVideos.push(...otherVideos);
-            }
-            
             relatedVideos.forEach(video => {
                 const item = document.createElement('div');
                 item.className = 'up-next-item';
+                item.dataset.id = video.id;
+                
                 item.innerHTML = `
                     <img src="${video.thumbnail}" alt="${video.title}">
-                    <div>
-                        <h6>${video.title}</h6>
-                        <p>${formatViews(video.views)} views • ${video.date}</p>
-                    </div>
+                    <p>${video.title}</p>
                     <span class="up-next-duration">${video.duration}</span>
                 `;
                 
-                item.addEventListener('click', () => {
-                    playVideo(video);
-                });
-                
+                item.addEventListener('click', () => playVideo(video));
                 upNextList.appendChild(item);
             });
         }
@@ -1606,400 +1460,279 @@
             return views.toString();
         }
 
-        // Update library
+        // Update library content
         function updateLibrary() {
             libraryContent.innerHTML = '';
             
             if (savedVideos.length === 0) {
                 libraryContent.innerHTML = `
                     <div class="empty-state">
-                        <i class="far fa-bookmark"></i>
-                        <h3>No saved videos</h3>
-                        <p>Videos you save will appear here</p>
+                        <i class="fas fa-book-open"></i>
+                        <h3>Your Library is Empty</h3>
+                        <p>Save videos to watch later by clicking the bookmark icon</p>
                     </div>
                 `;
                 return;
             }
             
-            const savedVideoElements = videos.filter(video => savedVideos.includes(video.id));
+            const savedVideosList = videos.filter(video => savedVideos.includes(video.id));
             
-            if (savedVideoElements.length === 0) {
-                libraryContent.innerHTML = `
-                    <div class="empty-state">
-                        <i class="far fa-bookmark"></i>
-                        <h3>No saved videos</h3>
-                        <p>Videos you save will appear here</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            const grid = document.createElement('div');
-            grid.className = 'video-grid';
-            
-            savedVideoElements.forEach(video => {
-                grid.appendChild(createVideoCard(video));
+            savedVideosList.forEach(video => {
+                const card = createVideoCard(video);
+                libraryContent.appendChild(card);
             });
-            
-            libraryContent.appendChild(grid);
         }
 
         // Setup event listeners
         function setupEventListeners() {
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                document.body.classList.toggle('light-mode');
+                
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                themeToggle.innerHTML = isDarkMode ? 
+                    '<i class="fas fa-moon"></i>' : 
+                    '<i class="fas fa-sun"></i>';
+            });
+            
+            // Mobile search toggle
+            searchIconMobile.addEventListener('click', () => {
+                searchContainer.classList.toggle('active');
+            });
+            
+            // Logo click - go to home
+            logoBtn.addEventListener('click', () => {
+                showSection('home');
+            });
+            
             // Sidebar navigation
             sidebarItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    const section = this.getAttribute('data-section');
+                    const section = this.dataset.section;
+                    showSection(section);
                     
-                    // Update active states
+                    // Update active state
                     sidebarItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    bottomNavItems.forEach(i => {
-                        if (i.getAttribute('data-section') === section) {
-                            i.classList.add('active');
-                        } else {
-                            i.classList.remove('active');
-                        }
-                    });
-                    
-                    // Show corresponding section
-                    contentSections.forEach(sec => {
-                        if (sec.id === `${section}Screen`) {
-                            sec.classList.add('active');
-                        } else {
-                            sec.classList.remove('active');
-                        }
-                    });
-                    
-                    // Hide player if it's visible
-                    playerScreen.style.display = 'none';
                 });
             });
             
             // Bottom navigation
             bottomNavItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    const section = this.getAttribute('data-section');
+                    const section = this.dataset.section;
+                    showSection(section);
                     
-                    // Update active states
+                    // Update active state
                     bottomNavItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    sidebarItems.forEach(i => {
-                        if (i.getAttribute('data-section') === section) {
-                            i.classList.add('active');
-                        } else {
-                            i.classList.remove('active');
-                        }
-                    });
-                    
-                    // Show corresponding section
-                    contentSections.forEach(sec => {
-                        if (sec.id === `${section}Screen`) {
-                            sec.classList.add('active');
-                        } else {
-                            sec.classList.remove('active');
-                        }
-                    });
-                    
-                    // Hide player if it's visible
-                    playerScreen.style.display = 'none';
                 });
             });
             
             // Player back button
-            playerBackBtn.addEventListener('click', function() {
+            playerBackBtn.addEventListener('click', () => {
                 playerScreen.style.display = 'none';
-                document.getElementById('homeScreen').classList.add('active');
-                
-                // Update active states
-                sidebarItems.forEach(i => {
-                    if (i.getAttribute('data-section') === 'home') {
-                        i.classList.add('active');
-                    } else {
-                        i.classList.remove('active');
-                    }
-                });
-                
-                bottomNavItems.forEach(i => {
-                    if (i.getAttribute('data-section') === 'home') {
-                        i.classList.add('active');
-                    } else {
-                        i.classList.remove('active');
-                    }
-                });
-            });
-            
-            // Play/Pause button
-            playPause.addEventListener('click', function() {
-                if (isPlaying) {
-                    mainVideo.pause();
-                    isPlaying = false;
-                    this.innerHTML = '<i class="fas fa-play"></i>';
-                } else {
-                    mainVideo.play();
-                    isPlaying = true;
-                    this.innerHTML = '<i class="fas fa-pause"></i>';
-                }
-            });
-            
-            // Skip forward
-            skipForward.addEventListener('click', function() {
-                mainVideo.currentTime += 10;
-            });
-            
-            // Skip backward
-            skipBackward.addEventListener('click', function() {
-                mainVideo.currentTime -= 10;
-            });
-            
-            // Video time update
-            mainVideo.addEventListener('timeupdate', function() {
-                const percent = (mainVideo.currentTime / mainVideo.duration) * 100;
-                progress.style.width = `${percent}%`;
-                
-                currentTime.textContent = formatTime(mainVideo.currentTime);
-                duration.textContent = formatTime(mainVideo.duration);
-            });
-            
-            // Progress bar click
-            progressBar.addEventListener('click', function(e) {
-                const rect = this.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                mainVideo.currentTime = percent * mainVideo.duration;
-            });
-            
-            // Fullscreen button
-            fullscreenBtn.addEventListener('click', function() {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else {
-                    playerScreen.requestFullscreen();
-                }
-            });
-            
-            // Picture-in-Picture button
-            pipBtn.addEventListener('click', function() {
-                if (document.pictureInPictureElement) {
-                    document.exitPictureInPicture();
-                } else if (document.pictureInPictureEnabled) {
-                    mainVideo.requestPictureInPicture();
-                }
+                videoIframe.src = '';
+                showSection('home');
             });
             
             // Like button
-            likeBtn.addEventListener('click', function() {
+            likeBtn.addEventListener('click', () => {
                 if (!currentVideo) return;
                 
-                if (likedVideos.includes(currentVideo.id)) {
-                    // Unlike
-                    const index = likedVideos.indexOf(currentVideo.id);
-                    likedVideos.splice(index, 1);
-                    currentVideo.likes -= 1;
-                    this.classList.remove('active');
-                    this.innerHTML = '<i class="far fa-thumbs-up"></i> Like';
+                const videoId = currentVideo.id;
+                const index = likedVideos.indexOf(videoId);
+                
+                if (index === -1) {
+                    // Like the video
+                    likedVideos.push(videoId);
+                    currentVideo.likes++;
                 } else {
-                    // Like
-                    likedVideos.push(currentVideo.id);
-                    currentVideo.likes += 1;
-                    this.classList.add('active');
-                    this.innerHTML = '<i class="fas fa-thumbs-up"></i> Liked';
-                    
-                    // If it was disliked, remove dislike
-                    if (dislikeBtn.classList.contains('active')) {
-                        dislikeBtn.classList.remove('active');
-                        dislikeBtn.innerHTML = '<i class="far fa-thumbs-down"></i> Dislike';
-                        currentVideo.dislikes -= 1;
-                    }
+                    // Unlike the video
+                    likedVideos.splice(index, 1);
+                    currentVideo.likes--;
                 }
                 
+                // Update UI
                 likeCount.textContent = formatViews(currentVideo.likes);
-                dislikeCount.textContent = formatViews(currentVideo.dislikes);
+                updateLikeDislikeButtons();
                 
+                // Save to localStorage
                 localStorage.setItem('likedVideos', JSON.stringify(likedVideos));
             });
             
             // Dislike button
-            dislikeBtn.addEventListener('click', function() {
+            dislikeBtn.addEventListener('click', () => {
                 if (!currentVideo) return;
                 
-                if (this.classList.contains('active')) {
-                    // Remove dislike
-                    this.classList.remove('active');
-                    this.innerHTML = '<i class="far fa-thumbs-down"></i> Dislike';
-                    currentVideo.dislikes -= 1;
+                dislikeBtn.classList.toggle('active');
+                
+                if (dislikeBtn.classList.contains('active')) {
+                    currentVideo.dislikes++;
                 } else {
-                    // Dislike
-                    this.classList.add('active');
-                    this.innerHTML = '<i class="fas fa-thumbs-down"></i> Disliked';
-                    currentVideo.dislikes += 1;
-                    
-                    // If it was liked, remove like
-                    if (likeBtn.classList.contains('active')) {
-                        likeBtn.classList.remove('active');
-                        likeBtn.innerHTML = '<i class="far fa-thumbs-up"></i> Like';
-                        currentVideo.likes -= 1;
-                        
-                        const index = likedVideos.indexOf(currentVideo.id);
-                        if (index > -1) {
-                            likedVideos.splice(index, 1);
-                        }
-                    }
+                    currentVideo.dislikes--;
                 }
                 
-                likeCount.textContent = formatViews(currentVideo.likes);
                 dislikeCount.textContent = formatViews(currentVideo.dislikes);
-                
-                localStorage.setItem('likedVideos', JSON.stringify(likedVideos));
             });
             
             // Save button
-            saveBtn.addEventListener('click', function() {
+            document.getElementById('saveBtn').addEventListener('click', function() {
                 if (!currentVideo) return;
                 
-                if (savedVideos.includes(currentVideo.id)) {
-                    // Remove from saved
-                    const index = savedVideos.indexOf(currentVideo.id);
+                const videoId = currentVideo.id;
+                const index = savedVideos.indexOf(videoId);
+                
+                if (index === -1) {
+                    // Save the video
+                    savedVideos.push(videoId);
+                    this.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                } else {
+                    // Unsave the video
                     savedVideos.splice(index, 1);
                     this.innerHTML = '<i class="far fa-bookmark"></i> Save';
-                } else {
-                    // Add to saved
-                    savedVideos.push(currentVideo.id);
-                    this.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
                 }
                 
+                // Save to localStorage
                 localStorage.setItem('savedVideos', JSON.stringify(savedVideos));
-                updateLibrary();
+                
+                // Update library if we're on that screen
+                if (document.getElementById('libraryScreen').classList.contains('active')) {
+                    updateLibrary();
+                }
             });
             
             // Share button
-            shareBtn.addEventListener('click', function() {
+            document.getElementById('shareBtn').addEventListener('click', () => {
                 if (!currentVideo) return;
                 
-                // Simulate share functionality
-                alert(`Share "${currentVideo.title}" with your friends!`);
-            });
-            
-            // Comment submit
-            commentSubmit.addEventListener('click', function() {
-                const text = commentInput.value.trim();
-                if (text === '') return;
-                
-                // Find current video and add comment
-                const video = videos.find(v => v.id === currentVideo.id);
-                if (video) {
-                    const newComment = {
-                        id: video.comments.length + 1,
-                        author: 'You',
-                        time: 'Just now',
-                        text: text,
-                        likes: 0,
-                        liked: false,
-                        disliked: false
-                    };
-                    
-                    video.comments.unshift(newComment);
-                    renderComments(video.comments);
-                    commentInput.value = '';
-                }
-            });
-            
-            // Theme toggle
-            themeToggle.addEventListener('click', function() {
-                if (document.body.classList.contains('dark-mode')) {
-                    document.body.classList.remove('dark-mode');
-                    document.body.classList.add('light-mode');
-                    this.innerHTML = '<i class="fas fa-sun"></i>';
+                if (navigator.share) {
+                    navigator.share({
+                        title: currentVideo.title,
+                        text: currentVideo.description,
+                        url: window.location.href,
+                    })
+                    .catch(console.error);
                 } else {
-                    document.body.classList.remove('light-mode');
-                    document.body.classList.add('dark-mode');
-                    this.innerHTML = '<i class="fas fa-moon"></i>';
+                    // Fallback for browsers that don't support Web Share API
+                    alert('Share this video: ' + currentVideo.title);
                 }
             });
             
-            // Mobile search icon
-            searchIconMobile.addEventListener('click', function() {
-                searchContainer.classList.toggle('active');
+            // Comment submission
+            commentSubmit.addEventListener('click', addComment);
+            commentInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addComment();
+                }
             });
             
             // Category filters
             categoryBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const category = this.getAttribute('data-category');
+                    const category = this.dataset.category;
                     
+                    // Update active state
                     categoryBtns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Filter videos based on category
-                    if (category === 'all') {
-                        videoGrid.innerHTML = '';
-                        videos.slice(0, 6).forEach(video => {
-                            videoGrid.appendChild(createVideoCard(video));
-                        });
-                    } else {
-                        const filteredVideos = videos.filter(video => video.category === category);
-                        videoGrid.innerHTML = '';
-                        filteredVideos.slice(0, 6).forEach(video => {
-                            videoGrid.appendChild(createVideoCard(video));
-                        });
-                    }
+                    // Filter videos
+                    filterVideos(category);
                 });
             });
             
-            // Logo click - go to home
-            logoBtn.addEventListener('click', function() {
-                contentSections.forEach(sec => {
-                    if (sec.id === 'homeScreen') {
-                        sec.classList.add('active');
-                    } else {
-                        sec.classList.remove('active');
-                    }
-                });
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
                 
-                playerScreen.style.display = 'none';
-                
-                sidebarItems.forEach(i => {
-                    if (i.getAttribute('data-section') === 'home') {
-                        i.classList.add('active');
-                    } else {
-                        i.classList.remove('active');
-                    }
-                });
-                
-                bottomNavItems.forEach(i => {
-                    if (i.getAttribute('data-section') === 'home') {
-                        i.classList.add('active');
-                    } else {
-                        i.classList.remove('active');
-                    }
-                });
-            });
-            
-            // Video ended event
-            mainVideo.addEventListener('ended', function() {
-                isPlaying = false;
-                playPause.innerHTML = '<i class="fas fa-play"></i>';
-                
-                // Auto-play next video after a delay
-                setTimeout(() => {
-                    const upNextItems = document.querySelectorAll('.up-next-item');
-                    if (upNextItems.length > 0) {
-                        upNextItems[0].click();
-                    }
-                }, 3000);
+                if (query.length > 0) {
+                    const filteredVideos = videos.filter(video => 
+                        video.title.toLowerCase().includes(query)
+                    );
+                    
+                    // Show search results
+                    videoGrid.innerHTML = '';
+                    filteredVideos.forEach(video => {
+                        videoGrid.appendChild(createVideoCard(video));
+                    });
+                    
+                    // Hide trending section
+                    document.querySelector('#homeScreen .mt-5').style.display = 'none';
+                } else {
+                    // Show normal content
+                    renderVideos();
+                    document.querySelector('#homeScreen .mt-5').style.display = 'block';
+                }
             });
         }
 
-        // Format time in minutes:seconds
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        // Show a specific section
+        function showSection(section) {
+            contentSections.forEach(s => {
+                s.classList.remove('active');
+            });
+            
+            playerScreen.style.display = 'none';
+            
+            document.getElementById(section + 'Screen').classList.add('active');
+            
+            // Update active state in sidebar
+            sidebarItems.forEach(item => {
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Update active state in bottom nav
+            bottomNavItems.forEach(item => {
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Filter videos by category
+        function filterVideos(category) {
+            videoGrid.innerHTML = '';
+            
+            if (category === 'all') {
+                videos.forEach(video => {
+                    videoGrid.appendChild(createVideoCard(video));
+                });
+            } else {
+                const filteredVideos = videos.filter(video => video.category === category);
+                filteredVideos.forEach(video => {
+                    videoGrid.appendChild(createVideoCard(video));
+                });
+            }
+        }
+
+        // Add a new comment
+        function addComment() {
+            if (!currentVideo || !commentInput.value.trim()) return;
+            
+            const newComment = {
+                id: currentVideo.comments.length + 1,
+                author: 'You',
+                time: 'Just now',
+                text: commentInput.value,
+                likes: 0,
+                liked: false,
+                disliked: false
+            };
+            
+            currentVideo.comments.unshift(newComment);
+            commentInput.value = '';
+            renderComments();
         }
 
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', init);
+        init();
     </script>
 </body>
 </html>
