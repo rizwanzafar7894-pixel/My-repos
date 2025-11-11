@@ -1,0 +1,1499 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous - Modern Music Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f1425 0%, #1a1f3a 100%);
+            overflow-x: hidden;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1a1f3a;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #00fff2;
+            border-radius: 4px;
+        }
+
+        .genre-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            height: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .genre-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 255, 242, 0.3);
+        }
+
+        .genre-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .genre-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .genre-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
+        }
+
+        .slider-container {
+            position: relative;
+        }
+
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            background: #00fff2;
+            color: #1a1f3a;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 242, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .slider-container:hover .slider-nav {
+            opacity: 1;
+        }
+
+        .slider-nav:hover {
+            background: #00d4d4;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 255, 242, 0.7);
+        }
+
+        .slider-nav.prev {
+            left: 10px;
+        }
+
+        .slider-nav.next {
+            right: 10px;
+        }
+
+        .music-card {
+            background: rgba(44, 53, 84, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .music-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 242, 0.2);
+            background: rgba(44, 53, 84, 0.9);
+        }
+
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .music-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background: #00fff2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1f3a;
+            transition: transform 0.3s ease;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .progress-bar {
+            position: relative;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00fff2;
+            border-radius: 6px;
+            position: relative;
+            transition: width 0.1s ease;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            background: #00fff2;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-bar:hover .progress-fill::after {
+            opacity: 1;
+        }
+
+        .wave-animation {
+            animation: wave 15s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .wave-animation-reverse {
+            animation: wave-reverse 20s linear infinite;
+        }
+
+        @keyframes wave-reverse {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        .wave-animation-slow {
+            animation: wave 25s linear infinite;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 16rem;
+            z-index: 40;
+        }
+        
+        main {
+            min-width: 0;
+            margin-left: 16rem;
+        }
+        
+        @media (max-width: 1024px) {
+            #sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            main {
+                margin-left: 0;
+            }
+            .slider-nav {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .genre-card {
+                height: 160px;
+            }
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 0.3s ease;
+        }
+
+        .now-playing {
+            border: 2px solid #00fff2;
+            box-shadow: 0 0 20px rgba(0, 255, 242, 0.4);
+        }
+
+        .equalizer {
+            display: inline-flex;
+            align-items: flex-end;
+            height: 14px;
+            gap: 2px;
+        }
+
+        .equalizer span {
+            display: block;
+            width: 3px;
+            background: #00fff2;
+            animation: equalize 0.6s ease-in-out infinite;
+        }
+
+        .equalizer span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .equalizer span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .equalizer span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes equalize {
+            0%, 100% { height: 4px; }
+            50% { height: 14px; }
+        }
+        
+        .glass-effect {
+            background: rgba(44, 53, 84, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #00fff2;
+            border-radius: 2px;
+        }
+        
+        .floating-player {
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .song-playing {
+            background: rgba(0, 255, 242, 0.1);
+            border-left: 3px solid #00fff2;
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #00fff2, #00a8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Mobile Menu Button -->
+    <button id="menuToggle" class="lg:hidden fixed top-5 left-5 z-50 bg-cyan-400 text-gray-900 p-3 rounded-full shadow-lg hover:bg-cyan-500 transition-colors">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
+
+    <!-- Wavy SVG Background -->
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-10">
+        <svg class="wave-animation absolute top-0 left-0 w-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#00fff2"></path>
+        </svg>
+        <svg class="wave-animation-reverse absolute top-20 left-0 w-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="#00fff2"></path>
+        </svg>
+        <svg class="wave-animation-slow absolute bottom-0 left-0 w-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="#00fff2"></path>
+        </svg>
+    </div>
+
+    <div class="min-h-screen flex flex-col lg:flex-row relative z-10">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="glass-effect overflow-y-auto custom-scrollbar lg:block">
+            <div class="p-6">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center text-2xl font-bold mb-2 shadow-lg">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="text-sm font-semibold gradient-text">Miraculous Music</div>
+                </div>
+
+                <nav class="space-y-2">
+                    <a href="#discover" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-cyan-400 bg-cyan-500/20">
+                        <i class="fas fa-home text-lg w-5"></i>
+                        <span class="text-sm font-medium">Discover</span>
+                    </a>
+                    <a href="#albums" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-record-vinyl text-lg w-5"></i>
+                        <span class="text-sm font-medium">Albums</span>
+                    </a>
+                    <a href="#artists" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-microphone text-lg w-5"></i>
+                        <span class="text-sm font-medium">Artists</span>
+                    </a>
+                    <a href="#genres" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-guitar text-lg w-5"></i>
+                        <span class="text-sm font-medium">Genres</span>
+                    </a>
+                    <a href="#top-tracks" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-gem text-lg w-5"></i>
+                        <span class="text-sm font-medium">Top Tracks</span>
+                    </a>
+                    <a href="#trending" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-fire text-lg w-5"></i>
+                        <span class="text-sm font-medium">Trending</span>
+                    </a>
+                    <a href="#favourites" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-heart text-lg w-5"></i>
+                        <span class="text-sm font-medium">Favourites</span>
+                    </a>
+                    <a href="#playlist" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-list text-lg w-5"></i>
+                        <span class="text-sm font-medium">Playlist</span>
+                    </a>
+                    <a href="#radio" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-broadcast-tower text-lg w-5"></i>
+                        <span class="text-sm font-medium">Radio</span>
+                    </a>
+                    <a href="#podcasts" class="nav-link flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-gray-400 hover:bg-cyan-500/10 hover:text-cyan-400">
+                        <i class="fas fa-podcast text-lg w-5"></i>
+                        <span class="text-sm font-medium">Podcasts</span>
+                    </a>
+                </nav>
+
+                <!-- Recently Played in Sidebar -->
+                <div class="mt-8">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-3">Recently Played</h3>
+                    <div class="space-y-2" id="sidebarRecent">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 pb-32 w-full lg:w-auto">
+            <!-- Header -->
+            <header class="sticky top-0 z-30 glass-effect backdrop-blur-lg px-4 sm:px-6 lg:px-10 py-4">
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex-1 min-w-[200px] ml-14 lg:ml-0">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" id="searchInput" placeholder="Search songs, artists, albums..." class="w-full max-w-md pl-10 pr-4 py-2.5 bg-white/10 border border-white/20 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 placeholder:text-gray-500">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="p-2 rounded-full bg-white/10 hover:bg-cyan-500/20 transition-all">
+                            <i class="fas fa-bell text-gray-400"></i>
+                        </button>
+                        <div class="flex items-center gap-2 bg-white/10 rounded-full pl-3 pr-1 py-1">
+                            <div class="w-6 h-6 rounded-full bg-cyan-400 flex items-center justify-center">
+                                <span class="text-xs font-bold text-gray-900">U</span>
+                            </div>
+                            <span class="text-sm font-medium">User</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="px-4 sm:px-6 lg:px-10">
+                <!-- Hero Banner -->
+                <section id="discover" class="my-6 sm:my-8 bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 relative overflow-hidden min-h-[250px] sm:min-h-[300px] flex items-center">
+                    <div class="absolute inset-0 opacity-20" style="background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200'); background-size: cover; background-position: center;"></div>
+                    <div class="relative z-10 max-w-2xl">
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">Discover New Music</h1>
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-cyan-400 mb-3 sm:mb-4">Every Day</h1>
+                        <p class="text-xs sm:text-sm lg:text-base opacity-90 mb-4 sm:mb-6 leading-relaxed">
+                            Explore millions of songs, create playlists, and share your favorite tracks with friends.
+                        </p>
+                        <div class="flex gap-3 sm:gap-4 flex-wrap">
+                            <button onclick="playAll()" class="bg-cyan-400 text-gray-900 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm font-semibold hover:bg-cyan-300 transition-all shadow-lg hover:shadow-cyan-400/50">
+                                <i class="fas fa-play mr-2"></i>Listen Now
+                            </button>
+                            <button onclick="shuffleAll()" class="bg-white/20 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-full text-sm font-semibold hover:bg-white/30 transition-all shadow-lg">
+                                <i class="fas fa-random mr-2"></i>Shuffle Play
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Access -->
+                <section class="my-8 sm:my-12">
+                    <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400 mb-4 sm:mb-6">Quick Access</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div class="glass-effect rounded-xl p-4 text-center hover-lift cursor-pointer">
+                            <div class="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 mx-auto mb-2">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <span class="text-sm font-medium">Liked Songs</span>
+                        </div>
+                        <div class="glass-effect rounded-xl p-4 text-center hover-lift cursor-pointer">
+                            <div class="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 mx-auto mb-2">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <span class="text-sm font-medium">My Playlists</span>
+                        </div>
+                        <div class="glass-effect rounded-xl p-4 text-center hover-lift cursor-pointer">
+                            <div class="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mx-auto mb-2">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <span class="text-sm font-medium">Recently Played</span>
+                        </div>
+                        <div class="glass-effect rounded-xl p-4 text-center hover-lift cursor-pointer">
+                            <div class="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 mx-auto mb-2">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <span class="text-sm font-medium">Downloads</span>
+                        </div>
+                        <div class="glass-effect rounded-xl p-4 text-center hover-lift cursor-pointer">
+                            <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center text-red-400 mx-auto mb-2">
+                                <i class="fas fa-podcast"></i>
+                            </div>
+                            <span class="text-sm font-medium">Podcasts</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recently Played -->
+                <section class="my-8 sm:my-12">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Recently Played</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-nav prev" onclick="scrollSlider('recentlyPlayed', -1)">
+                            <i class="fas fa-chevron-left text-lg"></i>
+                        </div>
+                        <div id="recentlyPlayed" class="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+                        <div class="slider-nav next" onclick="scrollSlider('recentlyPlayed', 1)">
+                            <i class="fas fa-chevron-right text-lg"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Weekly Top 15 -->
+                <section class="my-8 sm:my-12" id="top-tracks">
+                    <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400 mb-4 sm:mb-6">Weekly Top 15</h2>
+                    <div id="topSongs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"></div>
+                </section>
+
+                <!-- Featured Artists -->
+                <section class="my-8 sm:my-12" id="artists">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Featured Artists</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-nav prev" onclick="scrollSlider('featuredArtists', -1)">
+                            <i class="fas fa-chevron-left text-lg"></i>
+                        </div>
+                        <div id="featuredArtists" class="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+                        <div class="slider-nav next" onclick="scrollSlider('featuredArtists', 1)">
+                            <i class="fas fa-chevron-right text-lg"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- New Releases -->
+                <section class="my-8 sm:my-12">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">New Releases</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-nav prev" onclick="scrollSlider('newReleases', -1)">
+                            <i class="fas fa-chevron-left text-lg"></i>
+                        </div>
+                        <div id="newReleases" class="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"></div>
+                        <div class="slider-nav next" onclick="scrollSlider('newReleases', 1)">
+                            <i class="fas fa-chevron-right text-lg"></i>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Featured Albums -->
+                <section class="my-8 sm:my-12" id="albums">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Featured Albums</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6" id="featuredAlbums"></div>
+                </section>
+
+                <!-- Trending Section -->
+                <section class="my-8 sm:my-12" id="trending">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Trending Music</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6" id="trendingMusic"></div>
+                </section>
+
+                <!-- Top Genres -->
+                <section class="my-8 sm:my-12" id="genres">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Top Genres</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div id="genreGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6"></div>
+                </section>
+
+                <!-- Radio Stations -->
+                <section class="my-8 sm:my-12" id="radio">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Radio Stations</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6" id="radioStations"></div>
+                </section>
+
+                <!-- Podcasts -->
+                <section class="my-8 sm:my-12" id="podcasts">
+                    <div class="flex justify-between items-center mb-4 sm:mb-6">
+                        <h2 class="section-title text-xl sm:text-2xl lg:text-3xl font-bold text-cyan-400">Popular Podcasts</h2>
+                        <button class="text-cyan-400 hover:underline font-semibold text-xs sm:text-sm">View More</button>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5 lg:gap-6" id="podcastsList"></div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="mt-12 pt-8 sm:pt-12 border-t border-white/10">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8">
+                        <div>
+                            <h3 class="text-cyan-400 font-bold mb-3 sm:mb-4 text-base sm:text-lg">Miraculous Music</h3>
+                            <p class="text-xs sm:text-sm text-gray-400 leading-relaxed">
+                                Your ultimate destination for discovering and enjoying music from around the world.
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-cyan-400 font-bold mb-3 sm:mb-4 text-base sm:text-lg">Quick Links</h3>
+                            <div class="space-y-2 text-xs sm:text-sm text-gray-400">
+                                <div class="hover:text-cyan-400 cursor-pointer">About Us</div>
+                                <div class="hover:text-cyan-400 cursor-pointer">Contact</div>
+                                <div class="hover:text-cyan-400 cursor-pointer">Privacy Policy</div>
+                                <div class="hover:text-cyan-400 cursor-pointer">Terms of Service</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-cyan-400 font-bold mb-3 sm:mb-4 text-base sm:text-lg">Contact</h3>
+                            <div class="space-y-2 text-xs sm:text-sm text-gray-400">
+                                <div>info@miraculous.com</div>
+                                <div>(+1) 202-555-0176</div>
+                                <div>New York, NY 10001</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-cyan-400 font-bold mb-3 sm:mb-4 text-base sm:text-lg">Follow Us</h3>
+                            <div class="flex gap-2 sm:gap-3 flex-wrap">
+                                <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-gray-900 transition-all">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-gray-900 transition-all">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-gray-900 transition-all">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-gray-900 transition-all">
+                                    <i class="fab fa-spotify"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center pt-6 sm:pt-8 border-t border-white/10 text-xs sm:text-sm text-gray-400">
+                        <p>Copyright © 2025 <span class="text-cyan-400">Miraculous Music</span>. All rights reserved.</p>
+                    </div>
+                </footer>
+            </div>
+        </main>
+
+        <!-- Music Player -->
+        <div class="fixed bottom-0 left-0 right-0 glass-effect floating-player px-3 sm:px-6 lg:px-10 py-3 sm:py-4 z-50">
+            <div class="flex items-center gap-3 sm:gap-4 lg:gap-6 flex-wrap">
+                <!-- Song Info -->
+                <div class="flex items-center gap-2 sm:gap-3 lg:gap-4 flex-1 min-w-[150px] sm:min-w-[200px]">
+                    <img id="playerThumb" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" alt="Song" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0">
+                    <div class="min-w-0 flex-1">
+                        <h4 id="playerTitle" class="font-semibold text-xs sm:text-sm truncate">Select a song</h4>
+                        <p id="playerArtist" class="text-xs text-gray-400 truncate">Miraculous Music</p>
+                    </div>
+                    <button id="likeBtn" class="text-gray-400 hover:text-red-400 transition-colors hidden sm:block">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                    <button id="prevBtn" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-cyan-400 transition-all">
+                        <i class="fas fa-step-backward text-sm sm:text-base"></i>
+                    </button>
+                    <button id="playBtn" class="w-10 h-10 sm:w-12 sm:h-12 bg-cyan-400 rounded-full flex items-center justify-center text-gray-900 hover:bg-cyan-300 transition-all flex-shrink-0">
+                        <i class="fas fa-play ml-0.5 text-sm sm:text-base"></i>
+                    </button>
+                    <button id="nextBtn" class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-white hover:text-cyan-400 transition-all">
+                        <i class="fas fa-step-forward text-sm sm:text-base"></i>
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div class="flex-1 min-w-[150px] sm:min-w-[200px] order-5 lg:order-none w-full lg:w-auto">
+                    <div class="flex justify-between text-[10px] sm:text-xs text-gray-400 mb-1 sm:mb-2">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Volume -->
+                <div class="hidden lg:flex items-center gap-2 sm:gap-3 min-w-[100px] sm:min-w-[120px]">
+                    <i id="volumeIcon" class="fas fa-volume-up cursor-pointer hover:text-cyan-400 transition-colors text-sm"></i>
+                    <div class="flex-1 h-1 bg-white/20 rounded-full cursor-pointer" id="volumeSlider">
+                        <div id="volumeFill" class="h-full bg-cyan-400 rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="hidden lg:flex gap-3 sm:gap-4">
+                    <button id="shuffleBtn" class="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                        <i class="fas fa-random"></i>
+                    </button>
+                    <button id="repeatBtn" class="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button id="queueBtn" class="text-gray-400 hover:text-cyan-400 transition-colors text-sm">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Audio Elements -->
+    <audio id="audioPlayer" preload="metadata"></audio>
+
+    <script>
+        // Enhanced Music Library with MP3-only songs
+        const songs = [
+            { id: 1, title: "Midnight City", artist: "M83", duration: "4:04", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop", genre: "Electronic", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", type: "mp3" },
+            { id: 2, title: "Blinding Lights", artist: "The Weeknd", duration: "3:22", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", type: "mp3" },
+            { id: 3, title: "Save Your Tears", artist: "The Weeknd", duration: "3:35", image: "https://images.unsplash.com/photo-1571609167768-5d5c7f86c6c1?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", type: "mp3" },
+            { id: 4, title: "Levitating", artist: "Dua Lipa", duration: "3:23", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", type: "mp3" },
+            { id: 5, title: "Stay", artist: "The Kid LAROI, Justin Bieber", duration: "2:21", image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", type: "mp3" },
+            { id: 6, title: "Good 4 U", artist: "Olivia Rodrigo", duration: "2:58", image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=400&h=400&fit=crop", genre: "Pop Rock", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", type: "mp3" },
+            { id: 7, title: "Montero", artist: "Lil Nas X", duration: "2:00", image: "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?w=400&h=400&fit=crop", genre: "Hip Hop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", type: "mp3" },
+            { id: 8, title: "Kiss Me More", artist: "Doja Cat ft. SZA", duration: "3:28", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", type: "mp3" },
+            { id: 9, title: "Butter", artist: "BTS", duration: "2:42", image: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=400&h=400&fit=crop", genre: "K-Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", type: "mp3" },
+            { id: 10, title: "Industry Baby", artist: "Lil Nas X ft. Jack Harlow", duration: "3:32", image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=400&fit=crop", genre: "Hip Hop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", type: "mp3" },
+            { id: 11, title: "Stay With Me", artist: "Calvin Harris", duration: "3:49", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop", genre: "Electronic", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3", type: "mp3" },
+            { id: 12, title: "Heat Waves", artist: "Glass Animals", duration: "3:59", image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=400&fit=crop", genre: "Indie Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3", type: "mp3" },
+            { id: 13, title: "Shivers", artist: "Ed Sheeran", duration: "3:27", image: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3", type: "mp3" },
+            { id: 14, title: "Easy On Me", artist: "Adele", duration: "3:44", image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3", type: "mp3" },
+            { id: 15, title: "Cold Heart", artist: "Elton John, Dua Lipa", duration: "3:22", image: "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?w=400&h=400&fit=crop", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3", type: "mp3" }
+        ];
+
+        const genres = [
+            { name: "Pop", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&h=300&fit=crop" },
+            { name: "Rock", image: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=600&h=300&fit=crop" },
+            { name: "Hip Hop", image: "https://images.unsplash.com/photo-1571609167768-5d5c7f86c6c1?w=600&h=300&fit=crop" },
+            { name: "Electronic", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600&h=300&fit=crop" },
+            { name: "Jazz", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=300&fit=crop" },
+            { name: "Classical", image: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600&h=300&fit=crop" }
+        ];
+
+        const radioStations = [
+            { id: 1, name: "Pop Hits Radio", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop", genre: "Pop" },
+            { id: 2, name: "Rock Nation", image: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=400&h=400&fit=crop", genre: "Rock" },
+            { id: 3, name: "Hip Hop Central", image: "https://images.unsplash.com/photo-1571609167768-5d5c7f86c6c1?w=400&h=400&fit=crop", genre: "Hip Hop" },
+            { id: 4, name: "Electronic Beats", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400&h=400&fit=crop", genre: "Electronic" },
+            { id: 5, name: "Jazz Lounge", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&h=400&fit=crop", genre: "Jazz" },
+            { id: 6, name: "Classical Masters", image: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=400&h=400&fit=crop", genre: "Classical" }
+        ];
+
+        const podcasts = [
+            { id: 1, title: "The Daily", artist: "The New York Times", duration: "25:00", image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&h=400&fit=crop", genre: "News" },
+            { id: 2, title: "Serial", artist: "This American Life", duration: "45:00", image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&h=400&fit=crop", genre: "True Crime" },
+            { id: 3, title: "The Joe Rogan Experience", artist: "Joe Rogan", duration: "2:30:00", image: "https://images.unsplash.com/photo-1589903308904-1010c2294adc?w=400&h=400&fit=crop", genre: "Talk" },
+            { id: 4, title: "Stuff You Should Know", artist: "HowStuffWorks", duration: "50:00", image: "https://images.unsplash.com/photo-1554260570-9140fd3b7614?w=400&h=400&fit=crop", genre: "Education" },
+            { id: 5, title: "Crime Junkie", artist: "audiochuck", duration: "40:00", image: "https://images.unsplash.com/photo-1563089145-599997674d42?w=400&h=400&fit=crop", genre: "True Crime" },
+            { id: 6, title: "TED Talks Daily", artist: "TED", duration: "20:00", image: "https://images.unsplash.com/photo-1551836026-d5c88ac5c4e0?w=400&h=400&fit=crop", genre: "Education" }
+        ];
+
+        // Player state
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let volume = 0.7;
+        let isShuffled = false;
+        let repeatMode = 0; // 0: off, 1: all, 2: one
+        let favourites = [];
+        let playHistory = [];
+
+        // DOM elements
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playerThumb = document.getElementById('playerThumb');
+        const playerTitle = document.getElementById('playerTitle');
+        const playerArtist = document.getElementById('playerArtist');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeFill = document.getElementById('volumeFill');
+        const shuffleBtn = document.getElementById('shuffleBtn');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const likeBtn = document.getElementById('likeBtn');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const searchInput = document.getElementById('searchInput');
+        const sidebarRecent = document.getElementById('sidebarRecent');
+
+        // Initialize
+        function initPlayer() {
+            audioPlayer.volume = volume;
+            
+            // Event listeners
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', playPrevious);
+            nextBtn.addEventListener('click', playNext);
+            audioPlayer.addEventListener('loadedmetadata', updateDuration);
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+            audioPlayer.addEventListener('ended', handleSongEnd);
+            progressBar.addEventListener('click', seek);
+            volumeSlider.addEventListener('click', setVolume);
+            volumeIcon.addEventListener('click', toggleMute);
+            shuffleBtn.addEventListener('click', toggleShuffle);
+            repeatBtn.addEventListener('click', toggleRepeat);
+            likeBtn.addEventListener('click', toggleLike);
+            menuToggle.addEventListener('click', toggleSidebar);
+            searchInput.addEventListener('input', handleSearch);
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active', 'text-cyan-400', 'bg-cyan-500/20');
+                        l.classList.add('text-gray-400');
+                    });
+                    this.classList.remove('text-gray-400');
+                    this.classList.add('active', 'text-cyan-400', 'bg-cyan-500/20');
+                    
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        const section = document.querySelector(href);
+                        if (section) {
+                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                    
+                    if (window.innerWidth < 1024) {
+                        sidebar.classList.remove('open');
+                    }
+                });
+            });
+            
+            renderAllSections();
+            volumeFill.style.width = `${volume * 100}%`;
+        }
+
+        function renderAllSections() {
+            renderRecentlyPlayed();
+            renderTopSongs();
+            renderFeaturedArtists();
+            renderNewReleases();
+            renderFeaturedAlbums();
+            renderTrendingMusic();
+            renderGenres();
+            renderRadioStations();
+            renderPodcasts();
+            renderSidebarRecent();
+        }
+
+        function renderSidebarRecent() {
+            sidebarRecent.innerHTML = '';
+            const recentSongs = [...songs].slice(0, 5);
+            
+            recentSongs.forEach(song => {
+                sidebarRecent.innerHTML += `
+                    <div class="flex items-center gap-2 p-2 rounded-lg hover:bg-cyan-500/10 cursor-pointer transition-all" data-id="${song.id}">
+                        <img src="${song.image}" alt="${song.title}" class="w-8 h-8 rounded object-cover">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium truncate">${song.title}</h4>
+                            <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Add event listeners to sidebar songs
+            document.querySelectorAll('#sidebarRecent > div').forEach(item => {
+                item.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    playSongById(id);
+                });
+            });
+        }
+
+        function renderRecentlyPlayed() {
+            const container = document.getElementById('recentlyPlayed');
+            const recentSongs = [...songs].slice(0, 8);
+            
+            container.innerHTML = recentSongs.map(song => `
+                <div class="music-card flex-shrink-0 w-36 sm:w-40 lg:w-44" data-id="${song.id}">
+                    <div class="relative">
+                        <img src="${song.image}" alt="${song.title}" class="w-full aspect-square object-cover">
+                        <div class="play-overlay">
+                            <div class="play-btn" data-id="${song.id}">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${song.title}</h4>
+                        <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTopSongs() {
+            const container = document.getElementById('topSongs');
+            const topSongs = [...songs].slice(0, 10);
+            
+            container.innerHTML = topSongs.map((song, index) => {
+                const isCurrentlyPlaying = currentSongIndex === songs.findIndex(s => s.id === song.id) && isPlaying;
+                return `
+                    <div class="music-card flex items-center gap-3 sm:gap-4 p-3 sm:p-4 ${isCurrentlyPlaying ? 'now-playing' : ''}" data-id="${song.id}">
+                        <div class="text-cyan-400 font-bold text-lg sm:text-xl w-8 flex-shrink-0">${index + 1}</div>
+                        <div class="relative flex-shrink-0">
+                            <img src="${song.image}" alt="${song.title}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover">
+                            <div class="play-overlay">
+                                <div class="play-btn" data-id="${song.id}">
+                                    <i class="fas fa-play text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-sm sm:text-base truncate">${song.title}</h4>
+                            <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                        </div>
+                        ${isCurrentlyPlaying ? '<div class="equalizer"><span></span><span></span><span></span></div>' : ''}
+                        <div class="text-xs text-gray-400 hidden sm:block">${song.duration}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFeaturedArtists() {
+            const container = document.getElementById('featuredArtists');
+            const artists = [...new Set(songs.map(song => song.artist))].slice(0, 8);
+            
+            container.innerHTML = artists.map(artist => {
+                const artistImage = songs.find(song => song.artist === artist).image;
+                return `
+                    <div class="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-2 border-2 border-cyan-400/50">
+                            <img src="${artistImage}" alt="${artist}" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-semibold text-sm text-center">${artist}</h4>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderNewReleases() {
+            const container = document.getElementById('newReleases');
+            const newSongs = [...songs].slice(5, 11);
+            
+            container.innerHTML = newSongs.map(song => `
+                <div class="music-card flex-shrink-0 w-36 sm:w-40 lg:w-44" data-id="${song.id}">
+                    <div class="relative">
+                        <img src="${song.image}" alt="${song.title}" class="w-full aspect-square object-cover">
+                        <div class="play-overlay">
+                            <div class="play-btn" data-id="${song.id}">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${song.title}</h4>
+                        <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFeaturedAlbums() {
+            const container = document.getElementById('featuredAlbums');
+            const albums = [...songs].slice(0, 12);
+            
+            container.innerHTML = albums.map(song => `
+                <div class="music-card" data-id="${song.id}">
+                    <div class="relative">
+                        <img src="${song.image}" alt="${song.title}" class="w-full aspect-square object-cover">
+                        <div class="play-overlay">
+                            <div class="play-btn" data-id="${song.id}">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${song.title}</h4>
+                        <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTrendingMusic() {
+            const container = document.getElementById('trendingMusic');
+            const trending = [...songs].slice(3, 15);
+            
+            container.innerHTML = trending.map(song => `
+                <div class="music-card" data-id="${song.id}">
+                    <div class="relative">
+                        <img src="${song.image}" alt="${song.title}" class="w-full aspect-square object-cover">
+                        <div class="play-overlay">
+                            <div class="play-btn" data-id="${song.id}">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${song.title}</h4>
+                        <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGenres() {
+            const container = document.getElementById('genreGrid');
+            
+            container.innerHTML = genres.map(genre => `
+                <div class="genre-card">
+                    <img src="${genre.image}" alt="${genre.name}">
+                    <div class="genre-overlay">
+                        <h3 class="text-xl sm:text-2xl font-bold uppercase mb-1">${genre.name}</h3>
+                        <button class="text-cyan-400 text-xs sm:text-sm font-semibold hover:underline">Explore</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRadioStations() {
+            const container = document.getElementById('radioStations');
+            
+            container.innerHTML = radioStations.map(station => `
+                <div class="music-card">
+                    <div class="relative">
+                        <img src="${station.image}" alt="${station.name}" class="w-full aspect-square object-cover">
+                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                            <i class="fas fa-broadcast-tower mr-1"></i>LIVE
+                        </div>
+                        <div class="play-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${station.name}</h4>
+                        <p class="text-xs text-gray-400 truncate">${station.genre}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPodcasts() {
+            const container = document.getElementById('podcastsList');
+            
+            container.innerHTML = podcasts.map(podcast => `
+                <div class="music-card">
+                    <div class="relative">
+                        <img src="${podcast.image}" alt="${podcast.title}" class="w-full aspect-square object-cover">
+                        <div class="play-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-semibold text-sm truncate">${podcast.title}</h4>
+                        <p class="text-xs text-gray-400 truncate">${podcast.artist}</p>
+                        <p class="text-xs text-cyan-400 mt-1">${podcast.duration}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function attachEventListeners() {
+            document.querySelectorAll('.play-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    playSongById(parseInt(this.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.music-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    playSongById(parseInt(this.getAttribute('data-id')));
+                });
+            });
+        }
+
+        function playSongById(id) {
+            const index = songs.findIndex(song => song.id === id);
+            if (index !== -1) {
+                currentSongIndex = index;
+                loadSong(currentSongIndex);
+                playSong();
+                addToHistory(id);
+            }
+        }
+
+        function loadSong(index) {
+            const song = songs[index];
+            playerThumb.src = song.image;
+            playerTitle.textContent = song.title;
+            playerArtist.textContent = song.artist;
+            
+            // Stop any current playback
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+            }
+            
+            // Reset progress
+            progressFill.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+            totalTimeEl.textContent = song.duration;
+            
+            // Load the song
+            audioPlayer.src = song.audio;
+            audioPlayer.load();
+            
+            updateLikeButton();
+            updateNowPlaying();
+            updatePlayButton();
+        }
+
+        function playSong() {
+            audioPlayer.play()
+                .then(() => {
+                    isPlaying = true;
+                    updatePlayButton();
+                    updateNowPlaying();
+                })
+                .catch(error => {
+                    console.error('Playback error:', error);
+                    showNotification("Error playing song");
+                });
+        }
+
+        function pauseSong() {
+            audioPlayer.pause();
+            isPlaying = false;
+            updatePlayButton();
+            updateNowPlaying();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                pauseSong();
+            } else {
+                playSong();
+            }
+        }
+
+        function playPrevious() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) playSong();
+        }
+
+        function playNext() {
+            if (repeatMode === 2) {
+                loadSong(currentSongIndex);
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                loadSong(currentSongIndex);
+            }
+            if (isPlaying) playSong();
+        }
+
+        function handleSongEnd() {
+            if (repeatMode === 2) {
+                loadSong(currentSongIndex);
+                playSong();
+            } else if (repeatMode === 1 || currentSongIndex < songs.length - 1) {
+                playNext();
+            } else {
+                isPlaying = false;
+                updatePlayButton();
+                progressFill.style.width = '0%';
+                currentTimeEl.textContent = '0:00';
+            }
+        }
+
+        function updateProgress() {
+            const current = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            
+            if (duration) {
+                const progressPercent = (current / duration) * 100;
+                progressFill.style.width = `${progressPercent}%`;
+                currentTimeEl.textContent = formatTime(current);
+            }
+        }
+
+        function updateDuration() {
+            const duration = audioPlayer.duration;
+            if (duration && !isNaN(duration)) {
+                totalTimeEl.textContent = formatTime(duration);
+            }
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function seek(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const seekTime = percent * audioPlayer.duration;
+            audioPlayer.currentTime = seekTime;
+        }
+
+        function setVolume(e) {
+            const rect = volumeSlider.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            volume = percent;
+            volumeFill.style.width = `${volume * 100}%`;
+            audioPlayer.volume = volume;
+            updateVolumeIcon();
+        }
+
+        function toggleMute() {
+            if (volume > 0) {
+                // Store current volume before muting
+                if (!audioPlayer.dataset.preMuteVolume) {
+                    audioPlayer.dataset.preMuteVolume = volume;
+                }
+                
+                volume = 0;
+                audioPlayer.volume = 0;
+                volumeFill.style.width = '0%';
+                volumeIcon.className = 'fas fa-volume-mute cursor-pointer hover:text-cyan-400 transition-colors text-sm';
+            } else {
+                // Restore previous volume
+                volume = parseFloat(audioPlayer.dataset.preMuteVolume) || 0.7;
+                audioPlayer.volume = volume;
+                volumeFill.style.width = `${volume * 100}%`;
+                updateVolumeIcon();
+                delete audioPlayer.dataset.preMuteVolume;
+            }
+        }
+
+        function updateVolumeIcon() {
+            if (volume === 0) {
+                volumeIcon.className = 'fas fa-volume-mute cursor-pointer hover:text-cyan-400 transition-colors text-sm';
+            } else if (volume < 0.5) {
+                volumeIcon.className = 'fas fa-volume-down cursor-pointer hover:text-cyan-400 transition-colors text-sm';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up cursor-pointer hover:text-cyan-400 transition-colors text-sm';
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffled = !isShuffled;
+            shuffleBtn.classList.toggle('text-cyan-400', isShuffled);
+            shuffleBtn.classList.toggle('text-gray-400', !isShuffled);
+            showNotification(isShuffled ? 'Shuffle ON' : 'Shuffle OFF');
+        }
+
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3;
+            repeatBtn.classList.remove('text-cyan-400', 'text-gray-400');
+            
+            if (repeatMode === 0) {
+                repeatBtn.classList.add('text-gray-400');
+                repeatBtn.innerHTML = '<i class="fas fa-redo"></i>';
+                showNotification('Repeat OFF');
+            } else if (repeatMode === 1) {
+                repeatBtn.classList.add('text-cyan-400');
+                repeatBtn.innerHTML = '<i class="fas fa-redo"></i>';
+                showNotification('Repeat All');
+            } else {
+                repeatBtn.classList.add('text-cyan-400');
+                repeatBtn.innerHTML = '<i class="fas fa-redo"></i><sup class="text-xs ml-0.5">1</sup>';
+                showNotification('Repeat One');
+            }
+        }
+
+        function toggleLike() {
+            const songId = songs[currentSongIndex].id;
+            const icon = likeBtn.querySelector('i');
+            
+            if (favourites.includes(songId)) {
+                favourites = favourites.filter(id => id !== songId);
+                icon.className = 'far fa-heart';
+                showNotification('Removed from Favourites');
+            } else {
+                favourites.push(songId);
+                icon.className = 'fas fa-heart';
+                showNotification('Added to Favourites');
+            }
+        }
+
+        function updateLikeButton() {
+            const songId = songs[currentSongIndex].id;
+            const icon = likeBtn.querySelector('i');
+            icon.className = favourites.includes(songId) ? 'fas fa-heart' : 'far fa-heart';
+        }
+
+        function updatePlayButton() {
+            const icon = playBtn.querySelector('i');
+            icon.className = isPlaying ? 'fas fa-pause text-sm sm:text-base' : 'fas fa-play ml-0.5 text-sm sm:text-base';
+        }
+
+        function updateNowPlaying() {
+            renderAllSections();
+            attachEventListeners();
+        }
+
+        function addToHistory(songId) {
+            playHistory = playHistory.filter(id => id !== songId);
+            playHistory.unshift(songId);
+            if (playHistory.length > 10) playHistory.pop();
+        }
+
+        function scrollSlider(sliderId, direction) {
+            const slider = document.getElementById(sliderId);
+            const scrollAmount = 300;
+            slider.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            const icon = menuToggle.querySelector('i');
+            icon.className = sidebar.classList.contains('open') ? 'fas fa-times text-lg' : 'fas fa-bars text-lg';
+        }
+
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase();
+            const topSongs = document.getElementById('topSongs');
+            
+            if (query.length > 0) {
+                const filtered = songs.filter(song => 
+                    song.title.toLowerCase().includes(query) || 
+                    song.artist.toLowerCase().includes(query) ||
+                    song.genre.toLowerCase().includes(query)
+                );
+                
+                topSongs.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    topSongs.innerHTML = '<p class="text-gray-400 p-8 text-center col-span-2">No results found</p>';
+                    return;
+                }
+                
+                filtered.forEach((song, index) => {
+                    const isCurrentlyPlaying = currentSongIndex === songs.findIndex(s => s.id === song.id) && isPlaying;
+                    topSongs.innerHTML += `
+                        <div class="music-card flex items-center gap-3 sm:gap-4 p-3 sm:p-4 ${isCurrentlyPlaying ? 'now-playing' : ''}" data-id="${song.id}">
+                            <div class="text-cyan-400 font-bold text-lg sm:text-xl w-8 flex-shrink-0">${index + 1}</div>
+                            <div class="relative flex-shrink-0">
+                                <img src="${song.image}" alt="${song.title}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover">
+                                <div class="play-overlay">
+                                    <div class="play-btn" data-id="${song.id}">
+                                        <i class="fas fa-play text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold text-sm sm:text-base truncate">${song.title}</h4>
+                                <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                            </div>
+                            ${isCurrentlyPlaying ? '<div class="equalizer"><span></span><span></span><span></span></div>' : ''}
+                            <div class="text-xs text-gray-400 hidden sm:block">${song.duration}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                renderTopSongs();
+            }
+            
+            attachEventListeners();
+        }
+
+        function playAll() {
+            currentSongIndex = 0;
+            loadSong(currentSongIndex);
+            playSong();
+            showNotification('Playing all songs');
+        }
+
+        function shuffleAll() {
+            isShuffled = true;
+            shuffleBtn.classList.add('text-cyan-400');
+            shuffleBtn.classList.remove('text-gray-400');
+            
+            const shuffled = [...songs].sort(() => Math.random() - 0.5);
+            currentSongIndex = 0;
+            const song = shuffled[0];
+            const originalIndex = songs.findIndex(s => s.id === song.id);
+            currentSongIndex = originalIndex;
+            
+            loadSong(currentSongIndex);
+            playSong();
+            showNotification('Shuffle mode activated');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 sm:right-6 lg:right-10 bg-cyan-400 text-gray-900 px-4 sm:px-6 py-3 rounded-lg shadow-lg z-50 font-semibold text-sm animate-fade-in';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(-10px)';
+                notification.style.transition = 'all 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    playNext();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    playPrevious();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    volume = Math.min(1, volume + 0.1);
+                    audioPlayer.volume = volume;
+                    volumeFill.style.width = `${volume * 100}%`;
+                    updateVolumeIcon();
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    volume = Math.max(0, volume - 0.1);
+                    audioPlayer.volume = volume;
+                    volumeFill.style.width = `${volume * 100}%`;
+                    updateVolumeIcon();
+                    break;
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initPlayer();
+            attachEventListeners();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('open');
+                menuToggle.querySelector('i').className = 'fas fa-bars text-lg';
+            }
+        });
+
+        // Make functions available globally
+        window.playAll = playAll;
+        window.shuffleAll = shuffleAll;
+        window.scrollSlider = scrollSlider;
+        window.playSongById = playSongById;
+    </script>
+</body>
+</html>
