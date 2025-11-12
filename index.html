@@ -6,6 +6,7 @@
     <title>MusicPlayer Pro - Ultimate Android Music Experience</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="music-ico.png">
     <script>
         tailwind.config = {
             theme: {
@@ -330,7 +331,7 @@
                         stunning design, and seamless performance. Your music deserves the best.
                     </p>
                     <div class="flex space-x-4">
-                        <a href="mic-play.apk" download class="bg-white text-dark px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition flex items-center">
+                        <a href="base.apk" download class="bg-white text-dark px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition flex items-center">
                             <i class="fas fa-download mr-2"></i>
                             Download APK
                         </a>
@@ -924,7 +925,7 @@
                 </div>
                 
                 <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                    <a href="mic-play.apk" download class="bg-white text-dark px-10 py-5 rounded-full font-bold text-xl hover:bg-gray-100 transition flex items-center justify-center">
+                    <a href="base.apk" download class="bg-white text-dark px-10 py-5 rounded-full font-bold text-xl hover:bg-gray-100 transition flex items-center justify-center">
                         <i class="fas fa-download mr-3"></i>
                         Download APK (v2.0.0)
                     </a>
@@ -1017,7 +1018,7 @@
         document.querySelectorAll('button, a').forEach(button => {
             if (button.textContent.includes('Download') || button.innerHTML.includes('fa-download')) {
                 button.addEventListener('click', function(e) {
-                    if (this.getAttribute('href') === 'mic-play.apk') {
+                    if (this.getAttribute('href') === 'base.apk') {
                         // For actual download links, we don't want to prevent default
                         return;
                     }
