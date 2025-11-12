@@ -854,22 +854,1161 @@
     <script>
         // Enhanced Music Library
         const songs = [
-            { id: 1, title: "Saiyaara Song", artist: "Faheem Abdullah", duration: "5:44", image: "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg", genre: "Romance", audio: "saiyaara.mp3" },
-            { id: 2, title: "Deewaniyat Song", artist: "Vishal Mishra", duration: "3:22", image: "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg", genre: "Romance", audio: "deewaniyat.mp3" },
-            { id: 3, title: "Laal Pairi Song", artist: "Yo Yo Honey Singh", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10", genre: "Pop", audio: "laal-pari.mp3" },
-            { id: 4, title: "Levitating", artist: "Dua Lipa", duration: "3:23", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-            { id: 5, title: "Stay", artist: "The Kid LAROI, Justin Bieber", duration: "2:21", image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-            { id: 6, title: "Good 4 U", artist: "Olivia Rodrigo", duration: "2:58", image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=400", genre: "Pop Rock", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-            { id: 7, title: "Montero", artist: "Lil Nas X", duration: "2:00", image: "https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?w=400", genre: "Hip Hop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-            { id: 8, title: "Kiss Me More", artist: "Doja Cat ft. SZA", duration: "3:28", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-            { id: 9, title: "Butter", artist: "BTS", duration: "2:42", image: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=400", genre: "K-Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-            { id: 10, title: "Industry Baby", artist: "Lil Nas X ft. Jack Harlow", duration: "3:32", image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400", genre: "Hip Hop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-            { id: 11, title: "Stay With Me", artist: "Calvin Harris", duration: "3:49", image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400", genre: "Electronic", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
-            { id: 12, title: "Heat Waves", artist: "Glass Animals", duration: "3:59", image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400", genre: "Indie Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" },
-            { id: 13, title: "Shivers", artist: "Ed Sheeran", duration: "3:27", image: "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
-            { id: 14, title: "Easy On Me", artist: "Adele", duration: "3:44", image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
-            { id: 15, title: "Cold Heart", artist: "Elton John, Dua Lipa", duration: "3:22", image: "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?w=400", genre: "Pop", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" }
-        ];
+  {
+    "id": 1,
+    "title": "Saiyaara Song",
+    "artist": "Faheem Abdullah", 
+    "duration": "5:44",
+    "image": "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg",
+    "genre": "Romance",
+    "audio": "saiyaara.mp3"
+  },
+  {
+    "id": 2, 
+    "title": "Deewaniyat Song",
+    "artist": "Vishal Mishra",
+    "duration": "3:22", 
+    "image": "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg",
+    "genre": "Romance",
+    "audio": "deewaniyat.mp3"
+  },
+  {
+    "id": 3,
+    "title": "Laal Pairi Song", 
+    "artist": "Yo Yo Honey Singh",
+    "duration": "3:35",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10",
+    "genre": "Pop", 
+    "audio": "laal-pari.mp3"
+  },
+
+  // Popular songs with real cover images
+  {
+    "id": 16,
+    "title": "Kesariya",
+    "artist": "Arijit Singh",
+    "duration": "4:28",
+    "image": "https://c.saavncdn.com/191/Kesariya-From-Brahmastra-Hindi-2022-20220717092820-500x500.jpg",
+    "genre": "Romance", 
+    "audio": "kesariya.mp3"
+  },
+  {
+    "id": 17,
+    "title": "Maan Meri Jaan",
+    "artist": "King",
+    "duration": "3:14",
+    "image": "https://i.ytimg.com/vi/eZnntxPl44g/sddefault.jpg", 
+    "genre": "Romance",
+    "audio": "maan-meri-jaan.mp3"
+  },
+  {
+    "id": 18,
+    "title": "Tere Vaaste",
+    "artist": "Sachin-Jigar, Divya Kumar",
+    "duration": "3:59",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVOFaiNyQKcSMhrX_cv7Qyo1fRtNTzxzHmTaGKmhlohBSjVlK5tyxe-qh&s=10",
+    "genre": "Romance",
+    "audio": "tere-vaaste.mp3"
+  },
+  {
+    "id": 19, 
+    "title": "What Jhumka",
+    "artist": "Arijit Singh, Jonita Gandhi",
+    "duration": "3:59",
+    "image": "https://i.ytimg.com/vi/LNegGbBmbLI/maxresdefault.jpg",
+    "genre": "Bollywood",
+    "audio": "what-jhumka.mp3"
+  },
+  {
+    "id": 20,
+    "title": "Brown Munde",
+    "artist": "AP Dhillon, Gminxr",
+    "duration": "4:14", 
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrzAKS-OKC79Am0FHjPxkLVbYmKv8CqogSLyBCsn6z3-7K_15RWvqOx10B&s=10",
+    "genre": "Hip Hop",
+    "audio": "brown-munde.mp3"
+  },
+  {
+    "id": 21,
+    "title": "Tere Pyaar Mein",
+    "artist": "Arijit Singh",
+    "duration": "4:26",
+    "image": "https://i1.sndcdn.com/artworks-riLqSdpUqlIQt7kB-D0zdZw-t500x500.jpg",
+    "genre": "Romance",
+    "audio": "tere-pyaar-mein.mp3"
+  },
+  {
+    "id": 22,
+    "title": "Chaleya",
+    "artist": "Arijit Singh, Shilpa Rao", 
+    "duration": "4:49",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfAWOSOviBx0hs06h_7foNgZeMIgFD2IuFDeGFZNwtwjIkDGKbp3KgtDVy&s=10",
+    "genre": "Romance",
+    "audio": "chaleya.mp3"
+  },
+  {
+    "id": 23,
+    "title": "Arabic Kuthu",
+    "artist": "Anirudh Ravichander",
+    "duration": "4:39",
+    "image": "https://m.media-amazon.com/images/I/51ci1yvC0kL._UXNaN_FMjpg_QL85_.jpg",
+    "genre": "Tamil",
+    "audio": "arabic-kuthu.mp3"
+  },
+  {
+    "id": 24,
+    "title": "Besharam Rang",
+    "artist": "Vishal-Shekhar, Shilpa Rao",
+    "duration": "4:18",
+    "image": "https://i.ytimg.com/vi/7SJodKV_pGA/maxresdefault.jpg",
+    "genre": "Bollywood", 
+    "audio": "besharam-rang.mp3"
+  },
+  {
+    "id": 25,
+    "title": "Lehnga",
+    "artist": "Diljit Dosanjh",
+    "duration": "3:19",
+    "image": "https://i.ytimg.com/vi/G8PU1HjZZj4/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLACpscwvbt6QvC6Q5KFDh-SnrSGDw",
+    "genre": "Punjabi",
+    "audio": "lehnga.mp3"
+  },
+  {
+    "id": 26, 
+    "title": "Illegal Weapon 2.0",
+    "artist": "Garry Sandhu, Jasmine Sandlas",
+    "duration": "3:08",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlMgItkCiqMKZQNjMmdw8NWaiM23gKjYy_02L4kurEhUf54wnydwj044&s=10",
+    "genre": "Punjabi",
+    "audio": "illegal-weapon.mp3"
+  },
+  {
+    "id": 27,
+    "title": "G.O.A.T",
+    "artist": "Diljit Dosanjh",
+    "duration": "3:43",
+    "image": "https://i.ytimg.com/vi/tAizFLCucdY/maxresdefault.jpg",
+    "genre": "Punjabi",
+    "audio": "g.o.a.t-diljit.mp3"
+  },
+  {
+    "id": 28,
+    "title": "Saami Saami",
+    "artist": "Sunidhi Chauhan",
+    "duration": "3:55",
+    "image": "https://i.ytimg.com/vi/R32Vf2M5VGA/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBfEQ2Et-YNbVQMMOPSZjpo8LKJug",
+    "genre": "Bollywood",
+    "audio": "saami-saami.mp3"
+  },
+  {
+    "id": 29,
+    "title": "Naacho Naacho",
+    "artist": "Vishal Mishra",
+    "duration": "3:45",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDAyrV_dPy060QVzq-dv__jfcyXBYbfaBpTxaL0-yBRdFO9v6SVBryTnc&s=10",
+    "genre": "Bollywood",
+    "audio": "naacho-naacho.mp3"
+  },
+  {
+    "id": 30,
+    "title": "Lutt Putt Gaya",
+    "artist": "Arijit Singh",
+    "duration": "3:54",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_OgBswbsrpIDYiT_kttr8j94rJYTLFxEV-zn1H9qyivmDDCpsYxP8qKur&s=10",
+    "genre": "Romance",
+    "audio": "lutt-putt-gaya.mp3"
+  },
+  {
+    "id": 31,
+    "title": "Chitta Kurta",
+    "artist": "Yo Yo Honey Singh",
+    "duration": "3:51",
+    "image": "https://i1.sndcdn.com/artworks-000650502514-hchjlx-t500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "chitta-kurta.mp3"
+  },
+  {
+    "id": 32,
+    "title": "Character Dheela 2.0",
+    "artist": "Neeraj Shridhar",
+    "duration": "4:11",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3jkbwNKwnb5gHdlRHI_L0dEFBCQM3j0UqLJXMQGrHedraFQwjol02tLM&s=10",
+    "genre": "Bollywood",
+    "audio": "character-dheela.mp3"
+  },
+  {
+    "id": 33,
+    "title": "Jhoome Jo Pathaan",
+    "artist": "Vishal-Shekkar, Arijit Singh",
+    "duration": "3:28",
+    "image": "https://upload.wikimedia.org/wikipedia/en/8/8b/Jhoome_Jo_Pathaan_song_cover.jpg",
+    "genre": "Bollywood",
+    "audio": "jhoome-jo-pathaan.mp3"
+  },
+  {
+    "id": 35,
+    "title": "Arjan Vailly",
+    "artist": "Manan Bhardwaj",
+    "duration": "3:02",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU4RrwA0cbOdiHtRQYQh_Mc0IWMs1c--M-h-lSQpUhbMsrbvmEZJQa78ak&s=10",
+    "genre": "Bollywood",
+    "audio": "arjan-vailly.mp3"
+  },
+  {
+    "id": 36,
+    "title": "Satranga",
+    "artist": "Arijit Singh",
+    "duration": "4:28",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiU-MmJJCZ4gB8eZk_p-VNU7k-fWVwQr284CruMrVHAVeR2MG_Rp7Xi50&s=10",
+    "genre": "Romance",
+    "audio": "satranga.mp3"
+  },
+  {
+    "id": 37,
+    "title": "Hua Main",
+    "artist": "Raghav Chaitanya",
+    "duration": "4:33",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjNxq67RY3EsCmPWUOSVWLq4Ef4q3Ghtt3ytn5ML59F7qRCkCk73TGzZA&s=10",
+    "genre": "Romance",
+    "audio": "hua-main-animal.mp3"
+  },
+  {
+    "id": 38,
+    "title": "Pehle Bhi Mein",
+    "artist": "Vishal Mishra",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/413/Marham-Pehle-Bhi-Main-From-ANIMAL-Hindi-2023-20231223151003-500x500.jpg",
+    "genre": "Romance",
+    "audio": "pehle-bhi-mein.mp3"
+  },
+  {
+    "id": 39,
+    "title": "Tum Kya Mile",
+    "artist": "Arijit Singh, Shreya Ghoshal",
+    "duration": "4:34",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMhz5U2Ky2ZyfgVl-RIqHaB9WYZgCsMsLZahDh2hIIvSy6wuCbEPvTDLDk&s=10",
+    "genre": "Romance",
+    "audio": "tum-kya-mile.mp3"
+  },
+  {
+    "id": 40,
+    "title": "Ve Kamleya",
+    "artist": "Arijit Singh, Shreya Ghoshal",
+    "duration": "4:07",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY2hK1KoxoV5fVGhoVPMJiwSHTrVuz5cE_aoQu3Aushx-MP3cUWxnLl9s&s=10",
+    "genre": "Romance",
+    "audio": "ve-kamleya.mp3"
+  },
+  {
+    "id": 41,
+    "title": "Yaari",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/290/Yaari-Punjabi-2019-20190611222620-500x500.jpg",
+    "genre": "Friendship",
+    "audio": "yaari.mp3"
+  },
+  {
+    "id": 42,
+    "title": "Yimmy Yimmy",
+    "artist": "Tayc, Shreya Ghoshal",
+    "duration": "3:50",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0pzprB1pTBEvjFGcC8uC3WqN7p8NrNRLDtwiWZ2Z4xPCMsqjl9sCsHA8&s=10",
+    "genre": "Pop",
+    "audio": "yimmy-yimmy.mp3"
+  },
+  {
+    "id": 43,
+    "title": "Udaariyan",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhp4rX5eamOCC_ZwIVabhGaUNnglfuukr_WivzW_lLJOBoicmvm-Vp8o8&s=10",
+    "genre": "Bollywood",
+    "audio": "udaariyan.mp3"
+  },
+  {
+    "id": 44,
+    "title": "Titliyan",
+    "artist": "Hardy Sandhu",
+    "duration": "3:52",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCVEIVICwn1l_jzlsQT4BbpQ5k2OIoTNrIMBdws_Iv3YlX7msxywmyOI&s=10",
+    "genre": "Bollywood",
+    "audio": "titilyaan.mp3"
+  },
+  {
+    "id": 45,
+    "title": "Sajni",
+    "artist": "Arijit Singh",
+    "duration": "4:10",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTga_CQbq_F_t1qSSo2_1VQ0UXWygIIozSb5segTwYdoqL1AhFjqiZ5YRw&s=10",
+    "genre": "Romance",
+    "audio": "sajni.mp3"
+  },
+  {
+    "id": 46,
+    "title": "Softly",
+    "artist": "Karan Aujla",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Softly-Punjabi-2023-20230412154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "softly.mp3"
+  },
+  {
+    "id": 47,
+    "title": "Soni Soni",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPKYk6x16M8HVi3JCPik2dANR06HTD1z0Z7OLNoLBX0Q&s=10",
+    "genre": "Romance",
+    "audio": "soni-soni.mp3"
+  },
+  {
+    "id": 48,
+    "title": "No Love",
+    "artist": "Shubh",
+    "duration": "2:50",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOPMpHhPU3IypLvE04xzOHvOymlmXKxPx4XhzZrU0Ugw&s=10",
+    "genre": "Hip Hop",
+    "audio": "no-love.mp3"
+  },
+  {
+    "id": 49,
+    "title": "Panjeban",
+    "artist": "Shivjot",
+    "duration": "3:25",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhDg-NHOJEJntHACS4_mOVbdWRoIt3PUTwahnRc1tbw&s=10",
+    "genre": "Punjabi",
+    "audio": "panjeban-shivjot.mp3"
+  },
+  {
+    "id": 50,
+    "title": "Panwadi",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://i.ytimg.com/vi/i4UZmRaGZ2U/sddefault.jpg",
+    "genre": "Punjabi",
+    "audio": "panwadi.mp3"
+  },
+  {
+    "id": 51,
+    "title": "Payal",
+    "artist": "Jasmine Sandlas",
+    "duration": "3:20",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ212UXLDH2MHdHLtGDDpRYPcnICxmAd4fzfSEcl3-s_w&s=10",
+    "genre": "Bollywood",
+    "audio": "payal-song.mp3"
+  },
+  {
+    "id": 52,
+    "title": "Phir Aur Kya Chahiye",
+    "artist": "Arijit Singh",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/382/Zara-Hatke-Zara-Bachke-Hindi-2023-20230523171120-500x500.jpg",
+    "genre": "Romance",
+    "audio": "phir-aur-kya-chahiye.mp3"
+  },
+  {
+    "id": 53,
+    "title": "Player",
+    "artist": "Badshah, Karan Aujla",
+    "duration": "3:33",
+    "image": "https://c.saavncdn.com/596/Player-Punjabi-2023-20230815154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "player-badshah-karan.mp3"
+  },
+  {
+    "id": 54,
+    "title": "Mahiya",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Mahiya-Punjabi-2022-20220615154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "mahya.mp3"
+  },
+  {
+    "id": 55,
+    "title": "Mexico",
+    "artist": "Koka",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Mexico-Punjabi-2023-20230508154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mexico-koka.mp3"
+  },
+  {
+    "id": 56,
+    "title": "MF Gabhru",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/MF-Gabhru-Punjabi-2022-20221212154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mf-gabhru.mp3"
+  },
+  {
+    "id": 57,
+    "title": "Move Your Lakk",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Move-Your-Lakk-Punjabi-2023-20230405154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mive-your-lakk.mp3"
+  },
+  {
+    "id": 58,
+    "title": "Moon Rise",
+    "artist": "Guru Randhawa",
+    "duration": "3:28",
+    "image": "https://c.saavncdn.com/596/Moon-Rise-Punjabi-2021-20211008154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "moon-rise.mp3"
+  },
+  {
+    "id": 59,
+    "title": "Nachdi",
+    "artist": "Guru Randhawa",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Nachdi-Punjabi-2018-20180315154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "nachdi-sonofsardaar2.mp3"
+  },
+  {
+    "id": 60,
+    "title": "Naiyo Lagda",
+    "artist": "Harrdy Sandhu",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Naiyo-Lagda-Punjabi-2022-20220928154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "naiyo-lagda.mp3"
+  },
+  {
+    "id": 61,
+    "title": "Ring Song",
+    "artist": "Neha Kakkar",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Ring-Song-Punjabi-2021-20210715154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "neha-kakkar-ring-song.mp3"
+  },
+  {
+    "id": 62,
+    "title": "Meri Jaan",
+    "artist": "Nick Maan",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Meri-Jaan-Punjabi-2023-20230628154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "nick-maan-meri-jaan.mp3"
+  },
+  {
+    "id": 63,
+    "title": "Khyaal Rakhya Kar",
+    "artist": "Ranjit Bawa",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Khyaal-Rakhya-Kar-Punjabi-2022-20221115154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "khyaal-rakhya-kr.mp3"
+  },
+  {
+    "id": 64,
+    "title": "Kya Baat Aa",
+    "artist": "Karan Aujla",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Kya-Baat-Aa-Punjabi-2023-20230215154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kya-baat-aa-karan.mp3"
+  },
+  {
+    "id": 65,
+    "title": "Kya Karu",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Kya-Karu-Punjabi-2022-20220812154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "kya-kru.mp3"
+  },
+  {
+    "id": 66,
+    "title": "Lafda",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Lafda-Punjabi-2023-20230725154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "lafda.mp3"
+  },
+  {
+    "id": 67,
+    "title": "Leo Naa Ready",
+    "artist": "Anirudh Ravichander",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/382/Leo-Tamil-2023-20231019171120-500x500.jpg",
+    "genre": "Tamil",
+    "audio": "leo-naa-ready.mp3"
+  },
+  {
+    "id": 68,
+    "title": "Ma Belle",
+    "artist": "AP Dhillon",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Ma-Belle-Punjabi-2023-20230608154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "ma-belle.mp3"
+  },
+  {
+    "id": 69,
+    "title": "Mafia",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Mafia-Punjabi-2022-20221228154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "mafia.mp3"
+  },
+  {
+    "id": 70,
+    "title": "Malang Sajna",
+    "artist": "Sachet Tandon",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/382/Malang-Hindi-2020-20200215154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "malang-sajna.mp3"
+  },
+  {
+    "id": 71,
+    "title": "Jhaanjar",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Jhaanjar-Punjabi-2023-20230418154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jhaanjar.mp3"
+  },
+  {
+    "id": 72,
+    "title": "Judge",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Judge-Punjabi-2022-20220908154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "judge.mp3"
+  },
+  {
+    "id": 73,
+    "title": "Kaka Holi",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Kaka-Holi-Punjabi-2023-20230315154717-500x500.jpg",
+    "genre": "Festival",
+    "audio": "kaka-holi.mp3"
+  },
+  {
+    "id": 74,
+    "title": "Kaka Kale Je Libaas",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Kaka-Kale-Je-Libaas-Punjabi-2023-20230808154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kaka-kale-je-libaas.mp3"
+  },
+  {
+    "id": 75,
+    "title": "Kaka Keh Len De",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Kaka-Keh-Len-De-Punjabi-2023-20230718154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kaka-keh-len-de.mp3"
+  },
+  {
+    "id": 76,
+    "title": "Kaka Temporary Pyaar",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Kaka-Temporary-Pyaar-Punjabi-2023-20230612154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "kaka-temporary-pyaar.mp3"
+  },
+  {
+    "id": 77,
+    "title": "Kalla Sohna Nai",
+    "artist": "Raftaar",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Kalla-Sohna-Nai-Punjabi-2022-20221128154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kalla-sohna-nai.mp3"
+  },
+  {
+    "id": 78,
+    "title": "Kamsin Kali",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Kamsin-Kali-Punjabi-2022-20221015154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "kamsin-kali.mp3"
+  },
+  {
+    "id": 79,
+    "title": "Khabbi Seat",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Khabbi-Seat-Punjabi-2023-20230515154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "khabbi-seat.mp3"
+  },
+  {
+    "id": 80,
+    "title": "Gire Gore",
+    "artist": "Benny Dayal",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/382/Gire-Gore-Hindi-2022-20220915154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "gire-gore.mp3"
+  },
+  {
+    "id": 81,
+    "title": "Good Bad Ugly",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Good-Bad-Ugly-Punjabi-2023-20230428154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "goid-bad-ugly.mp3"
+  },
+  {
+    "id": 82,
+    "title": "Horn Blow",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Horn-Blow-Punjabi-2023-20230828154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "horn-blow.mp3"
+  },
+  {
+    "id": 83,
+    "title": "Ilzaam",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Ilzaam-Punjabi-2022-20221205154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "ilzaam.mp3"
+  },
+  {
+    "id": 84,
+    "title": "Jaane Tu",
+    "artist": "Various Artists",
+    "duration": "4:00",
+    "image": "https://c.saavncdn.com/596/Jaane-Tu-Punjabi-2023-20230705154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "jaane-tu.mp3"
+  },
+  {
+    "id": 85,
+    "title": "Jatt Flex",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Jatt-Flex-Punjabi-2023-20230528154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jatt-flex.mp3"
+  },
+  {
+    "id": 86,
+    "title": "Jatt Te Jawani",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Jatt-Te-Jawani-Punjabi-2022-20221108154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jatt-te-jawani.mp3"
+  },
+  {
+    "id": 87,
+    "title": "Fly Karke",
+    "artist": "Various Artists",
+    "duration": "3:05",
+    "image": "https://c.saavncdn.com/596/Fly-Karke-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "fly-karke.mp3"
+  },
+  {
+    "id": 88,
+    "title": "Bol Kafar Kya Hoga",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Bol-Kafar-Kya-Hoga-Punjabi-2022-20221028154717-500x500.jpg",
+    "genre": "Spiritual",
+    "audio": "bol-kafar-kya-hoga.mp3"
+  },
+  {
+    "id": 89,
+    "title": "California Love",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/California-Love-Punjabi-2023-20230615154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "california-love.mp3"
+  },
+  {
+    "id": 90,
+    "title": "Chithiyan",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Chithiyan-Punjabi-2022-20220828154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "chithiyan.mp3"
+  },
+  {
+    "id": 91,
+    "title": "Choli K Peeche",
+    "artist": "Alka Yagnik, Ila Arun",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/382/Khalnayak-Hindi-1993-20191025154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "choli-k-peeche.mp3"
+  },
+  {
+    "id": 92,
+    "title": "Dhun Saiyaara",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/382/Tamasha-Hindi-2015-20151115154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dhun-saiyaara.mp3"
+  },
+  {
+    "id": 93,
+    "title": "Dil Hariya",
+    "artist": "Various Artists",
+    "duration": "4:35",
+    "image": "https://c.saavncdn.com/596/Dil-Hariya-Punjabi-2023-20230728154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dil-hariya.mp3"
+  },
+  {
+    "id": 94,
+    "title": "Dil Jhoom",
+    "artist": "Various Artists",
+    "duration": "4:45",
+    "image": "https://c.saavncdn.com/596/Dil-Jhoom-Punjabi-2022-20220905154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dil-jhoom.mp3"
+  },
+  {
+    "id": 95,
+    "title": "Dilbar Ki Ankhon Ka",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Dilbar-Ki-Ankhon-Ka-Punjabi-2023-20230812154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dilbar-ki-ankhon-ka.mp3"
+  },
+  {
+    "id": 96,
+    "title": "Asraar",
+    "artist": "Geetkarz",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Asraar-Punjabi-2023-20230520154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "asraar-geetkarz.mp3"
+  },
+  {
+    "id": 97,
+    "title": "Bachalo",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Bachalo-Punjabi-2023-20230412154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bachalo.mp3"
+  },
+  {
+    "id": 98,
+    "title": "Bamb Aagya",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Bamb-Aagya-Punjabi-2023-20230715154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bamb-aagya.mp3"
+  },
+  {
+    "id": 99,
+    "title": "Bamb Jatt",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Bamb-Jatt-Punjabi-2023-20230605154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bamb-jatt.mp3"
+  },
+  {
+    "id": 100,
+    "title": "Barbaad Saiyaara",
+    "artist": "Various Artists",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/596/Barbaad-Saiyaara-Punjabi-2023-20230908154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "barbaad-saiyaara.mp3"
+  },
+  {
+    "id": 101,
+    "title": "Bhaabhi",
+    "artist": "Various Artists",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/596/Bhaabhi-Punjabi-2023-20230805154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bhaabhi.mp3"
+  },
+  {
+    "id": 102,
+    "title": "Bijlee Bijlee",
+    "artist": "Harrdy Sandhu",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Bijlee-Bijlee-Punjabi-2021-20210515154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bijlee-bijlee.mp3"
+  },
+  {
+    "id": 103,
+    "title": "Black Effect",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Black-Effect-Punjabi-2023-20230912154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "black-effect.mp3"
+  },
+  {
+    "id": 104,
+    "title": "2 Raflaan",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/2-Raflaan-Punjabi-2023-20230720154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "2-raflaan.mp3"
+  },
+  {
+    "id": 105,
+    "title": "3 Peg",
+    "artist": "Sharry Maan",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/3-Peg-Punjabi-2017-20170815154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "3-peg-sharry.mp3"
+  },
+  {
+    "id": 106,
+    "title": "52 Bars",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/52-Bars-Punjabi-2023-20230525154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "52-bars.mp3"
+  },
+  {
+    "id": 107,
+    "title": "8 Parche",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/8-Parche-Punjabi-2023-20230618154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "8-parche.mp3"
+  },
+  {
+    "id": 108,
+    "title": "8 Raflaan",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/8-Raflaan-Punjabi-2023-20230815154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "8-raflaan.mp3"
+  },
+  {
+    "id": 109,
+    "title": "Aaj Ki Raat",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Aaj-Ki-Raat-Punjabi-2023-20230918154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "aaj-ki-raat.mp3"
+  },
+  {
+    "id": 110,
+    "title": "Akhian Ghulab",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Akhian-Ghulab-Punjabi-2023-20230708154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "akhian-ghulab.mp3"
+  },
+  {
+    "id": 111,
+    "title": "Amber Arabic",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Amber-Arabic-Punjabi-2023-20230825154717-500x500.jpg",
+    "genre": "Arabic",
+    "audio": "amber-arabic.mp3"
+  },
+  {
+    "id": 112,
+    "title": "Apa Fer Milaange",
+    "artist": "Various Artists",
+    "duration": "4:00",
+    "image": "https://c.saavncdn.com/596/Apa-Fer-Milaange-Punjabi-2023-20230905154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "apa-fer-milaange.mp3"
+  },
+  {
+    "id": 113,
+    "title": "White Brown Black",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/White-Brown-Black-Punjabi-2023-20230622154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "white-brown-black.mp3"
+  },
+  {
+    "id": 114,
+    "title": "With You",
+    "artist": "AP Dhillon",
+    "duration": "2:55",
+    "image": "https://c.saavncdn.com/596/With-You-Punjabi-2022-20220315154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "with-you.mp3"
+  },
+  {
+    "id": 115,
+    "title": "Yentamma",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Yentamma-Punjabi-2023-20230515154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "yentamma.mp3"
+  },
+  {
+    "id": 116,
+    "title": "Tujhko Mirchi Lagi",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Tujhko-Mirchi-Lagi-Punjabi-2023-20230730154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "tujhko-mirchi-lagi.mp3"
+  },
+  {
+    "id": 117,
+    "title": "Tum Hia Ana",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Tum-Hia-Ana-Punjabi-2023-20230820154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-hia-ana.mp3"
+  },
+  {
+    "id": 118,
+    "title": "Tum Mere Na Hue",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Tum-Mere-Na-Hue-Punjabi-2023-20230910154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-mere-na-hue.mp3"
+  },
+  {
+    "id": 119,
+    "title": "Tum Se",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/596/Tum-Se-Punjabi-2023-20230830154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-se.mp3"
+  },
+  {
+    "id": 120,
+    "title": "Uyi Amma",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Uyi-Amma-Punjabi-2023-20230712154717-500x500.jpg",
+    "genre": "Regional",
+    "audio": "uyi-amma.mp3"
+  },
+  {
+    "id": 121,
+    "title": "Vail",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Vail-Punjabi-2023-20230628154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "vail.mp3"
+  },
+  {
+    "id": 122,
+    "title": "Waaliyan",
+    "artist": "Harnoor",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Waaliyan-Punjabi-2022-20220415154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "waaliyan-harnoor.mp3"
+  },
+  {
+    "id": 123,
+    "title": "Wakhra Swag",
+    "artist": "Navv Inder",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Wakhra-Swag-Punjabi-2015-20150815154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "wakhra-swag.mp3"
+  },
+  {
+    "id": 124,
+    "title": "Wayy",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Wayy-Punjabi-2023-20230530154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "wayy.mp3"
+  },
+  {
+    "id": 125,
+    "title": "Soory Bol",
+    "artist": "Various Artists",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/596/Soory-Bol-Punjabi-2023-20230810154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "soory-bol.mp3"
+  },
+  {
+    "id": 126,
+    "title": "Take It Easy",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Take-It-Easy-Punjabi-2023-20230722154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "tak-it-easy.mp3"
+  },
+  {
+    "id": 127,
+    "title": "Talja",
+    "artist": "Various Artists",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/596/Talja-Punjabi-2023-20230625154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "talja.mp3"
+  },
+  {
+    "id": 128,
+    "title": "Tell Me Honestly",
+    "artist": "Various Artists",
+    "duration": "4:30",
+    "image": "https://c.saavncdn.com/596/Tell-Me-Honestly-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tell-me-honestly.mp3"
+  },
+  {
+    "id": 129,
+    "title": "Teri Baaton Mein",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Teri-Baaton-Mein-Punjabi-2023-20230818154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "teri-baaton-mein.mp3"
+  },
+  {
+    "id": 130,
+    "title": "Top Notch Gabru",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Top-Notch-Gabru-Punjabi-2023-20230705154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "top-notch-gabru.mp3"
+  },
+  {
+    "id": 131,
+    "title": "Tu Hain To",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Tu-Hain-To-Punjabi-2023-20230908154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tu-hain-to.mp3"
+  },
+  {
+    "id": 132,
+    "title": "Pyar Hota Kayi Baar Hai",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Pyar-Hota-Kayi-Baar-Hai-Punjabi-2023-20230822154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "pyar-hota-kayi-baar-hai.mp3"
+  },
+  {
+    "id": 133,
+    "title": "Ranjhaan",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Ranjhaan-Punjabi-2023-20230718154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "ranjhaan.mp3"
+  },
+  {
+    "id": 134,
+    "title": "Rubicon Drill",
+    "artist": "Laddi Chahal",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Rubicon-Drill-Punjabi-2023-20230608154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "rubicon-drill-laddi-chahal.mp3"
+  },
+  {
+    "id": 135,
+    "title": "Sahiba",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/596/Sahiba-Punjabi-2023-20230518154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "sahiba.mp3"
+  },
+  {
+    "id": 136,
+    "title": "Saiyaan Ji",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Saiyaan-Ji-Punjabi-2023-20230912154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "saiyaan-ji.mp3"
+  },
+  {
+    "id": 137,
+    "title": "Settagalla",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Settagalla-Punjabi-2023-20230808154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "settagalla.mp3"
+  },
+  {
+    "id": 138,
+    "title": "Minna Minna",
+    "artist": "Various Artists",
+    "duration": "3:05",
+    "image": "https://c.saavncdn.com/596/Minna-Minna-Punjabi-2023-20230728154717-500x500.jpg",
+    "genre": "Regional",
+    "audio": "minna-minna.mp3"
+  },
+  {
+    "id": 139,
+    "title": "Perfect Guru",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Perfect-Guru-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Spiritual",
+    "audio": "perfect-guru.mp3"
+  },
+  {
+    "id": 140,
+    "title": "Pecha",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Pecha-Punjabi-2023-20230812154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "pecha.mp3"
+  },
+  {
+    "id": 141,
+    "title": "Eye Hoye Hoye",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Eye-Hoye-Hoye-Punjabi-2023-20230612154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "eye-hoye-hoye.mp3"
+  }
+];
 
         const genres = [
             { name: "Pop", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600", color: "from-pink-500 to-rose-500" },
