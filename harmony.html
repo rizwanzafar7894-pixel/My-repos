@@ -1,0 +1,3113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous - Modern Music Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="music-ico.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #ffffff;
+        }
+
+        body.light {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1a202c;
+        }
+
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(128, 128, 128, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-thumb {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar:hover .progress-thumb {
+            opacity: 1;
+        }
+
+        .equalizer {
+            display: flex;
+            align-items: flex-end;
+            height: 20px;
+            gap: 3px;
+        }
+
+        .equalizer span {
+            width: 3px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: equalize 0.8s ease-in-out infinite;
+        }
+
+        .equalizer span:nth-child(1) { animation-delay: 0s; height: 10px; }
+        .equalizer span:nth-child(2) { animation-delay: 0.2s; height: 15px; }
+        .equalizer span:nth-child(3) { animation-delay: 0.4s; height: 8px; }
+
+        @keyframes equalize {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1.2); }
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        main {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            main {
+                margin-left: 0;
+            }
+        }
+
+        .song-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(10px);
+        }
+
+        .genre-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .genre-card:hover {
+            transform: scale(1.05);
+        }
+
+        .genre-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+            z-index: 1;
+        }
+
+        .genre-card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .light .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .album-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+
+        .play-btn-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .album-card:hover .play-btn-overlay {
+            opacity: 1;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            padding-left: 48px;
+            padding-right: 48px;
+        }
+
+        .artist-avatar {
+            border: 3px solid rgba(102, 126, 234, 0.5);
+            transition: all 0.3s;
+        }
+
+        .artist-avatar:hover {
+            border-color: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="dark min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="menuToggle" class="lg:hidden fixed top-5 left-5 z-[200] card p-3 rounded-full hover:scale-110 transition-transform">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar card overflow-y-auto custom-scrollbar p-6">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                <i class="fas fa-music"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold gradient-text">Miraculous</h1>
+                <p class="text-xs text-gray-400">Music Player</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+                    <nav class="space-y-2 mb-8">
+            <a href="#discover" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl transition-all gradient-primary">
+                <i class="fas fa-home w-5"></i>
+                <span class="font-medium">Discover</span>
+            </a>
+            <a href="#trending" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-fire w-5"></i>
+                <span class="font-medium">Trending</span>
+            </a>
+            <a href="#punjabi" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-music w-5"></i>
+                <span class="font-medium">Punjabi</span>
+            </a>
+            <a href="#bollywood" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-film w-5"></i>
+                <span class="font-medium">Bollywood</span>
+            </a>
+            <a href="#romance" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-heart w-5"></i>
+                <span class="font-medium">Romance</span>
+            </a>
+            <a href="#hiphop" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-microphone-alt w-5"></i>
+                <span class="font-medium">Hip Hop</span>
+            </a>
+            <a href="#albums" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-record-vinyl w-5"></i>
+                <span class="font-medium">Albums</span>
+            </a>
+            <a href="#artists" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-microphone w-5"></i>
+                <span class="font-medium">Artists</span>
+            </a>
+            <a href="#genres" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-guitar w-5"></i>
+                <span class="font-medium">All Genres</span>
+            </a>
+        </nav>
+
+        <!-- Library -->
+        <div class="space-y-2 mb-8">
+            <h3 class="text-xs uppercase text-gray-400 font-semibold mb-3 px-4">Your Library</h3>
+            <button onclick="showFavorites()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-heart w-5 text-red-400"></i>
+                <span class="font-medium">Liked Songs</span>
+                <span id="favCount" class="ml-auto text-xs bg-red-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showQueue()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-list-ul w-5 text-purple-400"></i>
+                <span class="font-medium">Queue</span>
+                <span id="queueCount" class="ml-auto text-xs bg-purple-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showHistory()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-history w-5 text-blue-400"></i>
+                <span class="font-medium">Recently Played</span>
+            </button>
+        </div>
+
+        <!-- Audio Tools -->
+        <div class="space-y-2 mb-8">
+            <h3 class="text-xs uppercase text-gray-400 font-semibold mb-3 px-4">Audio</h3>
+            <button onclick="showEqualizer()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-sliders-h w-5 text-cyan-400"></i>
+                <span class="font-medium">Equalizer</span>
+            </button>
+            <button onclick="showSleepTimer()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-moon w-5 text-orange-400"></i>
+                <span class="font-medium">Sleep Timer</span>
+            </button>
+            <button onclick="cycleSpeed()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-tachometer-alt w-5 text-lime-400"></i>
+                <span class="font-medium">Speed: <span id="speedDisplay">1.0x</span></span>
+            </button>
+        </div>
+
+        <!-- Settings -->
+        <div class="space-y-2">
+            <button onclick="toggleTheme()" id="themeBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-moon w-5 text-indigo-400"></i>
+                <span class="font-medium">Dark Mode</span>
+            </button>
+            <button onclick="showSettings()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-cog w-5 text-gray-400"></i>
+                <span class="font-medium">Settings</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="card rounded-xl p-4 mt-8">
+            <h3 class="text-sm font-semibold mb-3">Your Stats</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Songs Played</span>
+                    <span id="totalPlayed" class="font-semibold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Favorites</span>
+                    <span id="totalFav" class="font-semibold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Total Time</span>
+                    <span id="totalTime" class="font-semibold">0h 0m</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="min-h-screen pb-40 px-6 pt-6">
+        <!-- Header -->
+        <header class="sticky top-0 z-50 card px-6 py-4 mb-8 rounded-2xl">
+            <div class="flex items-center gap-4">
+                <div class="flex-1 search-bar lg:ml-0 ml-12">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <input type="text" id="searchInput" placeholder="Search songs, artists, albums..." 
+                           class="w-full card rounded-full py-3 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button id="clearSearch" class="hidden absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white z-10">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section p-8 lg:p-12 mb-12 relative">
+            <div class="hero-pattern"></div>
+            <div class="relative z-10 max-w-2xl">
+                <h1 class="text-4xl lg:text-6xl font-bold mb-4">Your Music,<br>Your Vibe</h1>
+                <p class="text-lg opacity-90 mb-6">Discover and enjoy millions of songs from your favorite artists</p>
+                <div class="flex gap-4 flex-wrap">
+                    <button onclick="playAll()" class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform shadow-lg">
+                        <i class="fas fa-play mr-2"></i>Play All
+                    </button>
+                    <button onclick="shuffleAll()" class="bg-white/20 backdrop-blur-sm px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform">
+                        <i class="fas fa-random mr-2"></i>Shuffle
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showFavorites()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-heart text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statFav">0</p>
+                        <p class="text-sm text-gray-400">Liked</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-music text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">27</p>
+                        <p class="text-sm text-gray-400">Songs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showHistory()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statPlayed">0</p>
+                        <p class="text-sm text-gray-400">Played</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showQueue()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-list-ul text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statQueue">0</p>
+                        <p class="text-sm text-gray-400">In Queue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Now Playing Banner -->
+        <div id="nowPlayingBanner" class="hidden card rounded-2xl p-6 mb-8 border-2 border-purple-500">
+            <div class="flex items-center gap-4">
+                <img id="bannerImg" class="w-20 h-20 rounded-xl object-cover shadow-lg" src="">
+                <div class="flex-1">
+                    <p class="text-sm text-gray-400 mb-1">Now Playing</p>
+                    <h3 id="bannerTitle" class="text-xl font-bold mb-1"></h3>
+                    <p id="bannerArtist" class="text-gray-400"></p>
+                </div>
+                <div class="equalizer">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Tracks -->
+        <section id="trending" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Trending Now</h2>
+                <button onclick="toggleView('trending')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="trendingList" class="space-y-2"></div>
+        </section>
+
+        <!-- Punjabi Hits -->
+        <section id="punjabi" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Punjabi Hits</h2>
+                </div>
+                <button onclick="showGenre('Punjabi')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="punjabiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Bollywood -->
+        <section id="bollywood" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Bollywood Chartbusters</h2>
+                </div>
+                <button onclick="showGenre('Bollywood')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="bollywoodGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Romance -->
+        <section id="romance" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Romantic Melodies</h2>
+                </div>
+                <button onclick="showGenre('Romance')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="romanceGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Hip Hop & Rap -->
+        <section id="hiphop" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Hip Hop & Rap</h2>
+                </div>
+                <button onclick="showGenre('Hip Hop')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="hiphopGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Regional Music -->
+        <section id="regional" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Regional Music</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Tamil')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-music text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Tamil</h3>
+                            <p class="text-sm text-gray-400" id="tamilCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Urdu')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-feather text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Urdu</h3>
+                            <p class="text-sm text-gray-400" id="urduCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Saraiki')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-drum text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Saraiki</h3>
+                            <p class="text-sm text-gray-400" id="saraikiCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Pop')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Pop</h3>
+                            <p class="text-sm text-gray-400" id="popCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mood & Vibes -->
+        <section id="moods" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Moods & Vibes</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Sad')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cloud-rain text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Sad Songs</h3>
+                            <p class="text-sm text-gray-400" id="sadCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Lofi')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-compact-disc text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Lo-Fi Chill</h3>
+                            <p class="text-sm text-gray-400" id="lofiCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Electronic')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-headphones text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Electronic</h3>
+                            <p class="text-sm text-gray-400" id="electronicCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Rock')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-guitar text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Rock</h3>
+                            <p class="text-sm text-gray-400" id="rockCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Saraiki Hits -->
+        <section id="saraiki" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-drum"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Saraiki Collection</h2>
+                </div>
+                <button onclick="showGenre('Saraiki')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="saraikiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Urdu Poetry & Music -->
+        <section id="urdu" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-feather"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Urdu Poetry & Music</h2>
+                </div>
+                <button onclick="showGenre('Urdu')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="urduGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Sad Songs -->
+        <section id="sad" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cloud-rain"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Emotional Ballads</h2>
+                </div>
+                <button onclick="showGenre('Sad')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="sadGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Lofi & Chill -->
+        <section id="lofi" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Lo-Fi Chill Beats</h2>
+                </div>
+                <button onclick="showGenre('Lofi')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    View All <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <div id="lofiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Albums -->
+        <section id="albums" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Popular Albums</h2>
+                <button onclick="toggleView('albums')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="albumGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Artists -->
+        <section id="artists" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Featured Artists</h2>
+            <div id="artistGrid" class="flex gap-6 overflow-x-auto scrollbar-hide pb-4"></div>
+        </section>
+
+        <!-- Genres -->
+        <section id="genres" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Browse by Genre</h2>
+            <div id="genreGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+    </main>
+
+    <!-- Music Player -->
+    <div class="fixed bottom-0 left-0 right-0 card border-t border-white/10 px-6 py-4 z-[150]">
+        <div class="max-w-screen-2xl mx-auto">
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">
+                        <div class="progress-thumb"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-400 mt-2">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+                <!-- Song Info -->
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <img id="playerImg" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100" 
+                         class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                    <div class="min-w-0 flex-1">
+                        <h4 id="playerTitle" class="font-semibold truncate">Select a song</h4>
+                        <p id="playerArtist" class="text-sm text-gray-400 truncate">Miraculous Player</p>
+                    </div>
+                    <button id="likeBtn" onclick="toggleLike()" class="text-gray-400 hover:text-red-400 transition-colors hidden lg:block">
+                        <i class="far fa-heart text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-6">
+                    <button onclick="toggleShuffle()" id="shuffleBtn" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
+                        <i class="fas fa-random text-lg"></i>
+                    </button>
+                    <button onclick="playPrevious()" class="hover:scale-110 transition-transform">
+                        <i class="fas fa-step-backward text-2xl"></i>
+                    </button>
+                    <button id="playBtn" onclick="togglePlay()" 
+                            class="w-14 h-14 gradient-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+                        <i class="fas fa-play text-xl ml-1"></i>
+                    </button>
+                    <button onclick="playNext()" class="hover:scale-110 transition-transform">
+                        <i class="fas fa-step-forward text-2xl"></i>
+                    </button>
+                    <button onclick="toggleRepeat()" id="repeatBtn" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
+                        <i class="fas fa-redo text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Volume & Actions -->
+                <div class="hidden lg:flex items-center gap-4 flex-1 justify-end">
+                    <button onclick="showQueue()" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-list-ul text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleMute()" id="volumeIcon" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-volume-up text-lg"></i>
+                        </button>
+                        <div class="w-24 h-2 bg-gray-600 rounded-full cursor-pointer" id="volumeBar">
+                            <div id="volumeFill" class="h-full gradient-primary rounded-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Queue Modal -->
+    <div id="queueModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Queue</h3>
+            <button onclick="closeModal('queueModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="queueList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div id="favoritesModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Liked Songs</h3>
+            <button onclick="closeModal('favoritesModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="favoritesList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Recently Played</h3>
+            <button onclick="closeModal('historyModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="historyList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Genre Modal -->
+    <div id="genreModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-2xl font-bold" id="genreTitle">Genre</h3>
+                <p class="text-sm text-gray-400" id="genreCount"></p>
+            </div>
+            <button onclick="closeModal('genreModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="genreList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Equalizer Modal -->
+    <div id="equalizerModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Equalizer</h3>
+            <button onclick="closeModal('equalizerModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="mb-6">
+            <div class="grid grid-cols-5 gap-4 mb-4">
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">60Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">230Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">910Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">4kHz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">14kHz</p>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="setEQPreset('flat')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Flat</button>
+            <button onclick="setEQPreset('bass')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Bass Boost</button>
+            <button onclick="setEQPreset('vocal')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Vocal</button>
+            <button onclick="setEQPreset('treble')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Treble Boost</button>
+        </div>
+    </div>
+
+    <!-- Sleep Timer Modal -->
+    <div id="sleepTimerModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Sleep Timer</h3>
+            <button onclick="closeModal('sleepTimerModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="timerOptions" class="space-y-4">
+            <p class="text-gray-400 mb-4">Stop playback after:</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="setSleepTimer(15)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">15 minutes</button>
+                <button onclick="setSleepTimer(30)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">30 minutes</button>
+                <button onclick="setSleepTimer(45)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">45 minutes</button>
+                <button onclick="setSleepTimer(60)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">1 hour</button>
+            </div>
+        </div>
+        <div id="timerActive" class="hidden text-center py-6">
+            <i class="fas fa-moon text-5xl text-purple-400 mb-4"></i>
+            <p class="text-lg mb-3">Timer Active</p>
+            <p class="text-4xl font-bold gradient-text mb-6" id="timerDisplay">00:00</p>
+            <button onclick="cancelSleepTimer()" class="bg-red-500/20 text-red-400 px-8 py-3 rounded-lg hover:bg-red-500/30 font-semibold">
+                Cancel Timer
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Settings</h3>
+            <button onclick="closeModal('settingsModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center p-4 card rounded-lg">
+                <div>
+                    <h4 class="font-semibold">Auto Play Next</h4>
+                    <p class="text-xs text-gray-400">Automatically play next song</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="autoPlayToggle" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                </label>
+            </div>
+            <div class="flex justify-between items-center p-4 card rounded-lg">
+                <div>
+                    <h4 class="font-semibold">Crossfade</h4>
+                    <p class="text-xs text-gray-400">Seamless song transitions</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="crossfadeToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                </label>
+            </div>
+            <button onclick="clearAllData()" class="w-full bg-red-500/20 text-red-400 px-4 py-4 rounded-lg hover:bg-red-500/30 font-semibold">
+                <i class="fas fa-trash mr-2"></i>Clear All Data
+            </button>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="metadata"></audio>
+
+    <script>
+        // Music Library
+        const songs = [
+            { id: 1, title: "Saiyaara", artist: "Faheem Abdullah", duration: "5:44", image: "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg", genre: "Romance", audio: "saiyaara.mp3" },
+            { id: 2, title: "Deewaniyat", artist: "Vishal Mishra", duration: "3:22", image: "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg", genre: "Romance", audio: "deewaniyat.mp3" },
+            { id: 3, title: "Laal Pairi", artist: "Yo Yo Honey Singh", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10", genre: "Pop", audio: "laal-pari.mp3" },
+            { id: 4, title: "Kesariya", artist: "Arijit Singh", duration: "4:28", image: "https://c.saavncdn.com/191/Kesariya-From-Brahmastra-Hindi-2022-20220717092820-500x500.jpg", genre: "Romance", audio: "kesariya.mp3" },
+            { id: 5, title: "Maan Meri Jaan", artist: "King", duration: "3:14", image: "https://i.ytimg.com/vi/eZnntxPl44g/sddefault.jpg", genre: "Romance", audio: "maan-meri-jaan.mp3" },
+            { id: 6, title: "Tere Vaaste", artist: "Sachin-Jigar", duration: "3:59", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVOFaiNyQKcSMhrX_cv7Qyo1fRtNTzxzHmTaGKmhlohBSjVlK5tyxe-qh&s=10", genre: "Romance", audio: "tere-vaaste.mp3" },
+            { id: 7, title: "What Jhumka", artist: "Arijit Singh", duration: "3:59", image: "https://i.ytimg.com/vi/LNegGbBmbLI/maxresdefault.jpg", genre: "Bollywood", audio: "what-jhumka.mp3" },
+            { id: 8, title: "Brown Munde", artist: "AP Dhillon", duration: "4:14", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrzAKS-OKC79Am0FHjPxkLVbYmKv8CqogSLyBCsn6z3-7K_15RWvqOx10B&s=10", genre: "Punjabi", audio: "brown-munde.mp3" },
+            { id: 9, title: "Tere Pyaar Mein", artist: "Arijit Singh", duration: "4:26", image: "https://i1.sndcdn.com/artworks-riLqSdpUqlIQt7kB-D0zdZw-t500x500.jpg", genre: "Romance", audio: "tere-pyaar-mein.mp3" },
+            { id: 10, title: "Chaleya", artist: "Arijit Singh", duration: "4:49", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfAWOSOviBx0hs06h_7foNgZeMIgFD2IuFDeGFZNwtwjIkDGKbp3KgtDVy&s=10", genre: "Romance", audio: "chaleya.mp3" },
+            { id: 11, title: "Arabic Kuthu", artist: "Anirudh", duration: "4:39", image: "https://m.media-amazon.com/images/I/51ci1yvC0kL._UXNaN_FMjpg_QL85_.jpg", genre: "Tamil", audio: "arabic-kuthu.mp3" },
+            { id: 12, title: "Besharam Rang", artist: "Vishal-Shekhar", duration: "4:18", image: "https://i.ytimg.com/vi/7SJodKV_pGA/maxresdefault.jpg", genre: "Bollywood", audio: "besharam-rang.mp3" },
+            { id: 13, title: "Lehnga", artist: "Diljit Dosanjh", duration: "3:19", image: "https://i.ytimg.com/vi/G8PU1HjZZj4/hq720.jpg", genre: "Punjabi", audio: "lehnga.mp3" },
+            { id: 14, title: "Illegal Weapon 2.0", artist: "Garry Sandhu", duration: "3:08", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlMgItkCiqMKZQNjMmdw8NWaiM23gKjYy_02L4kurEhUf54wnydwj044&s=10", genre: "Punjabi", audio: "illegal-weapon.mp3" },
+            { id: 15, title: "G.O.A.T", artist: "Diljit Dosanjh", duration: "3:43", image: "https://i.ytimg.com/vi/tAizFLCucdY/maxresdefault.jpg", genre: "Punjabi", audio: "g.o.a.t-diljit.mp3" },
+            { id: 16, title: "Saami Saami", artist: "Sunidhi Chauhan", duration: "3:55", image: "https://i.ytimg.com/vi/R32Vf2M5VGA/hq720.jpg", genre: "Bollywood", audio: "saami-saami.mp3" },
+            { id: 17, title: "Naacho Naacho", artist: "Vishal Mishra", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDAyrV_dPy060QVzq-dv__jfcyXBYbfaBpTxaL0-yBRdFO9v6SVBryTnc&s=10", genre: "Bollywood", audio: "naacho-naacho.mp3" },
+            { id: 18, title: "Lutt Putt Gaya", artist: "Arijit Singh", duration: "3:54", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_OgBswbsrpIDYiT_kttr8j94rJYTLFxEV-zn1H9qyivmDDCpsYxP8qKur&s=10", genre: "Romance", audio: "lutt-putt-gaya.mp3" },
+            { id: 19, title: "Chitta Kurta", artist: "Yo Yo Honey Singh", duration: "3:51", image: "https://i1.sndcdn.com/artworks-000650502514-hchjlx-t500x500.jpg", genre: "Punjabi", audio: "chitta-kurta.mp3" },
+            { id: 20, title: "Character Dheela", artist: "Neeraj Shridhar", duration: "4:11", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3jkbwNKwnb5gHdlRHI_L0dEFBCQM3j0UqLJXMQGrHedraFQwjol02tLM&s=10", genre: "Bollywood", audio: "character-dheela.mp3" },
+            { id: 21, title: "Jhoome Jo Pathaan", artist: "Arijit Singh", duration: "3:28", image: "https://upload.wikimedia.org/wikipedia/en/8/8b/Jhoome_Jo_Pathaan_song_cover.jpg", genre: "Bollywood", audio: "jhoome-jo-pathaan.mp3" },
+            { id: 22, title: "Arjan Vailly", artist: "Manan Bhardwaj", duration: "3:02", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU4RrwA0cbOdiHtRQYQh_Mc0IWMs1c--M-h-lSQpUhbMsrbvmEZJQa78ak&s=10", genre: "Bollywood", audio: "arjan-vailly.mp3" },
+            { id: 23, title: "Satranga", artist: "Arijit Singh", duration: "4:28", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiU-MmJJCZ4gB8eZk_p-VNU7k-fWVwQr284CruMrVHAVeR2MG_Rp7Xi50&s=10", genre: "Romance", audio: "satranga.mp3" },
+            {
+    "id": 37,
+    "title": "Hua Main",
+    "artist": "Raghav Chaitanya",
+    "duration": "4:33",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjNxq67RY3EsCmPWUOSVWLq4Ef4q3Ghtt3ytn5ML59F7qRCkCk73TGzZA&s=10",
+    "genre": "Romance",
+    "audio": "hua-main-animal.mp3"
+  },
+  {
+    "id": 38,
+    "title": "Pehle Bhi Mein",
+    "artist": "Vishal Mishra",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/413/Marham-Pehle-Bhi-Main-From-ANIMAL-Hindi-2023-20231223151003-500x500.jpg",
+    "genre": "Romance",
+    "audio": "pehle-bhi-mein.mp3"
+  },
+  {
+    "id": 39,
+    "title": "Tum Kya Mile",
+    "artist": "Arijit Singh, Shreya Ghoshal",
+    "duration": "4:34",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMhz5U2Ky2ZyfgVl-RIqHaB9WYZgCsMsLZahDh2hIIvSy6wuCbEPvTDLDk&s=10",
+    "genre": "Romance",
+    "audio": "tum-kya-mile.mp3"
+  },
+  {
+    "id": 40,
+    "title": "Ve Kamleya",
+    "artist": "Arijit Singh, Shreya Ghoshal",
+    "duration": "4:07",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY2hK1KoxoV5fVGhoVPMJiwSHTrVuz5cE_aoQu3Aushx-MP3cUWxnLl9s&s=10",
+    "genre": "Romance",
+    "audio": "ve-kamleya.mp3"
+  },
+  {
+    "id": 41,
+    "title": "Yaari",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/290/Yaari-Punjabi-2019-20190611222620-500x500.jpg",
+    "genre": "Friendship",
+    "audio": "yaari.mp3"
+  },
+  {
+    "id": 42,
+    "title": "Yimmy Yimmy",
+    "artist": "Tayc, Shreya Ghoshal",
+    "duration": "3:50",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0pzprB1pTBEvjFGcC8uC3WqN7p8NrNRLDtwiWZ2Z4xPCMsqjl9sCsHA8&s=10",
+    "genre": "Pop",
+    "audio": "yimmy-yimmy.mp3"
+  },
+  {
+    "id": 43,
+    "title": "Udaariyan",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhp4rX5eamOCC_ZwIVabhGaUNnglfuukr_WivzW_lLJOBoicmvm-Vp8o8&s=10",
+    "genre": "Bollywood",
+    "audio": "udaariyan.mp3"
+  },
+  {
+    "id": 44,
+    "title": "Titliyan",
+    "artist": "Hardy Sandhu",
+    "duration": "3:52",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCVEIVICwn1l_jzlsQT4BbpQ5k2OIoTNrIMBdws_Iv3YlX7msxywmyOI&s=10",
+    "genre": "Bollywood",
+    "audio": "titilyaan.mp3"
+  },
+  {
+    "id": 45,
+    "title": "Sajni",
+    "artist": "Arijit Singh",
+    "duration": "4:10",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTga_CQbq_F_t1qSSo2_1VQ0UXWygIIozSb5segTwYdoqL1AhFjqiZ5YRw&s=10",
+    "genre": "Romance",
+    "audio": "sajni.mp3"
+  },
+  {
+    "id": 46,
+    "title": "Softly",
+    "artist": "Karan Aujla",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Softly-Punjabi-2023-20230412154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "softly.mp3"
+  },
+  {
+    "id": 47,
+    "title": "Soni Soni",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPKYk6x16M8HVi3JCPik2dANR06HTD1z0Z7OLNoLBX0Q&s=10",
+    "genre": "Romance",
+    "audio": "soni-soni.mp3"
+  },
+  {
+    "id": 48,
+    "title": "No Love",
+    "artist": "Shubh",
+    "duration": "2:50",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOPMpHhPU3IypLvE04xzOHvOymlmXKxPx4XhzZrU0Ugw&s=10",
+    "genre": "Hip Hop",
+    "audio": "no-love.mp3"
+  },
+  {
+    "id": 49,
+    "title": "Panjeban",
+    "artist": "Shivjot",
+    "duration": "3:25",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhDg-NHOJEJntHACS4_mOVbdWRoIt3PUTwahnRc1tbw&s=10",
+    "genre": "Punjabi",
+    "audio": "panjeban-shivjot.mp3"
+  },
+  {
+    "id": 50,
+    "title": "Panwadi",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://i.ytimg.com/vi/i4UZmRaGZ2U/sddefault.jpg",
+    "genre": "Punjabi",
+    "audio": "panwadi.mp3"
+  },
+  {
+    "id": 51,
+    "title": "Payal",
+    "artist": "Jasmine Sandlas",
+    "duration": "3:20",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ212UXLDH2MHdHLtGDDpRYPcnICxmAd4fzfSEcl3-s_w&s=10",
+    "genre": "Bollywood",
+    "audio": "payal-song.mp3"
+  },
+  {
+    "id": 52,
+    "title": "Phir Aur Kya Chahiye",
+    "artist": "Arijit Singh",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/382/Zara-Hatke-Zara-Bachke-Hindi-2023-20230523171120-500x500.jpg",
+    "genre": "Romance",
+    "audio": "phir-aur-kya-chahiye.mp3"
+  },
+  {
+    "id": 53,
+    "title": "Player",
+    "artist": "Badshah, Karan Aujla",
+    "duration": "3:33",
+    "image": "https://c.saavncdn.com/596/Player-Punjabi-2023-20230815154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "player-badshah-karan.mp3"
+  },
+  {
+    "id": 54,
+    "title": "Mahiya",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Mahiya-Punjabi-2022-20220615154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "mahya.mp3"
+  },
+  {
+    "id": 55,
+    "title": "Mexico",
+    "artist": "Koka",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Mexico-Punjabi-2023-20230508154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mexico-koka.mp3"
+  },
+  {
+    "id": 56,
+    "title": "MF Gabhru",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/MF-Gabhru-Punjabi-2022-20221212154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mf-gabhru.mp3"
+  },
+  {
+    "id": 57,
+    "title": "Move Your Lakk",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Move-Your-Lakk-Punjabi-2023-20230405154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "mive-your-lakk.mp3"
+  },
+  {
+    "id": 58,
+    "title": "Moon Rise",
+    "artist": "Guru Randhawa",
+    "duration": "3:28",
+    "image": "https://c.saavncdn.com/596/Moon-Rise-Punjabi-2021-20211008154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "moon-rise.mp3"
+  },
+  {
+    "id": 59,
+    "title": "Nachdi",
+    "artist": "Guru Randhawa",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Nachdi-Punjabi-2018-20180315154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "nachdi-sonofsardaar2.mp3"
+  },
+  {
+    "id": 60,
+    "title": "Naiyo Lagda",
+    "artist": "Harrdy Sandhu",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Naiyo-Lagda-Punjabi-2022-20220928154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "naiyo-lagda.mp3"
+  },
+  {
+    "id": 61,
+    "title": "Ring Song",
+    "artist": "Neha Kakkar",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Ring-Song-Punjabi-2021-20210715154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "neha-kakkar-ring-song.mp3"
+  },
+  {
+    "id": 62,
+    "title": "Meri Jaan",
+    "artist": "Nick Maan",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Meri-Jaan-Punjabi-2023-20230628154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "nick-maan-meri-jaan.mp3"
+  },
+  {
+    "id": 63,
+    "title": "Khyaal Rakhya Kar",
+    "artist": "Ranjit Bawa",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Khyaal-Rakhya-Kar-Punjabi-2022-20221115154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "khyaal-rakhya-kr.mp3"
+  },
+  {
+    "id": 64,
+    "title": "Kya Baat Aa",
+    "artist": "Karan Aujla",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Kya-Baat-Aa-Punjabi-2023-20230215154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kya-baat-aa-karan.mp3"
+  },
+  {
+    "id": 65,
+    "title": "Kya Karu",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Kya-Karu-Punjabi-2022-20220812154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "kya-kru.mp3"
+  },
+  {
+    "id": 66,
+    "title": "Lafda",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Lafda-Punjabi-2023-20230725154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "lafda.mp3"
+  },
+  {
+    "id": 67,
+    "title": "Leo Naa Ready",
+    "artist": "Anirudh Ravichander",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/382/Leo-Tamil-2023-20231019171120-500x500.jpg",
+    "genre": "Tamil",
+    "audio": "leo-naa-ready.mp3"
+  },
+  {
+    "id": 68,
+    "title": "Ma Belle",
+    "artist": "AP Dhillon",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Ma-Belle-Punjabi-2023-20230608154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "ma-belle.mp3"
+  },
+  {
+    "id": 69,
+    "title": "Mafia",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Mafia-Punjabi-2022-20221228154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "mafia.mp3"
+  },
+  {
+    "id": 70,
+    "title": "Malang Sajna",
+    "artist": "Sachet Tandon",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/382/Malang-Hindi-2020-20200215154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "malang-sajna.mp3"
+  },
+  {
+    "id": 71,
+    "title": "Jhaanjar",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Jhaanjar-Punjabi-2023-20230418154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jhaanjar.mp3"
+  },
+  {
+    "id": 72,
+    "title": "Judge",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Judge-Punjabi-2022-20220908154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "judge.mp3"
+  },
+  {
+    "id": 73,
+    "title": "Kaka Holi",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Kaka-Holi-Punjabi-2023-20230315154717-500x500.jpg",
+    "genre": "Festival",
+    "audio": "kaka-holi.mp3"
+  },
+  {
+    "id": 74,
+    "title": "Kaka Kale Je Libaas",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Kaka-Kale-Je-Libaas-Punjabi-2023-20230808154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kaka-kale-je-libaas.mp3"
+  },
+  {
+    "id": 75,
+    "title": "Kaka Keh Len De",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Kaka-Keh-Len-De-Punjabi-2023-20230718154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kaka-keh-len-de.mp3"
+  },
+  {
+    "id": 76,
+    "title": "Kaka Temporary Pyaar",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Kaka-Temporary-Pyaar-Punjabi-2023-20230612154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "kaka-temporary-pyaar.mp3"
+  },
+  {
+    "id": 77,
+    "title": "Kalla Sohna Nai",
+    "artist": "Raftaar",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Kalla-Sohna-Nai-Punjabi-2022-20221128154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "kalla-sohna-nai.mp3"
+  },
+  {
+    "id": 78,
+    "title": "Kamsin Kali",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Kamsin-Kali-Punjabi-2022-20221015154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "kamsin-kali.mp3"
+  },
+  {
+    "id": 79,
+    "title": "Khabbi Seat",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Khabbi-Seat-Punjabi-2023-20230515154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "khabbi-seat.mp3"
+  },
+  {
+    "id": 80,
+    "title": "Gire Gore",
+    "artist": "Benny Dayal",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/382/Gire-Gore-Hindi-2022-20220915154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "gire-gore.mp3"
+  },
+  {
+    "id": 81,
+    "title": "Good Bad Ugly",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Good-Bad-Ugly-Punjabi-2023-20230428154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "goid-bad-ugly.mp3"
+  },
+  {
+    "id": 82,
+    "title": "Horn Blow",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Horn-Blow-Punjabi-2023-20230828154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "horn-blow.mp3"
+  },
+  {
+    "id": 83,
+    "title": "Ilzaam",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Ilzaam-Punjabi-2022-20221205154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "ilzaam.mp3"
+  },
+  {
+    "id": 84,
+    "title": "Jaane Tu",
+    "artist": "Various Artists",
+    "duration": "4:00",
+    "image": "https://c.saavncdn.com/596/Jaane-Tu-Punjabi-2023-20230705154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "jaane-tu.mp3"
+  },
+  {
+    "id": 85,
+    "title": "Jatt Flex",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Jatt-Flex-Punjabi-2023-20230528154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jatt-flex.mp3"
+  },
+  {
+    "id": 86,
+    "title": "Jatt Te Jawani",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Jatt-Te-Jawani-Punjabi-2022-20221108154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "jatt-te-jawani.mp3"
+  },
+  {
+    "id": 87,
+    "title": "Fly Karke",
+    "artist": "Various Artists",
+    "duration": "3:05",
+    "image": "https://c.saavncdn.com/596/Fly-Karke-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "fly-karke.mp3"
+  },
+  {
+    "id": 88,
+    "title": "Bol Kafar Kya Hoga",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Bol-Kafar-Kya-Hoga-Punjabi-2022-20221028154717-500x500.jpg",
+    "genre": "Spiritual",
+    "audio": "bol-kafar-kya-hoga.mp3"
+  },
+  {
+    "id": 89,
+    "title": "California Love",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/California-Love-Punjabi-2023-20230615154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "california-love.mp3"
+  },
+  {
+    "id": 90,
+    "title": "Chithiyan",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Chithiyan-Punjabi-2022-20220828154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "chithiyan.mp3"
+  },
+  {
+    "id": 91,
+    "title": "Choli K Peeche",
+    "artist": "Alka Yagnik, Ila Arun",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/382/Khalnayak-Hindi-1993-20191025154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "choli-k-peeche.mp3"
+  },
+  {
+    "id": 92,
+    "title": "Dhun Saiyaara",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/382/Tamasha-Hindi-2015-20151115154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dhun-saiyaara.mp3"
+  },
+  {
+    "id": 93,
+    "title": "Dil Hariya",
+    "artist": "Various Artists",
+    "duration": "4:35",
+    "image": "https://c.saavncdn.com/596/Dil-Hariya-Punjabi-2023-20230728154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dil-hariya.mp3"
+  },
+  {
+    "id": 94,
+    "title": "Dil Jhoom",
+    "artist": "Various Artists",
+    "duration": "4:45",
+    "image": "https://c.saavncdn.com/596/Dil-Jhoom-Punjabi-2022-20220905154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dil-jhoom.mp3"
+  },
+  {
+    "id": 95,
+    "title": "Dilbar Ki Ankhon Ka",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Dilbar-Ki-Ankhon-Ka-Punjabi-2023-20230812154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "dilbar-ki-ankhon-ka.mp3"
+  },
+  {
+    "id": 96,
+    "title": "Asraar",
+    "artist": "Geetkarz",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Asraar-Punjabi-2023-20230520154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "asraar-geetkarz.mp3"
+  },
+  {
+    "id": 97,
+    "title": "Bachalo",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Bachalo-Punjabi-2023-20230412154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bachalo.mp3"
+  },
+  {
+    "id": 98,
+    "title": "Bamb Aagya",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Bamb-Aagya-Punjabi-2023-20230715154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bamb-aagya.mp3"
+  },
+  {
+    "id": 99,
+    "title": "Bamb Jatt",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Bamb-Jatt-Punjabi-2023-20230605154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bamb-jatt.mp3"
+  },
+  {
+    "id": 100,
+    "title": "Barbaad Saiyaara",
+    "artist": "Various Artists",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/596/Barbaad-Saiyaara-Punjabi-2023-20230908154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "barbaad-saiyaara.mp3"
+  },
+  {
+    "id": 101,
+    "title": "Bhaabhi",
+    "artist": "Various Artists",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/596/Bhaabhi-Punjabi-2023-20230805154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bhaabhi.mp3"
+  },
+  {
+    "id": 102,
+    "title": "Bijlee Bijlee",
+    "artist": "Harrdy Sandhu",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Bijlee-Bijlee-Punjabi-2021-20210515154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "bijlee-bijlee.mp3"
+  },
+  {
+    "id": 103,
+    "title": "Black Effect",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Black-Effect-Punjabi-2023-20230912154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "black-effect.mp3"
+  },
+  {
+    "id": 104,
+    "title": "2 Raflaan",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/2-Raflaan-Punjabi-2023-20230720154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "2-raflaan.mp3"
+  },
+  {
+    "id": 105,
+    "title": "3 Peg",
+    "artist": "Sharry Maan",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/3-Peg-Punjabi-2017-20170815154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "3-peg-sharry.mp3"
+  },
+  {
+    "id": 106,
+    "title": "52 Bars",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/52-Bars-Punjabi-2023-20230525154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "52-bars.mp3"
+  },
+  {
+    "id": 107,
+    "title": "8 Parche",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/8-Parche-Punjabi-2023-20230618154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "8-parche.mp3"
+  },
+  {
+    "id": 108,
+    "title": "8 Raflaan",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/8-Raflaan-Punjabi-2023-20230815154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "8-raflaan.mp3"
+  },
+  {
+    "id": 109,
+    "title": "Aaj Ki Raat",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Aaj-Ki-Raat-Punjabi-2023-20230918154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "aaj-ki-raat.mp3"
+  },
+  {
+    "id": 110,
+    "title": "Akhian Ghulab",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Akhian-Ghulab-Punjabi-2023-20230708154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "akhian-ghulab.mp3"
+  },
+  {
+    "id": 111,
+    "title": "Amber Arabic",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Amber-Arabic-Punjabi-2023-20230825154717-500x500.jpg",
+    "genre": "Arabic",
+    "audio": "amber-arabic.mp3"
+  },
+  {
+    "id": 112,
+    "title": "Apa Fer Milaange",
+    "artist": "Various Artists",
+    "duration": "4:00",
+    "image": "https://c.saavncdn.com/596/Apa-Fer-Milaange-Punjabi-2023-20230905154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "apa-fer-milaange.mp3"
+  },
+  {
+    "id": 113,
+    "title": "White Brown Black",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/White-Brown-Black-Punjabi-2023-20230622154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "white-brown-black.mp3"
+  },
+  {
+    "id": 114,
+    "title": "With You",
+    "artist": "AP Dhillon",
+    "duration": "2:55",
+    "image": "https://c.saavncdn.com/596/With-You-Punjabi-2022-20220315154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "with-you.mp3"
+  },
+  {
+    "id": 115,
+    "title": "Yentamma",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Yentamma-Punjabi-2023-20230515154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "yentamma.mp3"
+  },
+  {
+    "id": 116,
+    "title": "Tujhko Mirchi Lagi",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Tujhko-Mirchi-Lagi-Punjabi-2023-20230730154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "tujhko-mirchi-lagi.mp3"
+  },
+  {
+    "id": 117,
+    "title": "Tum Hia Ana",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Tum-Hia-Ana-Punjabi-2023-20230820154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-hia-ana.mp3"
+  },
+  {
+    "id": 118,
+    "title": "Tum Mere Na Hue",
+    "artist": "Various Artists",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Tum-Mere-Na-Hue-Punjabi-2023-20230910154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-mere-na-hue.mp3"
+  },
+  {
+    "id": 119,
+    "title": "Tum Se",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/596/Tum-Se-Punjabi-2023-20230830154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tum-se.mp3"
+  },
+  {
+    "id": 120,
+    "title": "Uyi Amma",
+    "artist": "Various Artists",
+    "duration": "3:45",
+    "image": "https://c.saavncdn.com/596/Uyi-Amma-Punjabi-2023-20230712154717-500x500.jpg",
+    "genre": "Regional",
+    "audio": "uyi-amma.mp3"
+  },
+  {
+    "id": 121,
+    "title": "Vail",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Vail-Punjabi-2023-20230628154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "vail.mp3"
+  },
+  {
+    "id": 122,
+    "title": "Waaliyan",
+    "artist": "Harnoor",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Waaliyan-Punjabi-2022-20220415154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "waaliyan-harnoor.mp3"
+  },
+  {
+    "id": 123,
+    "title": "Wakhra Swag",
+    "artist": "Navv Inder",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Wakhra-Swag-Punjabi-2015-20150815154717-500x500.jpg",
+    "genre": "Hip Hop",
+    "audio": "wakhra-swag.mp3"
+  },
+  {
+    "id": 124,
+    "title": "Wayy",
+    "artist": "Various Artists",
+    "duration": "3:10",
+    "image": "https://c.saavncdn.com/596/Wayy-Punjabi-2023-20230530154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "wayy.mp3"
+  },
+  {
+    "id": 125,
+    "title": "Soory Bol",
+    "artist": "Various Artists",
+    "duration": "4:20",
+    "image": "https://c.saavncdn.com/596/Soory-Bol-Punjabi-2023-20230810154717-500x500.jpg",
+    "genre": "Bollywood",
+    "audio": "soory-bol.mp3"
+  },
+  {
+    "id": 126,
+    "title": "Take It Easy",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Take-It-Easy-Punjabi-2023-20230722154717-500x500.jpg",
+    "genre": "Pop",
+    "audio": "tak-it-easy.mp3"
+  },
+  {
+    "id": 127,
+    "title": "Talja",
+    "artist": "Various Artists",
+    "duration": "4:10",
+    "image": "https://c.saavncdn.com/596/Talja-Punjabi-2023-20230625154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "talja.mp3"
+  },
+  {
+    "id": 128,
+    "title": "Tell Me Honestly",
+    "artist": "Various Artists",
+    "duration": "4:30",
+    "image": "https://c.saavncdn.com/596/Tell-Me-Honestly-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tell-me-honestly.mp3"
+  },
+  {
+    "id": 129,
+    "title": "Teri Baaton Mein",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Teri-Baaton-Mein-Punjabi-2023-20230818154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "teri-baaton-mein.mp3"
+  },
+  {
+    "id": 130,
+    "title": "Top Notch Gabru",
+    "artist": "Various Artists",
+    "duration": "3:15",
+    "image": "https://c.saavncdn.com/596/Top-Notch-Gabru-Punjabi-2023-20230705154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "top-notch-gabru.mp3"
+  },
+  {
+    "id": 131,
+    "title": "Tu Hain To",
+    "artist": "Various Artists",
+    "duration": "3:40",
+    "image": "https://c.saavncdn.com/596/Tu-Hain-To-Punjabi-2023-20230908154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "tu-hain-to.mp3"
+  },
+  {
+    "id": 132,
+    "title": "Pyar Hota Kayi Baar Hai",
+    "artist": "Various Artists",
+    "duration": "3:35",
+    "image": "https://c.saavncdn.com/596/Pyar-Hota-Kayi-Baar-Hai-Punjabi-2023-20230822154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "pyar-hota-kayi-baar-hai.mp3"
+  },
+  {
+    "id": 133,
+    "title": "Ranjhaan",
+    "artist": "Various Artists",
+    "duration": "4:15",
+    "image": "https://c.saavncdn.com/596/Ranjhaan-Punjabi-2023-20230718154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "ranjhaan.mp3"
+  },
+  {
+    "id": 134,
+    "title": "Rubicon Drill",
+    "artist": "Laddi Chahal",
+    "duration": "3:30",
+    "image": "https://c.saavncdn.com/596/Rubicon-Drill-Punjabi-2023-20230608154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "rubicon-drill-laddi-chahal.mp3"
+  },
+  {
+    "id": 135,
+    "title": "Sahiba",
+    "artist": "Various Artists",
+    "duration": "4:25",
+    "image": "https://c.saavncdn.com/596/Sahiba-Punjabi-2023-20230518154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "sahiba.mp3"
+  },
+  {
+    "id": 136,
+    "title": "Saiyaan Ji",
+    "artist": "Various Artists",
+    "duration": "4:05",
+    "image": "https://c.saavncdn.com/596/Saiyaan-Ji-Punjabi-2023-20230912154717-500x500.jpg",
+    "genre": "Romance",
+    "audio": "saiyaan-ji.mp3"
+  },
+  {
+    "id": 137,
+    "title": "Settagalla",
+    "artist": "Various Artists",
+    "duration": "3:55",
+    "image": "https://c.saavncdn.com/596/Settagalla-Punjabi-2023-20230808154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "settagalla.mp3"
+  },
+  {
+    "id": 138,
+    "title": "Minna Minna",
+    "artist": "Various Artists",
+    "duration": "3:05",
+    "image": "https://c.saavncdn.com/596/Minna-Minna-Punjabi-2023-20230728154717-500x500.jpg",
+    "genre": "Regional",
+    "audio": "minna-minna.mp3"
+  },
+  {
+    "id": 139,
+    "title": "Perfect Guru",
+    "artist": "Various Artists",
+    "duration": "3:25",
+    "image": "https://c.saavncdn.com/596/Perfect-Guru-Punjabi-2023-20230915154717-500x500.jpg",
+    "genre": "Spiritual",
+    "audio": "perfect-guru.mp3"
+  },
+  {
+    "id": 140,
+    "title": "Pecha",
+    "artist": "Various Artists",
+    "duration": "3:50",
+    "image": "https://c.saavncdn.com/596/Pecha-Punjabi-2023-20230812154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "pecha.mp3"
+  },
+  {
+    "id": 141,
+    "title": "Oye Hoye Hoye",
+    "artist": "Various Artists",
+    "duration": "3:20",
+    "image": "https://c.saavncdn.com/596/Eye-Hoye-Hoye-Punjabi-2023-20230612154717-500x500.jpg",
+    "genre": "Punjabi",
+    "audio": "eye-hoye-hoye.mp3"
+  }
+        
+];
+
+        // State
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let volume = 0.7;
+        let isShuffle = false;
+        let repeatMode = 0;
+        let favorites = [];
+        let queue = [];
+        let history = [];
+        let viewStates = {};
+        let playbackSpeed = 1.0;
+        let sleepTimer = null;
+        let sleepTimeRemaining = 0;
+        let totalPlayTime = 0;
+        let isDarkMode = true;
+
+        // DOM Elements
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const volumeBar = document.getElementById('volumeBar');
+        const volumeFill = document.getElementById('volumeFill');
+        const searchInput = document.getElementById('searchInput');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const menuToggle = document.getElementById('menuToggle');
+
+        // Initialize
+        function init() {
+            audio.volume = volume;
+            renderAllSections();
+            attachListeners();
+            loadUserData();
+            updateStats();
+        }
+
+        function attachListeners() {
+            audio.addEventListener('timeupdate', updateProgress);
+            audio.addEventListener('ended', handleSongEnd);
+            audio.addEventListener('loadedmetadata', updateDuration);
+            progressBar.addEventListener('click', seek);
+            volumeBar.addEventListener('click', setVolume);
+            searchInput.addEventListener('input', handleSearch);
+            menuToggle.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', closeAllModals);
+
+            document.getElementById('clearSearch').addEventListener('click', () => {
+                searchInput.value = '';
+                document.getElementById('clearSearch').classList.add('hidden');
+                renderAllSections();
+            });
+
+            // Nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-link').forEach(l => {
+                        l.classList.remove('active', 'gradient-primary');
+                    });
+                    this.classList.add('active', 'gradient-primary');
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    if (window.innerWidth < 1024) closeSidebar();
+                });
+            });
+
+            document.addEventListener('keydown', handleKeyboard);
+        }
+
+        function renderAllSections() {
+            renderTrending();
+            renderAlbums();
+            renderArtists();
+            renderGenres();
+            renderPunjabi();
+            renderBollywood();
+            renderRomance();
+            renderHipHop();
+            renderSaraiki();
+            renderUrdu();
+            renderSad();
+            renderLofi();
+            updateGenreCounts();
+        }
+
+        function renderTrending() {
+            const container = document.getElementById('trendingList');
+            const displaySongs = viewStates['trending'] ? songs : songs.slice(0, 10);
+
+            container.innerHTML = displaySongs.map((song, i) => {
+                const isActive = currentSongIndex === songs.findIndex(s => s.id === song.id) && isPlaying;
+                const isFav = favorites.includes(song.id);
+                return `
+                    <div class="card song-item rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all" onclick="playSongById(${song.id})">
+                        <div class="text-xl font-bold text-purple-400 w-8">${i + 1}</div>
+                        <img src="${song.image}" class="w-14 h-14 rounded-lg object-cover shadow-lg">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold truncate">${song.title}</h4>
+                            <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                        </div>
+                        ${isActive ? '<div class="equalizer"><span></span><span></span><span></span></div>' : ''}
+                        <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400 transition-colors">
+                            <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <span class="text-sm text-gray-400 hidden sm:block">${song.duration}</span>
+                        <button onclick="event.stopPropagation(); addToQueue(${song.id})" class="text-gray-400 hover:text-purple-400 transition-colors">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAlbums() {
+            const container = document.getElementById('albumGrid');
+            const displaySongs = viewStates['albums'] ? songs : songs.slice(0, 12);
+
+            container.innerHTML = displaySongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderArtists() {
+            const container = document.getElementById('artistGrid');
+            const artists = [...new Set(songs.map(s => s.artist))].slice(0, 12);
+
+            container.innerHTML = artists.map(artist => {
+                const artistImage = songs.find(s => s.artist === artist).image;
+                return `
+                    <div class="flex-shrink-0 text-center cursor-pointer">
+                        <img src="${artistImage}" class="w-24 h-24 rounded-full object-cover artist-avatar shadow-lg mb-3">
+                        <p class="font-semibold text-sm">${artist}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderGenres() {
+            const container = document.getElementById('genreGrid');
+            const genres = [
+                { name: 'Romance', color: 'from-pink-500 to-rose-500', image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600' },
+                { name: 'Bollywood', color: 'from-orange-500 to-red-500', image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600' },
+                { name: 'Punjabi', color: 'from-purple-500 to-pink-500', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600' },
+                { name: 'Pop', color: 'from-blue-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600' },
+                { name: 'Tamil', color: 'from-green-500 to-emerald-500', image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600' },
+                { name: 'Hip Hop', color: 'from-yellow-500 to-orange-500', image: 'https://images.unsplash.com/photo-1571609167768-5d5c7f86c6c1?w=600' }
+            ];
+
+            container.innerHTML = genres.map(genre => {
+                const genreSongs = songs.filter(s => s.genre === genre.name);
+                return `
+                    <div class="genre-card h-32" onclick="showGenre('${genre.name}')">
+                        <img src="${genre.image}" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="genre-card-content p-6">
+                            <h3 class="text-2xl font-bold mb-1">${genre.name}</h3>
+                            <p class="text-sm opacity-90">${genreSongs.length} songs</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPunjabi() {
+            const container = document.getElementById('punjabiGrid');
+            const punjabiSongs = songs.filter(s => s.genre === 'Punjabi').slice(0, 6);
+            
+            container.innerHTML = punjabiSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderBollywood() {
+            const container = document.getElementById('bollywoodGrid');
+            const bollywoodSongs = songs.filter(s => s.genre === 'Bollywood').slice(0, 6);
+            
+            container.innerHTML = bollywoodSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRomance() {
+            const container = document.getElementById('romanceGrid');
+            const romanceSongs = songs.filter(s => s.genre === 'Romance').slice(0, 6);
+            
+            container.innerHTML = romanceSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHipHop() {
+            const container = document.getElementById('hiphopGrid');
+            const hiphopSongs = songs.filter(s => s.genre === 'Hip Hop' || s.genre === 'Pop').slice(0, 6);
+            
+            container.innerHTML = hiphopSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateGenreCounts() {
+            const counts = {
+                'Tamil': songs.filter(s => s.genre === 'Tamil').length,
+                'Pop': songs.filter(s => s.genre === 'Pop').length,
+                'Electronic': songs.filter(s => s.genre === 'Electronic').length,
+                'Rock': songs.filter(s => s.genre === 'Rock').length,
+                'Urdu': songs.filter(s => s.genre === 'Urdu').length,
+                'Saraiki': songs.filter(s => s.genre === 'Saraiki').length,
+                'Sad': songs.filter(s => s.genre === 'Sad').length,
+                'Lofi': songs.filter(s => s.genre === 'Lofi').length
+            };
+
+            document.getElementById('tamilCount').textContent = `${counts.Tamil} songs`;
+            document.getElementById('popCount').textContent = `${counts.Pop} songs`;
+            document.getElementById('electronicCount').textContent = `${counts.Electronic} songs`;
+            document.getElementById('rockCount').textContent = `${counts.Rock} songs`;
+            document.getElementById('urduCount').textContent = `${counts.Urdu} songs`;
+            document.getElementById('saraikiCount').textContent = `${counts.Saraiki} songs`;
+            document.getElementById('sadCount').textContent = `${counts.Sad} songs`;
+            document.getElementById('lofiCount').textContent = `${counts.Lofi} songs`;
+        }
+
+        function renderSaraiki() {
+            const container = document.getElementById('saraikiGrid');
+            const saraikiSongs = songs.filter(s => s.genre === 'Saraiki').slice(0, 6);
+            
+            if (saraikiSongs.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Saraiki songs available yet</p>';
+                return;
+            }
+            
+            container.innerHTML = saraikiSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderUrdu() {
+            const container = document.getElementById('urduGrid');
+            const urduSongs = songs.filter(s => s.genre === 'Urdu').slice(0, 6);
+            
+            if (urduSongs.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Urdu songs available yet</p>';
+                return;
+            }
+            
+            container.innerHTML = urduSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderSad() {
+            const container = document.getElementById('sadGrid');
+            const sadSongs = songs.filter(s => s.genre === 'Sad').slice(0, 6);
+            
+            if (sadSongs.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No sad songs available yet</p>';
+                return;
+            }
+            
+            container.innerHTML = sadSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLofi() {
+            const container = document.getElementById('lofiGrid');
+            const lofiSongs = songs.filter(s => s.genre === 'Lofi').slice(0, 6);
+            
+            if (lofiSongs.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Lo-Fi songs available yet</p>';
+                return;
+            }
+            
+            container.innerHTML = lofiSongs.map(song => `
+                <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                    <img src="${song.image}" class="w-full aspect-square object-cover">
+                    <div class="play-btn-overlay">
+                        <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                            <i class="fas fa-play ml-1"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Player Functions
+        function playSongById(id) {
+            const index = songs.findIndex(s => s.id === id);
+            if (index !== -1) {
+                currentSongIndex = index;
+                loadSong();
+                playSong();
+                addToHistory(id);
+            }
+        }
+
+        function loadSong() {
+            const song = songs[currentSongIndex];
+            document.getElementById('playerImg').src = song.image;
+            document.getElementById('playerTitle').textContent = song.title;
+            document.getElementById('playerArtist').textContent = song.artist;
+            document.getElementById('bannerImg').src = song.image;
+            document.getElementById('bannerTitle').textContent = song.title;
+            document.getElementById('bannerArtist').textContent = song.artist;
+
+            audio.src = song.audio;
+            audio.load();
+            updateLikeButton();
+            renderAllSections();
+        }
+
+        function playSong() {
+            audio.play().then(() => {
+                isPlaying = true;
+                updatePlayButton();
+                document.getElementById('nowPlayingBanner').classList.remove('hidden');
+            }).catch(err => {
+                console.error('Playback error:', err);
+                showNotif('Error playing song');
+            });
+        }
+
+        function pauseSong() {
+            audio.pause();
+            isPlaying = false;
+            updatePlayButton();
+            document.getElementById('nowPlayingBanner').classList.add('hidden');
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                pauseSong();
+            } else {
+                if (!audio.src) {
+                    playSongById(songs[0].id);
+                } else {
+                    playSong();
+                }
+            }
+        }
+
+        function playNext() {
+            if (queue.length > 0) {
+                const nextId = queue.shift();
+                updateQueueCount();
+                playSongById(nextId);
+            } else if (isShuffle) {
+                currentSongIndex = Math.floor(Math.random() * songs.length);
+                loadSong();
+                playSong();
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % songs.length;
+                loadSong();
+                playSong();
+            }
+        }
+
+        function playPrevious() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong();
+            playSong();
+        }
+
+        function handleSongEnd() {
+            totalPlayTime += audio.duration;
+            updateStats();
+
+            if (repeatMode === 2) {
+                audio.currentTime = 0;
+                playSong();
+            } else if (document.getElementById('autoPlayToggle').checked) {
+                playNext();
+            } else {
+                isPlaying = false;
+                updatePlayButton();
+            }
+        }
+
+        function updateProgress() {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = percent + '%';
+            document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+        }
+
+        function updateDuration() {
+            document.getElementById('duration').textContent = formatTime(audio.duration);
+        }
+
+        function seek(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+
+        function setVolume(e) {
+            const rect = volumeBar.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            volume = percent;
+            volumeFill.style.width = percent * 100 + '%';
+            audio.volume = volume;
+            updateVolumeIcon();
+            saveUserData();
+        }
+
+        function toggleMute() {
+            if (volume > 0) {
+                audio.dataset.prevVolume = volume;
+                volume = 0;
+                audio.volume = 0;
+                volumeFill.style.width = '0%';
+            } else {
+                volume = parseFloat(audio.dataset.prevVolume) || 0.7;
+                audio.volume = volume;
+                volumeFill.style.width = volume * 100 + '%';
+            }
+            updateVolumeIcon();
+        }
+
+        function updateVolumeIcon() {
+            const icon = document.getElementById('volumeIcon').querySelector('i');
+            if (volume === 0) {
+                icon.className = 'fas fa-volume-mute text-lg';
+            } else if (volume < 0.5) {
+                icon.className = 'fas fa-volume-down text-lg';
+            } else {
+                icon.className = 'fas fa-volume-up text-lg';
+            }
+        }
+
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            const btn = document.getElementById('shuffleBtn');
+            btn.classList.toggle('text-purple-400', isShuffle);
+            btn.classList.toggle('text-gray-400', !isShuffle);
+            showNotif(isShuffle ? 'Shuffle ON' : 'Shuffle OFF');
+        }
+
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3;
+            const btn = document.getElementById('repeatBtn');
+            const icon = btn.querySelector('i');
+            btn.classList.remove('text-purple-400', 'text-gray-400');
+
+            if (repeatMode === 0) {
+                btn.classList.add('text-gray-400');
+                icon.className = 'fas fa-redo text-lg';
+                showNotif('Repeat OFF');
+            } else if (repeatMode === 1) {
+                btn.classList.add('text-purple-400');
+                icon.className = 'fas fa-redo text-lg';
+                showNotif('Repeat All');
+            } else {
+                btn.classList.add('text-purple-400');
+                btn.innerHTML = '<i class="fas fa-redo text-lg"></i><sup class="text-xs">1</sup>';
+                showNotif('Repeat One');
+            }
+        }
+
+        function toggleLike() {
+            if (songs[currentSongIndex]) {
+                toggleFavorite(songs[currentSongIndex].id);
+            }
+        }
+
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(fid => fid !== id);
+                showNotif('Removed from Liked Songs');
+            } else {
+                favorites.push(id);
+                showNotif('Added to Liked Songs');
+            }
+            updateLikeButton();
+            updateStats();
+            renderAllSections();
+            saveUserData();
+        }
+
+        function updateLikeButton() {
+            const btn = document.getElementById('likeBtn');
+            if (songs[currentSongIndex]) {
+                const isFav = favorites.includes(songs[currentSongIndex].id);
+                btn.querySelector('i').className = isFav ? 'fas fa-heart text-xl' : 'far fa-heart text-xl';
+                btn.classList.toggle('text-red-400', isFav);
+                btn.classList.toggle('text-gray-400', !isFav);
+            }
+        }
+
+        function updatePlayButton() {
+            const icon = playBtn.querySelector('i');
+            icon.className = isPlaying ? 'fas fa-pause text-xl' : 'fas fa-play text-xl ml-1';
+        }
+
+        // Queue Functions
+        function addToQueue(id) {
+            if (!queue.includes(id)) {
+                queue.push(id);
+                updateQueueCount();
+                showNotif('Added to Queue');
+                saveUserData();
+            }
+        }
+
+        function updateQueueCount() {
+            document.getElementById('queueCount').textContent = queue.length;
+            document.getElementById('statQueue').textContent = queue.length;
+        }
+
+        function showQueue() {
+            const list = document.getElementById('queueList');
+            if (queue.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-8">Queue is empty</p>';
+            } else {
+                list.innerHTML = queue.map(id => {
+                    const song = songs.find(s => s.id === id);
+                    return `
+                        <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                            <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">${song.title}</h4>
+                                <p class="text-xs text-gray-400">${song.artist}</p>
+                            </div>
+                            <button onclick="event.stopPropagation(); removeFromQueue(${id})" class="text-gray-400 hover:text-red-400">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            openModal('queueModal');
+        }
+
+        function removeFromQueue(id) {
+            queue = queue.filter(qid => qid !== id);
+            updateQueueCount();
+            showQueue();
+            showNotif('Removed from Queue');
+            saveUserData();
+        }
+
+        // Favorites Functions
+        function showFavorites() {
+            const list = document.getElementById('favoritesList');
+            if (favorites.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-8">No liked songs yet</p>';
+            } else {
+                list.innerHTML = favorites.map(id => {
+                    const song = songs.find(s => s.id === id);
+                    return `
+                        <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                            <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">${song.title}</h4>
+                                <p class="text-xs text-gray-400">${song.artist}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">${song.duration}</span>
+                            <button onclick="event.stopPropagation(); toggleFavorite(${id})" class="text-red-400 hover:text-gray-400">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            openModal('favoritesModal');
+        }
+
+        // History Functions
+        function addToHistory(id) {
+            history = history.filter(hid => hid !== id);
+            history.unshift(id);
+            if (history.length > 50) history.pop();
+            saveUserData();
+            updateStats();
+        }
+
+        function showHistory() {
+            const list = document.getElementById('historyList');
+            if (history.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-center py-8">No history yet</p>';
+            } else {
+                list.innerHTML = history.map(id => {
+                    const song = songs.find(s => s.id === id);
+                    return `
+                        <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                            <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">${song.title}</h4>
+                                <p class="text-xs text-gray-400">${song.artist}</p>
+                            </div>
+                            <span class="text-xs text-gray-400">${song.duration}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            openModal('historyModal');
+        }
+
+        // Genre Functions
+        function showGenre(genreName) {
+            const genreSongs = songs.filter(s => s.genre === genreName);
+            document.getElementById('genreTitle').textContent = genreName;
+            document.getElementById('genreCount').textContent = `${genreSongs.length} songs`;
+
+            const list = document.getElementById('genreList');
+            list.innerHTML = genreSongs.map((song, i) => {
+                const isFav = favorites.includes(song.id);
+                return `
+                    <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${song.id})">
+                        <div class="text-lg font-bold text-purple-400 w-8">${i + 1}</div>
+                        <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm">${song.title}</h4>
+                            <p class="text-xs text-gray-400">${song.artist}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400">
+                            <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <span class="text-xs text-gray-400">${song.duration}</span>
+                    </div>
+                `;
+            }).join('');
+
+            openModal('genreModal');
+        }
+
+        // Audio Tools
+        function showEqualizer() {
+            openModal('equalizerModal');
+        }
+
+        function setEQPreset(preset) {
+            const sliders = document.querySelectorAll('.eq-slider');
+            let values;
+
+            switch(preset) {
+                case 'flat':
+                    values = [0, 0, 0, 0, 0];
+                    break;
+                case 'bass':
+                    values = [8, 6, 2, -2, -4];
+                    break;
+                case 'vocal':
+                    values = [-2, 1, 4, 3, 0];
+                    break;
+                case 'treble':
+                    values = [-4, -2, 2, 6, 8];
+                    break;
+            }
+
+            sliders.forEach((slider, i) => {
+                slider.value = values[i];
+            });
+
+            showNotif(`EQ: ${preset.charAt(0).toUpperCase() + preset.slice(1)}`);
+        }
+
+        function showSleepTimer() {
+            openModal('sleepTimerModal');
+        }
+
+        function setSleepTimer(minutes) {
+            sleepTimeRemaining = minutes * 60;
+            document.getElementById('timerOptions').classList.add('hidden');
+            document.getElementById('timerActive').classList.remove('hidden');
+            
+            updateTimerDisplay();
+            
+            if (sleepTimer) clearInterval(sleepTimer);
+            
+            sleepTimer = setInterval(() => {
+                sleepTimeRemaining--;
+                updateTimerDisplay();
+                
+                if (sleepTimeRemaining <= 0) {
+                    pauseSong();
+                    cancelSleepTimer();
+                    showNotif('Sleep timer ended');
+                    closeModal('sleepTimerModal');
+                }
+            }, 1000);
+            
+            showNotif(`Sleep timer: ${minutes} minutes`);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(sleepTimeRemaining / 60);
+            const secs = sleepTimeRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function cancelSleepTimer() {
+            if (sleepTimer) {
+                clearInterval(sleepTimer);
+                sleepTimer = null;
+            }
+            sleepTimeRemaining = 0;
+            document.getElementById('timerOptions').classList.remove('hidden');
+            document.getElementById('timerActive').classList.add('hidden');
+            showNotif('Timer cancelled');
+        }
+
+        function cycleSpeed() {
+            const speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+            const currentIndex = speeds.indexOf(playbackSpeed);
+            playbackSpeed = speeds[(currentIndex + 1) % speeds.length];
+            audio.playbackRate = playbackSpeed;
+            document.getElementById('speedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+            showNotif(`Speed: ${playbackSpeed}x`);
+        }
+
+        // Theme Functions
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark', isDarkMode);
+            document.body.classList.toggle('light', !isDarkMode);
+            
+            const btn = document.getElementById('themeBtn');
+            const icon = btn.querySelector('i');
+            const text = btn.querySelector('span');
+            
+            if (isDarkMode) {
+                icon.className = 'fas fa-moon w-5 text-indigo-400';
+                text.textContent = 'Dark Mode';
+            } else {
+                icon.className = 'fas fa-sun w-5 text-yellow-400';
+                text.textContent = 'Light Mode';
+            }
+            
+            saveUserData();
+        }
+
+        // Settings
+        function showSettings() {
+            openModal('settingsModal');
+        }
+
+        function clearAllData() {
+            if (confirm('Clear all data? This cannot be undone.')) {
+                favorites = [];
+                queue = [];
+                history = [];
+                totalPlayTime = 0;
+                localStorage.removeItem('miraculousMusicData');
+                updateStats();
+                renderAllSections();
+                showNotif('All data cleared');
+                closeModal('settingsModal');
+            }
+        }
+
+        // Search
+        function handleSearch(e) {
+            const query = e.target.value.toLowerCase().trim();
+            document.getElementById('clearSearch').classList.toggle('hidden', !query);
+
+            if (query) {
+                const filtered = songs.filter(s =>
+                    s.title.toLowerCase().includes(query) ||
+                    s.artist.toLowerCase().includes(query) ||
+                    s.genre.toLowerCase().includes(query)
+                );
+                displaySearchResults(filtered);
+            } else {
+                renderAllSections();
+            }
+        }
+
+        function displaySearchResults(results) {
+            const container = document.getElementById('trendingList');
+            if (results.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-center py-8">No results found</p>';
+            } else {
+                container.innerHTML = results.map((song, i) => {
+                    const isFav = favorites.includes(song.id);
+                    return `
+                        <div class="card song-item rounded-xl p-4 flex items-center gap-4 cursor-pointer" onclick="playSongById(${song.id})">
+                            <div class="text-xl font-bold text-purple-400 w-8">${i + 1}</div>
+                            <img src="${song.image}" class="w-14 h-14 rounded-lg object-cover">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-semibold truncate">${song.title}</h4>
+                                <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                            </div>
+                            <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400">
+                                <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                            </button>
+                            <span class="text-sm text-gray-400 hidden sm:block">${song.duration}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Modal Functions
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            overlay.classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+            overlay.classList.remove('active');
+            closeSidebar();
+        }
+
+        // UI Functions
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            if (!document.querySelector('.modal.active')) {
+                overlay.classList.remove('active');
+            }
+        }
+
+        function toggleView(section) {
+            viewStates[section] = !viewStates[section];
+            renderAllSections();
+        }
+
+        // Utility Functions
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function showNotif(message) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                notif.style.transform = 'translateX(400px)';
+                setTimeout(() => notif.remove(), 300);
+            }, 2500);
+        }
+
+        function updateStats() {
+            document.getElementById('favCount').textContent = favorites.length;
+            document.getElementById('totalFav').textContent = favorites.length;
+            document.getElementById('statFav').textContent = favorites.length;
+            document.getElementById('totalPlayed').textContent = history.length;
+            document.getElementById('statPlayed').textContent = history.length;
+            
+            const hours = Math.floor(totalPlayTime / 3600);
+            const mins = Math.floor((totalPlayTime % 3600) / 60);
+            document.getElementById('totalTime').textContent = `${hours}h ${mins}m`;
+            
+            updateQueueCount();
+        }
+
+        function saveUserData() {
+            const data = {
+                favorites,
+                queue,
+                history,
+                totalPlayTime,
+                volume,
+                isDarkMode,
+                viewStates,
+                playbackSpeed
+            };
+            localStorage.setItem('miraculousMusicData', JSON.stringify(data));
+        }
+
+        function loadUserData() {
+            const data = localStorage.getItem('miraculousMusicData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                favorites = parsed.favorites || [];
+                queue = parsed.queue || [];
+                history = parsed.history || [];
+                totalPlayTime = parsed.totalPlayTime || 0;
+                volume = parsed.volume || 0.7;
+                isDarkMode = parsed.isDarkMode !== undefined ? parsed.isDarkMode : true;
+                viewStates = parsed.viewStates || {};
+                playbackSpeed = parsed.playbackSpeed || 1.0;
+                
+                audio.volume = volume;
+                audio.playbackRate = playbackSpeed;
+                volumeFill.style.width = volume * 100 + '%';
+                document.getElementById('speedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+                
+                document.body.classList.toggle('dark', isDarkMode);
+                document.body.classList.toggle('light', !isDarkMode);
+            }
+        }
+
+        function handleKeyboard(e) {
+            if (e.target.tagName === 'INPUT') return;
+
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    playNext();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    playPrevious();
+                    break;
+                case 'KeyL':
+                    e.preventDefault();
+                    toggleLike();
+                    break;
+                case 'KeyQ':
+                    e.preventDefault();
+                    showQueue();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    closeAllModals();
+                    break;
+            }
+        }
+
+        function playAll() {
+            currentSongIndex = 0;
+            loadSong();
+            playSong();
+            showNotif('Playing all songs');
+        }
+
+        function shuffleAll() {
+            isShuffle = true;
+            const btn = document.getElementById('shuffleBtn');
+            btn.classList.add('text-purple-400');
+            btn.classList.remove('text-gray-400');
+            
+            currentSongIndex = Math.floor(Math.random() * songs.length);
+            loadSong();
+            playSong();
+            showNotif('Shuffle activated');
+        }
+
+        // Make functions global
+        window.playSongById = playSongById;
+        window.togglePlay = togglePlay;
+        window.playNext = playNext;
+        window.playPrevious = playPrevious;
+        window.toggleLike = toggleLike;
+        window.toggleFavorite = toggleFavorite;
+        window.toggleShuffle = toggleShuffle;
+        window.toggleRepeat = toggleRepeat;
+        window.toggleMute = toggleMute;
+        window.addToQueue = addToQueue;
+        window.removeFromQueue = removeFromQueue;
+        window.showQueue = showQueue;
+        window.showFavorites = showFavorites;
+        window.showHistory = showHistory;
+        window.showGenre = showGenre;
+        window.showEqualizer = showEqualizer;
+        window.setEQPreset = setEQPreset;
+        window.showSleepTimer = showSleepTimer;
+        window.setSleepTimer = setSleepTimer;
+        window.cancelSleepTimer = cancelSleepTimer;
+        window.cycleSpeed = cycleSpeed;
+        window.toggleTheme = toggleTheme;
+        window.showSettings = showSettings;
+        window.clearAllData = clearAllData;
+        window.toggleView = toggleView;
+        window.playAll = playAll;
+        window.shuffleAll = shuffleAll;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+
+        // Auto-save
+        setInterval(saveUserData, 30000);
+        window.addEventListener('beforeunload', saveUserData);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
