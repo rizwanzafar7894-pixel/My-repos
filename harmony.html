@@ -204,6 +204,23 @@
             width: 280px;
             z-index: 100;
             transition: transform 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
         }
 
         main {
@@ -220,6 +237,11 @@
             }
             main {
                 margin-left: 0;
+            }
+            
+            body.sidebar-open {
+                overflow: hidden;
+                height: 100vh;
             }
         }
 
@@ -338,12 +360,49 @@
             border-color: rgba(102, 126, 234, 1);
             transform: scale(1.1);
         }
+
+        /* Fullscreen Player */
+        .fullscreen-player {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .fullscreen-player.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .fullscreen-player::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .album-art-large {
+            animation: rotate 20s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .album-art-large.playing {
+            animation-play-state: running;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="dark min-h-screen">
     <!-- Mobile Menu Button -->
     <button id="menuToggle" class="lg:hidden fixed top-5 left-5 z-[200] card p-3 rounded-full hover:scale-110 transition-transform">
-        <i class="fas fa-bars text-xl"></i>
+        <i id="menuIcon" class="fas fa-bars text-xl"></i>
     </button>
 
     <!-- Overlay -->
@@ -387,6 +446,22 @@
             <a href="#hiphop" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
                 <i class="fas fa-microphone-alt w-5"></i>
                 <span class="font-medium">Hip Hop</span>
+            </a>
+            <a href="#saraiki" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-drum w-5"></i>
+                <span class="font-medium">Saraiki</span>
+            </a>
+            <a href="#urdu" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-feather w-5"></i>
+                <span class="font-medium">Urdu</span>
+            </a>
+            <a href="#sad" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-cloud-rain w-5"></i>
+                <span class="font-medium">Sad Songs</span>
+            </a>
+            <a href="#lofi" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-compact-disc w-5"></i>
+                <span class="font-medium">Lo-Fi</span>
             </a>
             <a href="#albums" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
                 <i class="fas fa-record-vinyl w-5"></i>
@@ -647,14 +722,25 @@
         <section id="regional" class="mb-12">
             <h2 class="text-3xl font-bold mb-6">Regional Music</h2>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Tamil')">
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('English')">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                             <i class="fas fa-music text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg">Tamil</h3>
-                            <p class="text-sm text-gray-400" id="tamilCount">0 songs</p>
+                            <h3 class="font-bold text-lg">English</h3>
+                            <p class="text-sm text-gray-400" id="englishCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Arabic')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-orange-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mosque text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Arabic</h3>
+                            <p class="text-sm text-gray-400" id="arabicCount">0 songs</p>
                         </div>
                     </div>
                 </div>
@@ -834,11 +920,11 @@
     </main>
 
     <!-- Music Player -->
-    <div class="fixed bottom-0 left-0 right-0 card border-t border-white/10 px-6 py-4 z-[150]">
-        <div class="max-w-screen-2xl mx-auto">
+    <div class="fixed bottom-0 left-0 right-0 card border-t border-white/10 px-6 py-4 z-[150]" id="bottomPlayer">
+        <div class="max-w-screen-2xl mx-auto cursor-pointer" onclick="openFullscreenPlayer()">
             <!-- Progress Bar -->
             <div class="mb-4">
-                <div class="progress-bar" id="progressBar">
+                <div class="progress-bar" id="progressBar" onclick="event.stopPropagation(); seek(event)">
                     <div class="progress-fill" id="progressFill" style="width: 0%">
                         <div class="progress-thumb"></div>
                     </div>
@@ -852,19 +938,19 @@
             <div class="flex items-center justify-between gap-4">
                 <!-- Song Info -->
                 <div class="flex items-center gap-4 flex-1 min-w-0">
-                    <img id="playerImg" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijvnCnG8yjMMWXB11lpwd7so-BSvbERyT7fHA229xFiuvw6-d2I1Jz4Ph42O70I9-b7Qj6R_JodIo4oQkUNvVsBrac0DbAkglypfAaOFdMzQqgC92JzntR9bghYwMcOMk8V2VfZ132SxmQPmhvB3bbg8VlX5ldVv3MlvWJaMKxVPtqLxbBweKZL5UlDr0/s1408/Gemini_Generated_Image_8n7bti8n7bti8n7b.png" 
+                    <img id="playerImg" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100" 
                          class="w-16 h-16 rounded-xl object-cover shadow-lg">
                     <div class="min-w-0 flex-1">
                         <h4 id="playerTitle" class="font-semibold truncate">Select a song</h4>
                         <p id="playerArtist" class="text-sm text-gray-400 truncate">Miraculous Player</p>
                     </div>
-                    <button id="likeBtn" onclick="toggleLike()" class="text-gray-400 hover:text-red-400 transition-colors hidden lg:block">
+                    <button id="likeBtn" onclick="event.stopPropagation(); toggleLike()" class="text-gray-400 hover:text-red-400 transition-colors hidden lg:block">
                         <i class="far fa-heart text-xl"></i>
                     </button>
                 </div>
 
                 <!-- Controls -->
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-6" onclick="event.stopPropagation()">
                     <button onclick="toggleShuffle()" id="shuffleBtn" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
                         <i class="fas fa-random text-lg"></i>
                     </button>
@@ -884,7 +970,7 @@
                 </div>
 
                 <!-- Volume & Actions -->
-                <div class="hidden lg:flex items-center gap-4 flex-1 justify-end">
+                <div class="hidden lg:flex items-center gap-4 flex-1 justify-end" onclick="event.stopPropagation()">
                     <button onclick="showQueue()" class="text-gray-400 hover:text-white transition-colors">
                         <i class="fas fa-list-ul text-lg"></i>
                     </button>
@@ -892,9 +978,87 @@
                         <button onclick="toggleMute()" id="volumeIcon" class="text-gray-400 hover:text-white">
                             <i class="fas fa-volume-up text-lg"></i>
                         </button>
-                        <div class="w-24 h-2 bg-gray-600 rounded-full cursor-pointer" id="volumeBar">
+                        <div class="w-24 h-2 bg-gray-600 rounded-full cursor-pointer" id="volumeBar" onclick="setVolume(event)">
                             <div id="volumeFill" class="h-full gradient-primary rounded-full" style="width: 70%"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Player -->
+    <div id="fullscreenPlayer" class="fullscreen-player">
+        <div class="relative z-10 h-full flex flex-col p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <button onclick="closeFullscreenPlayer()" class="w-12 h-12 bg-white/10 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-chevron-down text-xl"></i>
+                </button>
+                <h3 class="text-lg font-semibold">Now Playing</h3>
+                <button onclick="showQueue()" class="w-12 h-12 bg-white/10 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+            </div>
+
+            <!-- Album Art -->
+            <div class="flex-1 flex items-center justify-center">
+                <div class="relative">
+                    <img id="fullscreenAlbumArt" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400" 
+                         class="album-art-large w-72 h-72 md:w-96 md:h-96 rounded-3xl object-cover shadow-2xl">
+                </div>
+            </div>
+
+            <!-- Song Info -->
+            <div class="text-center mb-6">
+                <h1 id="fullscreenTitle" class="text-3xl md:text-4xl font-bold mb-2">Select a song</h1>
+                <p id="fullscreenArtist" class="text-xl text-white/80">Miraculous Player</p>
+            </div>
+
+            <!-- Progress -->
+            <div class="mb-6">
+                <div class="progress-bar h-2" id="fullscreenProgress" onclick="seek(event)">
+                    <div class="progress-fill" id="fullscreenProgressFill" style="width: 0%">
+                        <div class="progress-thumb"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-sm text-white/80 mt-2">
+                    <span id="fullscreenCurrentTime">0:00</span>
+                    <span id="fullscreenDuration">0:00</span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-8 mb-6">
+                <button onclick="toggleShuffle()" id="fullscreenShuffle" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-random text-2xl"></i>
+                </button>
+                <button onclick="playPrevious()" class="hover:scale-110 transition-transform">
+                    <i class="fas fa-step-backward text-3xl"></i>
+                </button>
+                <button id="fullscreenPlayBtn" onclick="togglePlay()" 
+                        class="w-20 h-20 bg-white text-purple-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl">
+                    <i class="fas fa-play text-2xl ml-1"></i>
+                </button>
+                <button onclick="playNext()" class="hover:scale-110 transition-transform">
+                    <i class="fas fa-step-forward text-3xl"></i>
+                </button>
+                <button onclick="toggleRepeat()" id="fullscreenRepeat" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-redo text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Extra Controls -->
+            <div class="flex items-center justify-between">
+                <button onclick="toggleLike()" id="fullscreenLike" class="text-white/60 hover:text-red-400 transition-colors">
+                    <i class="far fa-heart text-2xl"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMute()" id="fullscreenVolume" class="text-white/80 hover:text-white">
+                        <i class="fas fa-volume-up text-xl"></i>
+                    </button>
+                    <div class="w-32 h-2 bg-white/20 rounded-full cursor-pointer" onclick="setVolume(event)">
+                        <div id="fullscreenVolumeFill" class="h-full bg-white rounded-full" style="width: 70%"></div>
                     </div>
                 </div>
             </div>
@@ -1056,1083 +1220,147 @@
     <script>
         // Music Library
         const songs = [
-            { id: 1, title: "Saiyaara", artist: "Faheem Abdullah", duration: "5:44", image: "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg", genre: "Romance", audio: "saiyaara.mp3" },
-            { id: 2, title: "Deewaniyat", artist: "Vishal Mishra", duration: "3:22", image: "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg", genre: "Romance", audio: "deewaniyat.mp3" },
-            { id: 3, title: "Laal Pairi", artist: "Yo Yo Honey Singh", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10", genre: "Pop", audio: "laal-pari.mp3" },
-            { id: 4, title: "Kesariya", artist: "Arijit Singh", duration: "4:28", image: "https://c.saavncdn.com/191/Kesariya-From-Brahmastra-Hindi-2022-20220717092820-500x500.jpg", genre: "Romance", audio: "kesariya.mp3" },
-            { id: 5, title: "Maan Meri Jaan", artist: "King", duration: "3:14", image: "https://i.ytimg.com/vi/eZnntxPl44g/sddefault.jpg", genre: "Romance", audio: "maan-meri-jaan.mp3" },
-            { id: 6, title: "Tere Vaaste", artist: "Sachin-Jigar", duration: "3:59", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVOFaiNyQKcSMhrX_cv7Qyo1fRtNTzxzHmTaGKmhlohBSjVlK5tyxe-qh&s=10", genre: "Romance", audio: "tere-vaaste.mp3" },
-            { id: 7, title: "What Jhumka", artist: "Arijit Singh", duration: "3:59", image: "https://i.ytimg.com/vi/LNegGbBmbLI/maxresdefault.jpg", genre: "Bollywood", audio: "what-jhumka.mp3" },
-            { id: 8, title: "Brown Munde", artist: "AP Dhillon", duration: "4:14", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrzAKS-OKC79Am0FHjPxkLVbYmKv8CqogSLyBCsn6z3-7K_15RWvqOx10B&s=10", genre: "Punjabi", audio: "brown-munde.mp3" },
-            { id: 9, title: "Tere Pyaar Mein", artist: "Arijit Singh", duration: "4:26", image: "https://i1.sndcdn.com/artworks-riLqSdpUqlIQt7kB-D0zdZw-t500x500.jpg", genre: "Romance", audio: "tere-pyaar-mein.mp3" },
-            { id: 10, title: "Chaleya", artist: "Arijit Singh", duration: "4:49", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfAWOSOviBx0hs06h_7foNgZeMIgFD2IuFDeGFZNwtwjIkDGKbp3KgtDVy&s=10", genre: "Romance", audio: "chaleya.mp3" },
-            { id: 11, title: "Arabic Kuthu", artist: "Anirudh", duration: "4:39", image: "https://m.media-amazon.com/images/I/51ci1yvC0kL._UXNaN_FMjpg_QL85_.jpg", genre: "Tamil", audio: "arabic-kuthu.mp3" },
-            { id: 12, title: "Besharam Rang", artist: "Vishal-Shekhar", duration: "4:18", image: "https://i.ytimg.com/vi/7SJodKV_pGA/maxresdefault.jpg", genre: "Bollywood", audio: "besharam-rang.mp3" },
-            { id: 13, title: "Lehnga", artist: "Diljit Dosanjh", duration: "3:19", image: "https://i.ytimg.com/vi/G8PU1HjZZj4/hq720.jpg", genre: "Punjabi", audio: "lehnga.mp3" },
-            { id: 14, title: "Illegal Weapon 2.0", artist: "Garry Sandhu", duration: "3:08", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlMgItkCiqMKZQNjMmdw8NWaiM23gKjYy_02L4kurEhUf54wnydwj044&s=10", genre: "Punjabi", audio: "illegal-weapon.mp3" },
-            { id: 15, title: "G.O.A.T", artist: "Diljit Dosanjh", duration: "3:43", image: "https://i.ytimg.com/vi/tAizFLCucdY/maxresdefault.jpg", genre: "Punjabi", audio: "g.o.a.t-diljit.mp3" },
-            { id: 16, title: "Saami Saami", artist: "Sunidhi Chauhan", duration: "3:55", image: "https://i.ytimg.com/vi/R32Vf2M5VGA/hq720.jpg", genre: "Bollywood", audio: "saami-saami.mp3" },
-            { id: 17, title: "Naacho Naacho", artist: "Vishal Mishra", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDAyrV_dPy060QVzq-dv__jfcyXBYbfaBpTxaL0-yBRdFO9v6SVBryTnc&s=10", genre: "Bollywood", audio: "naacho-naacho.mp3" },
-            { id: 18, title: "Lutt Putt Gaya", artist: "Arijit Singh", duration: "3:54", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_OgBswbsrpIDYiT_kttr8j94rJYTLFxEV-zn1H9qyivmDDCpsYxP8qKur&s=10", genre: "Romance", audio: "lutt-putt-gaya.mp3" },
-            { id: 19, title: "Chitta Kurta", artist: "Yo Yo Honey Singh", duration: "3:51", image: "https://i1.sndcdn.com/artworks-000650502514-hchjlx-t500x500.jpg", genre: "Punjabi", audio: "chitta-kurta.mp3" },
-            { id: 20, title: "Character Dheela", artist: "Neeraj Shridhar", duration: "4:11", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3jkbwNKwnb5gHdlRHI_L0dEFBCQM3j0UqLJXMQGrHedraFQwjol02tLM&s=10", genre: "Bollywood", audio: "character-dheela.mp3" },
-            { id: 21, title: "Jhoome Jo Pathaan", artist: "Arijit Singh", duration: "3:28", image: "https://upload.wikimedia.org/wikipedia/en/8/8b/Jhoome_Jo_Pathaan_song_cover.jpg", genre: "Bollywood", audio: "jhoome-jo-pathaan.mp3" },
-            { id: 22, title: "Arjan Vailly", artist: "Manan Bhardwaj", duration: "3:02", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU4RrwA0cbOdiHtRQYQh_Mc0IWMs1c--M-h-lSQpUhbMsrbvmEZJQa78ak&s=10", genre: "Bollywood", audio: "arjan-vailly.mp3" },
-            { id: 23, title: "Satranga", artist: "Arijit Singh", duration: "4:28", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiU-MmJJCZ4gB8eZk_p-VNU7k-fWVwQr284CruMrVHAVeR2MG_Rp7Xi50&s=10", genre: "Romance", audio: "satranga.mp3" },
-    {
-    "id": 37,
-    "title": "Hua Main",
-    "artist": "Raghav Chaitanya",
-    "duration": "4:33",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjNxq67RY3EsCmPWUOSVWLq4Ef4q3Ghtt3ytn5ML59F7qRCkCk73TGzZA&s=10",
-    "genre": "Romance",
-    "audio": "hua-main-animal.mp3"
-  },
-  {
-    "id": 38,
-    "title": "Pehle Bhi Mein",
-    "artist": "Vishal Mishra",
-    "duration": "4:10",
-    "image": "https://c.saavncdn.com/413/Marham-Pehle-Bhi-Main-From-ANIMAL-Hindi-2023-20231223151003-500x500.jpg",
-    "genre": "Romance",
-    "audio": "pehle-bhi-mein.mp3"
-  },
-  {
-    "id": 39,
-    "title": "Tum Kya Mile",
-    "artist": "Arijit Singh, Shreya Ghoshal",
-    "duration": "4:34",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMhz5U2Ky2ZyfgVl-RIqHaB9WYZgCsMsLZahDh2hIIvSy6wuCbEPvTDLDk&s=10",
-    "genre": "Romance",
-    "audio": "tum-kya-mile.mp3"
-  },
-  {
-    "id": 40,
-    "title": "Ve Kamleya",
-    "artist": "Arijit Singh, Shreya Ghoshal",
-    "duration": "4:07",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY2hK1KoxoV5fVGhoVPMJiwSHTrVuz5cE_aoQu3Aushx-MP3cUWxnLl9s&s=10",
-    "genre": "Romance",
-    "audio": "ve-kamleya.mp3"
-  },
-  {
-    "id": 41,
-    "title": "Yaari",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/290/Yaari-Punjabi-2019-20190611222620-500x500.jpg",
-    "genre": "Friendship",
-    "audio": "yaari.mp3"
-  },
-  {
-    "id": 42,
-    "title": "Yimmy Yimmy",
-    "artist": "Tayc, Shreya Ghoshal",
-    "duration": "3:50",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0pzprB1pTBEvjFGcC8uC3WqN7p8NrNRLDtwiWZ2Z4xPCMsqjl9sCsHA8&s=10",
-    "genre": "Pop",
-    "audio": "yimmy-yimmy.mp3"
-  },
-  {
-    "id": 43,
-    "title": "Udaariyan",
-    "artist": "Various Artists",
-    "duration": "4:15",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhp4rX5eamOCC_ZwIVabhGaUNnglfuukr_WivzW_lLJOBoicmvm-Vp8o8&s=10",
-    "genre": "Bollywood",
-    "audio": "udaariyan.mp3"
-  },
-  {
-    "id": 44,
-    "title": "Titliyan",
-    "artist": "Hardy Sandhu",
-    "duration": "3:52",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCVEIVICwn1l_jzlsQT4BbpQ5k2OIoTNrIMBdws_Iv3YlX7msxywmyOI&s=10",
-    "genre": "Bollywood",
-    "audio": "titilyaan.mp3"
-  },
-  {
-    "id": 45,
-    "title": "Sajni",
-    "artist": "Arijit Singh",
-    "duration": "4:10",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTga_CQbq_F_t1qSSo2_1VQ0UXWygIIozSb5segTwYdoqL1AhFjqiZ5YRw&s=10",
-    "genre": "Romance",
-    "audio": "sajni.mp3"
-  },
-  {
-    "id": 46,
-    "title": "Softly",
-    "artist": "Karan Aujla",
-    "duration": "3:35",
-    "image": "https://c.saavncdn.com/596/Softly-Punjabi-2023-20230412154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "softly.mp3"
-  },
-  {
-    "id": 47,
-    "title": "Soni Soni",
-    "artist": "Various Artists",
-    "duration": "3:40",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPKYk6x16M8HVi3JCPik2dANR06HTD1z0Z7OLNoLBX0Q&s=10",
-    "genre": "Romance",
-    "audio": "soni-soni.mp3"
-  },
-  {
-    "id": 48,
-    "title": "No Love",
-    "artist": "Shubh",
-    "duration": "2:50",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOPMpHhPU3IypLvE04xzOHvOymlmXKxPx4XhzZrU0Ugw&s=10",
-    "genre": "Hip Hop",
-    "audio": "no-love.mp3"
-  },
-  {
-    "id": 49,
-    "title": "Panjeban",
-    "artist": "Shivjot",
-    "duration": "3:25",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhDg-NHOJEJntHACS4_mOVbdWRoIt3PUTwahnRc1tbw&s=10",
-    "genre": "Punjabi",
-    "audio": "panjeban-shivjot.mp3"
-  },
-  {
-    "id": 50,
-    "title": "Panwadi",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://i.ytimg.com/vi/i4UZmRaGZ2U/sddefault.jpg",
-    "genre": "Punjabi",
-    "audio": "panwadi.mp3"
-  },
-  {
-    "id": 51,
-    "title": "Payal",
-    "artist": "Jasmine Sandlas",
-    "duration": "3:20",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ212UXLDH2MHdHLtGDDpRYPcnICxmAd4fzfSEcl3-s_w&s=10",
-    "genre": "Bollywood",
-    "audio": "payal-song.mp3"
-  },
-  {
-    "id": 52,
-    "title": "Phir Aur Kya Chahiye",
-    "artist": "Arijit Singh",
-    "duration": "4:20",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfLmxYrlUjP2aacdlrN6VYplccLkBoyGejeQ&s",
-    "genre": "Romance",
-    "audio": "phir-aur-kya-chahiye.mp3"
-  },
-  {
-    "id": 53,
-    "title": "Player",
-    "artist": "Badshah, Karan Aujla",
-    "duration": "3:33",
-    "image": "https://i.ytimg.com/vi/CeFQO9MQNqs/sddefault.jpg",
-    "genre": "Hip Hop",
-    "audio": "player-badshah-karan.mp3"
-  },
-  {
-    "id": 54,
-    "title": "Mahiya",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://pagalworldi.com.co/wp-content/uploads/2025/08/Mahiya-Mp3-SongPagalworldi.com_.co_.webp",
-    "genre": "Romance",
-    "audio": "mahya.mp3"
-  },
-  {
-    "id": 55,
-    "title": "Mexico Koka",
-    "artist": "Koka",
-    "duration": "3:40",
-    "image": "https://i.ytimg.com/vi/PRjFAk7hRSc/hqdefault.jpg",
-    "genre": "Punjabi",
-    "audio": "mexico-koka.mp3"
-  },
-  {
-    "id": 56,
-    "title": "MF Gabhru",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://i.ytimg.com/vi/iV2srNklqZw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLA5-Qqz10ypv97u_H25vQ0xtqxBZw",
-    "genre": "Punjabi",
-    "audio": "mf-gabhru.mp3"
-  },
-  {
-    "id": 57,
-    "title": "Move Your Lakk",
-    "artist": "Various Artists",
-    "duration": "3:15",
-    "image": "https://c.saavncdn.com/557/Move-Your-Lakk-Hindi-2017-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "mive-your-lakk.mp3"
-  },
-  {
-    "id": 58,
-    "title": "Moon Rise",
-    "artist": "Guru Randhawa",
-    "duration": "3:28",
-    "image": "https://static.toiimg.com/thumb/imgsize-23456,msid-96705277,width-600,resizemode-4/96705277.jpg",
-    "genre": "Romance",
-    "audio": "moon-rise.mp3"
-  },
-  {
-    "id": 59,
-    "title": "Kaun Nachdi",
-    "artist": "Guru Randhawa",
-    "duration": "3:20",
-    "image": "https://i.ytimg.com/vi/NbWKYgaWzbI/maxresdefault.jpg",
-    "genre": "Bollywood",
-    "audio": "nachdi-sonofsardaar2.mp3"
-  },
-  {
-    "id": 60,
-    "title": "Naiyo Lagda",
-    "artist": "Harrdy Sandhu",
-    "duration": "3:45",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XA3gqglExDv6av9GWcCcVeJJYLBnfxmPbg&s",
-    "genre": "Romance",
-    "audio": "naiyo-lagda.mp3"
-  },
-  {
-    "id": 61,
-    "title": "Ring Song",
-    "artist": "Neha Kakkar",
-    "duration": "3:30",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2MNFo31W3NV1JFRwSq-ON0OrY1LRgArq6vQ&s",
-    "genre": "Bollywood",
-    "audio": "neha-kakkar-ring-song.mp3"
-  },
-  {
-    "id": 62,
-    "title": "Maan Meri Jaan",
-    "artist": "Nick Jonas",
-    "duration": "3:15",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4sG45CEGGxRaxrXR_Xd4qhP0MSkg0Jekq6A&s",
-    "genre": "Romance",
-    "audio": "nick-maan-meri-jaan.mp3"
-  },
-  {
-    "id": 63,
-    "title": "Khyaal Rakhya Kar",
-    "artist": "Ranjit Bawa",
-    "duration": "4:05",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfnWkvKyqNk7RTAnIqpOtr6etxPKIWRdPAkg&s",
-    "genre": "Romance",
-    "audio": "khyaal-rakhya-kr.mp3"
-  },
-  {
-    "id": 64,
-    "title": "Kya Baat Aa",
-    "artist": "Karan Aujla",
-    "duration": "3:40",
-    "image": "https://i.ytimg.com/vi/0pX03P2Ho-s/hqdefault.jpg",
-    "genre": "Punjabi",
-    "audio": "kya-baat-aa-karan.mp3"
-  },
-  {
-    "id": 65,
-    "title": "Kya Karu",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://i.ytimg.com/vi/OneNK10ZFtY/maxresdefault.jpg",
-    "genre": "Romance",
-    "audio": "kya-kru.mp3"
-  },
-  {
-    "id": 66,
-    "title": "Lafda",
-    "artist": "Various Artists",
-    "duration": "3:20",
-    "image": "https://i.ytimg.com/vi/ClaXEbK5rz8/sddefault.jpg",
-    "genre": "Hip Hop",
-    "audio": "lafda.mp3"
-  },
-  {
-    "id": 67,
-    "title": "Leo Naa Ready",
-    "artist": "Anirudh Ravichander",
-    "duration": "4:05",
-    "image": "https://i.ytimg.com/vi/OwigUwengG0/hqdefault.jpg",
-    "genre": "Tamil",
-    "audio": "leo-naa-ready.mp3"
-  },
-  {
-    "id": 68,
-    "title": "Ma Belle",
-    "artist": "AP Dhillon",
-    "duration": "3:15",
-    "image": "https://i.scdn.co/image/ab67616d0000b273ee59b4a3aebc27ea279e79da",
-    "genre": "Romance",
-    "audio": "ma-belle.mp3"
-  },
-  {
-    "id": 69,
-    "title": "Mafia",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://i.ytimg.com/vi/cZxnY7cXq-k/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC52jBJeeAThlF84FrO7i15eZ2g1w",
-    "genre": "Hip Hop",
-    "audio": "mafia.mp3"
-  },
-  {
-    "id": 70,
-    "title": "Malang Sajna",
-    "artist": "Sachet Tandon",
-    "duration": "4:10",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT_gIsg8V8gPSEX8bHLBArLVR4wf3CldERIg&s",
-    "genre": "Romance",
-    "audio": "malang-sajna.mp3"
-  },
-  {
-    "id": 71,
-    "title": "Jhaanjar",
-    "artist": "Various Artists",
-    "duration": "3:35",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUmFuZk81qrdY5b-BouQ1n-XNxJCotu9-tZw&s",
-    "genre": "Punjabi",
-    "audio": "jhaanjar.mp3"
-  },
-  {
-    "id": 72,
-    "title": "Judge",
-    "artist": "Various Artists",
-    "duration": "3:50",
-    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgM5BcNmndLF0KkVIPj5sfhVIVfY0033itcA&s",
-    "genre": "Hip Hop",
-    "audio": "judge.mp3"
-  },
-  {
-    "id": 73,
-    "title": "Kaka Holi",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://i.ytimg.com/vi/ho4suAnXPLY/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGHIgOShVMA8=&rs=AOn4CLDzghWrLceRqvukJNQcYKi6IRgtDw",
-    "genre": "Festival",
-    "audio": "kaka-holi.mp3"
-  },
-  {
-    "id": 74,
-    "title": "Kale Je Libaas",
-    "artist": "Various Artists",
-    "duration": "3:40",
-    "image": "https://c.saavncdn.com/596/Kaka-Kale-Je-Libaas-Punjabi-2023-20230808154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "kaka-kale-je-libaas.mp3"
-  },
-  {
-    "id": 75,
-    "title": "Kaka Keh Len De",
-    "artist": "Various Artists",
-    "duration": "3:15",
-    "image": "https://c.saavncdn.com/596/Kaka-Keh-Len-De-Punjabi-2023-20230718154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "kaka-keh-len-de.mp3"
-  },
-  {
-    "id": 76,
-    "title": "Kaka Temporary Pyaar",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/Kaka-Temporary-Pyaar-Punjabi-2023-20230612154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "kaka-temporary-pyaar.mp3"
-  },
-  {
-    "id": 77,
-    "title": "Kalla Sohna Nai",
-    "artist": "Raftaar",
-    "duration": "3:20",
-    "image": "https://c.saavncdn.com/596/Kalla-Sohna-Nai-Punjabi-2022-20221128154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "kalla-sohna-nai.mp3"
-  },
-  {
-    "id": 78,
-    "title": "Kamsin Kali",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/Kamsin-Kali-Punjabi-2022-20221015154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "kamsin-kali.mp3"
-  },
-  {
-    "id": 79,
-    "title": "Khabbi Seat",
-    "artist": "Various Artists",
-    "duration": "3:30",
-    "image": "https://c.saavncdn.com/596/Khabbi-Seat-Punjabi-2023-20230515154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "khabbi-seat.mp3"
-  },
-  {
-    "id": 80,
-    "title": "Gire Gore",
-    "artist": "Benny Dayal",
-    "duration": "4:05",
-    "image": "https://c.saavncdn.com/382/Gire-Gore-Hindi-2022-20220915154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "gire-gore.mp3"
-  },
-  {
-    "id": 81,
-    "title": "Good Bad Ugly",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/Good-Bad-Ugly-Punjabi-2023-20230428154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "goid-bad-ugly.mp3"
-  },
-  {
-    "id": 82,
-    "title": "Horn Blow",
-    "artist": "Various Artists",
-    "duration": "3:10",
-    "image": "https://c.saavncdn.com/596/Horn-Blow-Punjabi-2023-20230828154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "horn-blow.mp3"
-  },
-  {
-    "id": 83,
-    "title": "Ilzaam",
-    "artist": "Various Artists",
-    "duration": "3:35",
-    "image": "https://c.saavncdn.com/596/Ilzaam-Punjabi-2022-20221205154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "ilzaam.mp3"
-  },
-  {
-    "id": 84,
-    "title": "Jaane Tu",
-    "artist": "Various Artists",
-    "duration": "4:00",
-    "image": "https://c.saavncdn.com/596/Jaane-Tu-Punjabi-2023-20230705154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "jaane-tu.mp3"
-  },
-  {
-    "id": 85,
-    "title": "Jatt Flex",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/Jatt-Flex-Punjabi-2023-20230528154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "jatt-flex.mp3"
-  },
-  {
-    "id": 86,
-    "title": "Jatt Te Jawani",
-    "artist": "Various Artists",
-    "duration": "3:50",
-    "image": "https://c.saavncdn.com/596/Jatt-Te-Jawani-Punjabi-2022-20221108154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "jatt-te-jawani.mp3"
-  },
-  {
-    "id": 87,
-    "title": "Fly Karke",
-    "artist": "Various Artists",
-    "duration": "3:05",
-    "image": "https://c.saavncdn.com/596/Fly-Karke-Punjabi-2023-20230915154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "fly-karke.mp3"
-  },
-  {
-    "id": 88,
-    "title": "Bol Kafar Kya Hoga",
-    "artist": "Various Artists",
-    "duration": "4:15",
-    "image": "https://c.saavncdn.com/596/Bol-Kafar-Kya-Hoga-Punjabi-2022-20221028154717-500x500.jpg",
-    "genre": "Spiritual",
-    "audio": "bol-kafar-kya-hoga.mp3"
-  },
-  {
-    "id": 89,
-    "title": "California Love",
-    "artist": "Various Artists",
-    "duration": "3:20",
-    "image": "https://c.saavncdn.com/596/California-Love-Punjabi-2023-20230615154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "california-love.mp3"
-  },
-  {
-    "id": 90,
-    "title": "Chithiyan",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/Chithiyan-Punjabi-2022-20220828154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "chithiyan.mp3"
-  },
-  {
-    "id": 91,
-    "title": "Choli K Peeche",
-    "artist": "Alka Yagnik, Ila Arun",
-    "duration": "4:10",
-    "image": "https://c.saavncdn.com/382/Khalnayak-Hindi-1993-20191025154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "choli-k-peeche.mp3"
-  },
-  {
-    "id": 92,
-    "title": "Dhun Saiyaara",
-    "artist": "Various Artists",
-    "duration": "4:25",
-    "image": "https://c.saavncdn.com/382/Tamasha-Hindi-2015-20151115154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "dhun-saiyaara.mp3"
-  },
-  {
-    "id": 93,
-    "title": "Dil Hariya",
-    "artist": "Various Artists",
-    "duration": "4:35",
-    "image": "https://c.saavncdn.com/596/Dil-Hariya-Punjabi-2023-20230728154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "dil-hariya.mp3"
-  },
-  {
-    "id": 94,
-    "title": "Dil Jhoom",
-    "artist": "Various Artists",
-    "duration": "4:45",
-    "image": "https://c.saavncdn.com/596/Dil-Jhoom-Punjabi-2022-20220905154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "dil-jhoom.mp3"
-  },
-  {
-    "id": 95,
-    "title": "Dilbar Ki Ankhon Ka",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/Dilbar-Ki-Ankhon-Ka-Punjabi-2023-20230812154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "dilbar-ki-ankhon-ka.mp3"
-  },
-  {
-    "id": 96,
-    "title": "Asraar",
-    "artist": "Geetkarz",
-    "duration": "3:40",
-    "image": "https://c.saavncdn.com/596/Asraar-Punjabi-2023-20230520154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "asraar-geetkarz.mp3"
-  },
-  {
-    "id": 97,
-    "title": "Bachalo",
-    "artist": "Various Artists",
-    "duration": "3:50",
-    "image": "https://c.saavncdn.com/596/Bachalo-Punjabi-2023-20230412154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "bachalo.mp3"
-  },
-  {
-    "id": 98,
-    "title": "Bamb Aagya",
-    "artist": "Various Artists",
-    "duration": "3:35",
-    "image": "https://c.saavncdn.com/596/Bamb-Aagya-Punjabi-2023-20230715154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "bamb-aagya.mp3"
-  },
-  {
-    "id": 99,
-    "title": "Bamb Jatt",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/Bamb-Jatt-Punjabi-2023-20230605154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "bamb-jatt.mp3"
-  },
-  {
-    "id": 100,
-    "title": "Barbaad Saiyaara",
-    "artist": "Various Artists",
-    "duration": "4:10",
-    "image": "https://c.saavncdn.com/596/Barbaad-Saiyaara-Punjabi-2023-20230908154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "barbaad-saiyaara.mp3"
-  },
-  {
-    "id": 101,
-    "title": "Bhaabhi",
-    "artist": "Various Artists",
-    "duration": "4:20",
-    "image": "https://c.saavncdn.com/596/Bhaabhi-Punjabi-2023-20230805154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "bhaabhi.mp3"
-  },
-  {
-    "id": 102,
-    "title": "Bijlee Bijlee",
-    "artist": "Harrdy Sandhu",
-    "duration": "3:15",
-    "image": "https://c.saavncdn.com/596/Bijlee-Bijlee-Punjabi-2021-20210515154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "bijlee-bijlee.mp3"
-  },
-  {
-    "id": 103,
-    "title": "Black Effect",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://c.saavncdn.com/596/Black-Effect-Punjabi-2023-20230912154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "black-effect.mp3"
-  },
-  {
-    "id": 104,
-    "title": "2 Raflaan",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/2-Raflaan-Punjabi-2023-20230720154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "2-raflaan.mp3"
-  },
-  {
-    "id": 105,
-    "title": "3 Peg",
-    "artist": "Sharry Maan",
-    "duration": "3:40",
-    "image": "https://c.saavncdn.com/596/3-Peg-Punjabi-2017-20170815154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "3-peg-sharry.mp3"
-  },
-  {
-    "id": 106,
-    "title": "52 Bars",
-    "artist": "Various Artists",
-    "duration": "3:30",
-    "image": "https://c.saavncdn.com/596/52-Bars-Punjabi-2023-20230525154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "52-bars.mp3"
-  },
-  {
-    "id": 107,
-    "title": "8 Parche",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/8-Parche-Punjabi-2023-20230618154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "8-parche.mp3"
-  },
-  {
-    "id": 108,
-    "title": "8 Raflaan",
-    "artist": "Various Artists",
-    "duration": "4:05",
-    "image": "https://c.saavncdn.com/596/8-Raflaan-Punjabi-2023-20230815154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "8-raflaan.mp3"
-  },
-  {
-    "id": 109,
-    "title": "Aaj Ki Raat",
-    "artist": "Various Artists",
-    "duration": "3:35",
-    "image": "https://c.saavncdn.com/596/Aaj-Ki-Raat-Punjabi-2023-20230918154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "aaj-ki-raat.mp3"
-  },
-  {
-    "id": 110,
-    "title": "Akhian Ghulab",
-    "artist": "Various Artists",
-    "duration": "3:20",
-    "image": "https://c.saavncdn.com/596/Akhian-Ghulab-Punjabi-2023-20230708154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "akhian-ghulab.mp3"
-  },
-  {
-    "id": 111,
-    "title": "Amber Arabic",
-    "artist": "Various Artists",
-    "duration": "3:10",
-    "image": "https://c.saavncdn.com/596/Amber-Arabic-Punjabi-2023-20230825154717-500x500.jpg",
-    "genre": "Arabic",
-    "audio": "amber-arabic.mp3"
-  },
-  {
-    "id": 112,
-    "title": "Apa Fer Milaange",
-    "artist": "Various Artists",
-    "duration": "4:00",
-    "image": "https://c.saavncdn.com/596/Apa-Fer-Milaange-Punjabi-2023-20230905154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "apa-fer-milaange.mp3"
-  },
-  {
-    "id": 113,
-    "title": "White Brown Black",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://c.saavncdn.com/596/White-Brown-Black-Punjabi-2023-20230622154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "white-brown-black.mp3"
-  },
-  {
-    "id": 114,
-    "title": "With You",
-    "artist": "AP Dhillon",
-    "duration": "2:55",
-    "image": "https://c.saavncdn.com/596/With-You-Punjabi-2022-20220315154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "with-you.mp3"
-  },
-  {
-    "id": 115,
-    "title": "Yentamma",
-    "artist": "Various Artists",
-    "duration": "3:40",
-    "image": "https://c.saavncdn.com/596/Yentamma-Punjabi-2023-20230515154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "yentamma.mp3"
-  },
-  {
-    "id": 116,
-    "title": "Tujhko Mirchi Lagi",
-    "artist": "Various Artists",
-    "duration": "3:50",
-    "image": "https://c.saavncdn.com/596/Tujhko-Mirchi-Lagi-Punjabi-2023-20230730154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "tujhko-mirchi-lagi.mp3"
-  },
-  {
-    "id": 117,
-    "title": "Tum Hia Ana",
-    "artist": "Various Artists",
-    "duration": "4:15",
-    "image": "https://c.saavncdn.com/596/Tum-Hia-Ana-Punjabi-2023-20230820154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "tum-hia-ana.mp3"
-  },
-  {
-    "id": 118,
-    "title": "Tum Mere Na Hue",
-    "artist": "Various Artists",
-    "duration": "3:30",
-    "image": "https://c.saavncdn.com/596/Tum-Mere-Na-Hue-Punjabi-2023-20230910154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "tum-mere-na-hue.mp3"
-  },
-  {
-    "id": 119,
-    "title": "Tum Se",
-    "artist": "Various Artists",
-    "duration": "4:25",
-    "image": "https://c.saavncdn.com/596/Tum-Se-Punjabi-2023-20230830154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "tum-se.mp3"
-  },
-  {
-    "id": 120,
-    "title": "Uyi Amma",
-    "artist": "Various Artists",
-    "duration": "3:45",
-    "image": "https://c.saavncdn.com/596/Uyi-Amma-Punjabi-2023-20230712154717-500x500.jpg",
-    "genre": "Regional",
-    "audio": "uyi-amma.mp3"
-  },
-  {
-    "id": 121,
-    "title": "Vail",
-    "artist": "Various Artists",
-    "duration": "4:05",
-    "image": "https://c.saavncdn.com/596/Vail-Punjabi-2023-20230628154717-500x500.jpg",
-    "genre": "Pop",
-    "audio": "vail.mp3"
-  },
-  {
-    "id": 122,
-    "title": "Waaliyan",
-    "artist": "Harnoor",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/Waaliyan-Punjabi-2022-20220415154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "waaliyan-harnoor.mp3"
-  },
-  {
-    "id": 123,
-    "title": "Wakhra Swag",
-    "artist": "Navv Inder",
-    "duration": "3:15",
-    "image": "https://c.saavncdn.com/596/Wakhra-Swag-Punjabi-2015-20150815154717-500x500.jpg",
-    "genre": "Hip Hop",
-    "audio": "wakhra-swag.mp3"
-  },
-  {
-    "id": 124,
-    "title": "Wayy",
-    "artist": "Various Artists",
-    "duration": "3:10",
-    "image": "https://c.saavncdn.com/596/Wayy-Punjabi-2023-20230530154717-500x500.jpg",
-    "genre": "Pop",
-    "audio": "wayy.mp3"
-  },
-  {
-    "id": 125,
-    "title": "Soory Bol",
-    "artist": "Various Artists",
-    "duration": "4:20",
-    "image": "https://c.saavncdn.com/596/Soory-Bol-Punjabi-2023-20230810154717-500x500.jpg",
-    "genre": "Bollywood",
-    "audio": "soory-bol.mp3"
-  },
-  {
-    "id": 126,
-    "title": "Take It Easy",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://c.saavncdn.com/596/Take-It-Easy-Punjabi-2023-20230722154717-500x500.jpg",
-    "genre": "Pop",
-    "audio": "tak-it-easy.mp3"
-  },
-  {
-    "id": 127,
-    "title": "Talja",
-    "artist": "Various Artists",
-    "duration": "4:10",
-    "image": "https://c.saavncdn.com/596/Talja-Punjabi-2023-20230625154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "talja.mp3"
-  },
-  {
-    "id": 128,
-    "title": "Tell Me Honestly",
-    "artist": "Various Artists",
-    "duration": "4:30",
-    "image": "https://c.saavncdn.com/596/Tell-Me-Honestly-Punjabi-2023-20230915154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "tell-me-honestly.mp3"
-  },
-  {
-    "id": 129,
-    "title": "Teri Baaton Mein",
-    "artist": "Various Artists",
-    "duration": "3:20",
-    "image": "https://c.saavncdn.com/596/Teri-Baaton-Mein-Punjabi-2023-20230818154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "teri-baaton-mein.mp3"
-  },
-  {
-    "id": 130,
-    "title": "Top Notch Gabru",
-    "artist": "Various Artists",
-    "duration": "3:15",
-    "image": "https://c.saavncdn.com/596/Top-Notch-Gabru-Punjabi-2023-20230705154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "top-notch-gabru.mp3"
-  },
-  {
-    "id": 131,
-    "title": "Tu Hain To",
-    "artist": "Various Artists",
-    "duration": "3:40",
-    "image": "https://c.saavncdn.com/596/Tu-Hain-To-Punjabi-2023-20230908154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "tu-hain-to.mp3"
-  },
-  {
-    "id": 132,
-    "title": "Pyar Hota Kayi Baar Hai",
-    "artist": "Various Artists",
-    "duration": "3:35",
-    "image": "https://c.saavncdn.com/596/Pyar-Hota-Kayi-Baar-Hai-Punjabi-2023-20230822154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "pyar-hota-kayi-baar-hai.mp3"
-  },
-  {
-    "id": 133,
-    "title": "Ranjhaan",
-    "artist": "Various Artists",
-    "duration": "4:15",
-    "image": "https://c.saavncdn.com/596/Ranjhaan-Punjabi-2023-20230718154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "ranjhaan.mp3"
-  },
-  {
-    "id": 134,
-    "title": "Rubicon Drill",
-    "artist": "Laddi Chahal",
-    "duration": "3:30",
-    "image": "https://c.saavncdn.com/596/Rubicon-Drill-Punjabi-2023-20230608154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "rubicon-drill-laddi-chahal.mp3"
-  },
-  {
-    "id": 135,
-    "title": "Sahiba",
-    "artist": "Various Artists",
-    "duration": "4:25",
-    "image": "https://c.saavncdn.com/596/Sahiba-Punjabi-2023-20230518154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "sahiba.mp3"
-  },
-  {
-    "id": 136,
-    "title": "Saiyaan Ji",
-    "artist": "Various Artists",
-    "duration": "4:05",
-    "image": "https://c.saavncdn.com/596/Saiyaan-Ji-Punjabi-2023-20230912154717-500x500.jpg",
-    "genre": "Romance",
-    "audio": "saiyaan-ji.mp3"
-  },
-  {
-    "id": 137,
-    "title": "Settagalla",
-    "artist": "Various Artists",
-    "duration": "3:55",
-    "image": "https://c.saavncdn.com/596/Settagalla-Punjabi-2023-20230808154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "settagalla.mp3"
-  },
-  {
-    "id": 138,
-    "title": "Minna Minna",
-    "artist": "Various Artists",
-    "duration": "3:05",
-    "image": "https://c.saavncdn.com/596/Minna-Minna-Punjabi-2023-20230728154717-500x500.jpg",
-    "genre": "Regional",
-    "audio": "minna-minna.mp3"
-  },
-  {
-    "id": 139,
-    "title": "Perfect Guru",
-    "artist": "Various Artists",
-    "duration": "3:25",
-    "image": "https://c.saavncdn.com/596/Perfect-Guru-Punjabi-2023-20230915154717-500x500.jpg",
-    "genre": "Spiritual",
-    "audio": "perfect-guru.mp3"
-  },
-  {
-    "id": 140,
-    "title": "Pecha",
-    "artist": "Various Artists",
-    "duration": "3:50",
-    "image": "https://c.saavncdn.com/596/Pecha-Punjabi-2023-20230812154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "pecha.mp3"
-  },
-  {
-    "id": 141,
-    "title": "Oye Hoye Hoye",
-    "artist": "Various Artists",
-    "duration": "3:20",
-    "image": "https://c.saavncdn.com/596/Eye-Hoye-Hoye-Punjabi-2023-20230612154717-500x500.jpg",
-    "genre": "Punjabi",
-    "audio": "eye-hoye-hoye.mp3"
-  },           
-    {
-        id: 142,
-        title: "Phir Bhi Tumko Chahunga",
-        artist: "Various Artists",
-        duration: "4:15",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHoHsV3c60tVwtzIGBt9VWzWpcKbktqu8bG7jOdKlR8Q&s=10",
-        genre: ["Romance","Sad"],
-        audio: "mein-phir-bhi.mp3"
-    },
-    {
-        id: 143,
-        title: "Sir Da Soda",
-        artist: "Various Artists",
-        duration: "3:45",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtC4YVGxsR-RMOCdtOEGh7HIAQAd9krUgk2Pn7Pp5U7ZLkNU10E5HVfQNQ&s=10",
-        genre: ["Punjabi","Saraiki"],
-        audio: "sir-da-soda.mp3"
-    },
-    {
-        id: 144,
-        title: "Taylor Swift",
-        artist: "Taylor Swift",
-        duration: "3:50",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9z9JsbjQVObsu9EZ7QFU3G7HMI5s1Soy78ogI1J9XsOYIZ6X4bLO1vHI&s=10",
-        genre: "Pop",
-        audio: "taylor-swift.mp3"
-    },
-    {
-        id: 145,
-        title: "Top 6 Arijit Sad Song",
-        artist: "Arijit Singh",
-        duration: "15:30",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9N46Z3XmrVMo0ZR8UpZrC1Z7jRcdju-LKaBDP07Tp8kLKkiIcDzXGmJqH&s=10",
-        genre: ["Romance","Lofi","Sad"],
-        audio: "top-6-arijit-sad.mp3"
-    },
-    {
-        id: 146,
-        title: "Banjara",
-        artist: "Various Artists",
-        duration: "4:20",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi9NDU-e1NLQtnWPG0ajVGeaqNTX0QZEIZAV6F0qDGeSBuqNfy3jyHlgJs&s=10",
-        genre: ["Sad","Lofi"],
-        audio: "banjara.mp3"
-    },
-    {
-        id: 147,
-        title: "Baton Ko Teri",
-        artist: "Various Artists",
-        duration: "4:10",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEHG7_RSvkd_rPm1e1hSaLbHWtEFecFqZrNGqw1_hB96o82hfFKKyACERP&s=10",
-        genre: ["Romance","Sad","Lofi"],
-        audio: "baton-ko-teri.mp3"
-    },
-    {
-        id: 148,
-        title: "Daman Bacha",
-        artist: "Various Artists",
-        duration: "3:35",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQss0ivJyXhZuPgH1Xh88L1OKxucD6Y-Wi88YiD2Z-7QZNXeOAf7Cs9jPaC&s=10",
-        genre: "Saraiki",
-        audio: "daman-bacha.mp3"
-    },
-    {
-        id: 149,
-        title: "Dhola Menu Janda",
-        artist: "Various Artists",
-        duration: "4:30",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr11RqWdUEXiy3dMOrb5GgMgT3l7FkdKNz03XBHZOW-wqLSoU3Ef87NSo&s=10",
-        genre: ["Romance","Saraiki","Lofi"],
-        audio: "dhola-menu-janda.mp3"
-    },
-    {
-        id: 150,
-        title: "Hammava Mere",
-        artist: "Various Artists",
-        duration: "4:20",
-        image: "https://i.ytimg.com/vi/vnWd2rukeGY/sddefault.jpg",
-        genre: ["Romance","Sad","Lofi"],
-        audio: "hammava-mere.mp3"
-    },
-    {
-        id: 151,
-        title: "Ishq",
-        artist: "Various Artists",
-        duration: "3:55",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Mqkik3bOO3Vw2jDMv1b1oq8oETI_DKZmzX1QW4sYbA&s=10",
-        genre: ["Romance","Sad","Lofi"],
-        audio: "ishq.mp3"
-    },
-    {
-        id: 152,
-        title: "Jinde Naal Dil",
-        artist: "Various Artists",
-        duration: "5:15",
-        image: "https://i.ytimg.com/vi/bWbnHKX6xME/maxresdefault.jpg",
-        genre: ["Saraiki","Lofi"],
-        audio: "jinde-naal-dil.mp3"
-    },
-    {
-        id: 153,
-        title: "Kabhi Jo Badal",
-        artist: "Various Artists",
-        duration: "3:45",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSC9p2k29qb6x5Y7GnbNCqVIdZlbsS7p5pt7KmAtEziZsb3U0EBww8Rh9E&s=10",
-        genre: ["Romance","Sad","Lofi"],
-        audio: "kabhi-jo-badal.mp3"
-    }
-      ];
+            { id: 1, title: "Saiyaara", artist: "Faheem Abdullah", duration: "5:44", image: "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg", genre: ["Romance", "Bollywood"], audio: "saiyaara.mp3" },
+            { id: 2, title: "Deewaniyat", artist: "Vishal Mishra", duration: "3:22", image: "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg", genre: ["Romance", "Bollywood"], audio: "deewaniyat.mp3" },
+            { id: 3, title: "Laal Pairi", artist: "Yo Yo Honey Singh", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10", genre: ["Pop", "Punjabi"], audio: "laal-pari.mp3" },
+            { id: 4, title: "Kesariya", artist: "Arijit Singh", duration: "4:28", image: "https://c.saavncdn.com/191/Kesariya-From-Brahmastra-Hindi-2022-20220717092820-500x500.jpg", genre: ["Romance", "Bollywood"], audio: "kesariya.mp3" },
+            { id: 5, title: "Maan Meri Jaan", artist: "King", duration: "3:14", image: "https://i.ytimg.com/vi/eZnntxPl44g/sddefault.jpg", genre: ["Romance", "Hip Hop"], audio: "maan-meri-jaan.mp3" },
+            { id: 6, title: "Tere Vaaste", artist: "Sachin-Jigar", duration: "3:59", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVOFaiNyQKcSMhrX_cv7Qyo1fRtNTzxzHmTaGKmhlohBSjVlK5tyxe-qh&s=10", genre: ["Romance", "Bollywood"], audio: "tere-vaaste.mp3" },
+            { id: 7, title: "What Jhumka", artist: "Arijit Singh", duration: "3:59", image: "https://i.ytimg.com/vi/LNegGbBmbLI/maxresdefault.jpg", genre: ["Bollywood", "Pop"], audio: "what-jhumka.mp3" },
+            { id: 8, title: "Brown Munde", artist: "AP Dhillon", duration: "4:14", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrzAKS-OKC79Am0FHjPxkLVbYmKv8CqogSLyBCsn6z3-7K_15RWvqOx10B&s=10", genre: ["Punjabi", "Hip Hop"], audio: "brown-munde.mp3" },
+            { id: 9, title: "Tere Pyaar Mein", artist: "Arijit Singh", duration: "4:26", image: "https://i1.sndcdn.com/artworks-riLqSdpUqlIQt7kB-D0zdZw-t500x500.jpg", genre: ["Romance", "Sad"], audio: "tere-pyaar-mein.mp3" },
+            { id: 10, title: "Chaleya", artist: "Arijit Singh", duration: "4:49", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfAWOSOviBx0hs06h_7foNgZeMIgFD2IuFDeGFZNwtwjIkDGKbp3KgtDVy&s=10", genre: ["Romance", "Bollywood"], audio: "chaleya.mp3" },
+            { id: 11, title: "Arabic Kuthu", artist: "Anirudh", duration: "4:39", image: "https://m.media-amazon.com/images/I/51ci1yvC0kL._UXNaN_FMjpg_QL85_.jpg", genre: ["English", "Pop"], audio: "arabic-kuthu.mp3" },
+            { id: 12, title: "Besharam Rang", artist: "Vishal-Shekhar", duration: "4:18", image: "https://i.ytimg.com/vi/7SJodKV_pGA/maxresdefault.jpg", genre: ["Bollywood", "Pop"], audio: "besharam-rang.mp3" },
+            { id: 13, title: "Lehnga", artist: "Diljit Dosanjh", duration: "3:19", image: "https://i.ytimg.com/vi/G8PU1HjZZj4/hq720.jpg", genre: ["Punjabi", "Pop"], audio: "lehnga.mp3" },
+            { id: 14, title: "Illegal Weapon 2.0", artist: "Garry Sandhu", duration: "3:08", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlMgItkCiqMKZQNjMmdw8NWaiM23gKjYy_02L4kurEhUf54wnydwj044&s=10", genre: ["Punjabi", "Pop"], audio: "illegal-weapon.mp3" },
+            { id: 15, title: "G.O.A.T", artist: "Diljit Dosanjh", duration: "3:43", image: "https://i.ytimg.com/vi/tAizFLCucdY/maxresdefault.jpg", genre: ["Punjabi", "Hip Hop"], audio: "g.o.a.t-diljit.mp3" },
+            { id: 16, title: "Saami Saami", artist: "Sunidhi Chauhan", duration: "3:55", image: "https://i.ytimg.com/vi/R32Vf2M5VGA/hq720.jpg", genre: ["Bollywood", "Pop"], audio: "saami-saami.mp3" },
+            { id: 17, title: "Naacho Naacho", artist: "Vishal Mishra", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDAyrV_dPy060QVzq-dv__jfcyXBYbfaBpTxaL0-yBRdFO9v6SVBryTnc&s=10", genre: ["Bollywood", "Pop"], audio: "naacho-naacho.mp3" },
+            { id: 18, title: "Lutt Putt Gaya", artist: "Arijit Singh", duration: "3:54", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_OgBswbsrpIDYiT_kttr8j94rJYTLFxEV-zn1H9qyivmDDCpsYxP8qKur&s=10", genre: ["Romance", "Sad"], audio: "lutt-putt-gaya.mp3" },
+            { id: 19, title: "Chitta Kurta", artist: "Yo Yo Honey Singh", duration: "3:51", image: "https://i1.sndcdn.com/artworks-000650502514-hchjlx-t500x500.jpg", genre: ["Punjabi", "Pop"], audio: "chitta-kurta.mp3" },
+            { id: 20, title: "Character Dheela", artist: "Neeraj Shridhar", duration: "4:11", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3jkbwNKwnb5gHdlRHI_L0dEFBCQM3j0UqLJXMQGrHedraFQwjol02tLM&s=10", genre: ["Bollywood", "Pop"], audio: "character-dheela.mp3" },
+            { id: 21, title: "Jhoome Jo Pathaan", artist: "Arijit Singh", duration: "3:28", image: "https://upload.wikimedia.org/wikipedia/en/8/8b/Jhoome_Jo_Pathaan_song_cover.jpg", genre: ["Bollywood", "Romance"], audio: "jhoome-jo-pathaan.mp3" },
+            { id: 22, title: "Arjan Vailly", artist: "Manan Bhardwaj", duration: "3:02", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU4RrwA0cbOdiHtRQYQh_Mc0IWMs1c--M-h-lSQpUhbMsrbvmEZJQa78ak&s=10", genre: ["Bollywood", "Punjabi"], audio: "arjan-vailly.mp3" },
+            { id: 23, title: "Satranga", artist: "Arijit Singh", duration: "4:28", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiU-MmJJCZ4gB8eZk_p-VNU7k-fWVwQr284CruMrVHAVeR2MG_Rp7Xi50&s=10", genre: ["Romance", "Sad"], audio: "satranga.mp3" },
+            { id: 37, title: "Hua Main", artist: "Raghav Chaitanya", duration: "4:33", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjNxq67RY3EsCmPWUOSVWLq4Ef4q3Ghtt3ytn5ML59F7qRCkCk73TGzZA&s=10", genre: "Romance", audio: "hua-main-animal.mp3" },
+            { id: 38, title: "Pehle Bhi Mein", artist: "Vishal Mishra", duration: "4:10", image: "https://c.saavncdn.com/413/Marham-Pehle-Bhi-Main-From-ANIMAL-Hindi-2023-20231223151003-500x500.jpg", genre: "Romance", audio: "pehle-bhi-mein.mp3" },
+            { id: 39, title: "Tum Kya Mile", artist: "Arijit Singh, Shreya Ghoshal", duration: "4:34", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMhz5U2Ky2ZyfgVl-RIqHaB9WYZgCsMsLZahDh2hIIvSy6wuCbEPvTDLDk&s=10", genre: "Romance", audio: "tum-kya-mile.mp3" },
+            { id: 40, title: "Ve Kamleya", artist: "Arijit Singh, Shreya Ghoshal", duration: "4:07", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY2hK1KoxoV5fVGhoVPMJiwSHTrVuz5cE_aoQu3Aushx-MP3cUWxnLl9s&s=10", genre: "Romance", audio: "ve-kamleya.mp3" },
+            { id: 41, title: "Yaari", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/290/Yaari-Punjabi-2019-20190611222620-500x500.jpg", genre: "Friendship", audio: "yaari.mp3" },
+            { id: 42, title: "Yimmy Yimmy", artist: "Tayc, Shreya Ghoshal", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0pzprB1pTBEvjFGcC8uC3WqN7p8NrNRLDtwiWZ2Z4xPCMsqjl9sCsHA8&s=10", genre: "Pop", audio: "yimmy-yimmy.mp3" },
+            { id: 43, title: "Udaariyan", artist: "Various Artists", duration: "4:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhp4rX5eamOCC_ZwIVabhGaUNnglfuukr_WivzW_lLJOBoicmvm-Vp8o8&s=10", genre: "Bollywood", audio: "udaariyan.mp3" },
+            { id: 44, title: "Titliyan", artist: "Hardy Sandhu", duration: "3:52", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCVEIVICwn1l_jzlsQT4BbpQ5k2OIoTNrIMBdws_Iv3YlX7msxywmyOI&s=10", genre: "Bollywood", audio: "titilyaan.mp3" },
+            { id: 45, title: "Sajni", artist: "Arijit Singh", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTga_CQbq_F_t1qSSo2_1VQ0UXWygIIozSb5segTwYdoqL1AhFjqiZ5YRw&s=10", genre: "Romance", audio: "sajni.mp3" },
+            { id: 46, title: "Softly", artist: "Karan Aujla", duration: "3:35", image: "https://c.saavncdn.com/596/Softly-Punjabi-2023-20230412154717-500x500.jpg", genre: "Romance", audio: "softly.mp3" },
+            { id: 47, title: "Soni Soni", artist: "Various Artists", duration: "3:40", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPKYk6x16M8HVi3JCPik2dANR06HTD1z0Z7OLNoLBX0Q&s=10", genre: "Romance", audio: "soni-soni.mp3" },
+            { id: 48, title: "No Love", artist: "Shubh", duration: "2:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOPMpHhPU3IypLvE04xzOHvOymlmXKxPx4XhzZrU0Ugw&s=10", genre: "Hip Hop", audio: "no-love.mp3" },
+            { id: 49, title: "Panjeban", artist: "Shivjot", duration: "3:25", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhDg-NHOJEJntHACS4_mOVbdWRoIt3PUTwahnRc1tbw&s=10", genre: "Punjabi", audio: "panjeban-shivjot.mp3" },
+            { id: 50, title: "Panwadi", artist: "Various Artists", duration: "3:45", image: "https://i.ytimg.com/vi/i4UZmRaGZ2U/sddefault.jpg", genre: "Punjabi", audio: "panwadi.mp3" },
+            { id: 51, title: "Payal", artist: "Jasmine Sandlas", duration: "3:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ212UXLDH2MHdHLtGDDpRYPcnICxmAd4fzfSEcl3-s_w&s=10", genre: "Bollywood", audio: "payal-song.mp3" },
+            { id: 52, title: "Phir Aur Kya Chahiye", artist: "Arijit Singh", duration: "4:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfLmxYrlUjP2aacdlrN6VYplccLkBoyGejeQ&s", genre: "Romance", audio: "phir-aur-kya-chahiye.mp3" },
+            { id: 53, title: "Player", artist: "Badshah, Karan Aujla", duration: "3:33", image: "https://i.ytimg.com/vi/CeFQO9MQNqs/sddefault.jpg", genre: "Hip Hop", audio: "player-badshah-karan.mp3" },
+            { id: 54, title: "Mahiya", artist: "Various Artists", duration: "3:55", image: "https://pagalworldi.com.co/wp-content/uploads/2025/08/Mahiya-Mp3-SongPagalworldi.com_.co_.webp", genre: "Romance", audio: "mahya.mp3" },
+            { id: 55, title: "Mexico Koka", artist: "Koka", duration: "3:40", image: "https://i.ytimg.com/vi/PRjFAk7hRSc/hqdefault.jpg", genre: "Punjabi", audio: "mexico-koka.mp3" },
+            { id: 56, title: "MF Gabhru", artist: "Various Artists", duration: "3:25", image: "https://i.ytimg.com/vi/iV2srNklqZw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLA5-Qqz10ypv97u_H25vQ0xtqxBZw", genre: "Punjabi", audio: "mf-gabhru.mp3" },
+            { id: 57, title: "Move Your Lakk", artist: "Various Artists", duration: "3:15", image: "https://c.saavncdn.com/557/Move-Your-Lakk-Hindi-2017-500x500.jpg", genre: "Punjabi", audio: "mive-your-lakk.mp3" },
+            { id: 58, title: "Moon Rise", artist: "Guru Randhawa", duration: "3:28", image: "https://static.toiimg.com/thumb/imgsize-23456,msid-96705277,width-600,resizemode-4/96705277.jpg", genre: "Romance", audio: "moon-rise.mp3" },
+            { id: 59, title: "Kaun Nachdi", artist: "Guru Randhawa", duration: "3:20", image: "https://i.ytimg.com/vi/NbWKYgaWzbI/maxresdefault.jpg", genre: "Bollywood", audio: "nachdi-sonofsardaar2.mp3" },
+            { id: 60, title: "Naiyo Lagda", artist: "Harrdy Sandhu", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XA3gqglExDv6av9GWcCcVeJJYLBnfxmPbg&s", genre: "Romance", audio: "naiyo-lagda.mp3" },
+            { id: 61, title: "Ring Song", artist: "Neha Kakkar", duration: "3:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2MNFo31W3NV1JFRwSq-ON0OrY1LRgArq6vQ&s", genre: "Bollywood", audio: "neha-kakkar-ring-song.mp3" },
+            { id: 62, title: "Maan Meri Jaan", artist: "Nick Jonas", duration: "3:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4sG45CEGGxRaxrXR_Xd4qhP0MSkg0Jekq6A&s", genre: "Romance", audio: "nick-maan-meri-jaan.mp3" },
+            { id: 63, title: "Khyaal Rakhya Kar", artist: "Ranjit Bawa", duration: "4:05", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfnWkvKyqNk7RTAnIqpOtr6etxPKIWRdPAkg&s", genre: "Romance", audio: "khyaal-rakhya-kr.mp3" },
+            { id: 64, title: "Kya Baat Aa", artist: "Karan Aujla", duration: "3:40", image: "https://i.ytimg.com/vi/0pX03P2Ho-s/hqdefault.jpg", genre: "Punjabi", audio: "kya-baat-aa-karan.mp3" },
+            { id: 65, title: "Kya Karu", artist: "Various Artists", duration: "3:55", image: "https://i.ytimg.com/vi/OneNK10ZFtY/maxresdefault.jpg", genre: "Romance", audio: "kya-kru.mp3" },
+            { id: 66, title: "Lafda", artist: "Various Artists", duration: "3:20", image: "https://i.ytimg.com/vi/ClaXEbK5rz8/sddefault.jpg", genre: "Hip Hop", audio: "lafda.mp3" },
+            { id: 67, title: "Leo Naa Ready", artist: "Anirudh Ravichander", duration: "4:05", image: "https://i.ytimg.com/vi/OwigUwengG0/hqdefault.jpg", genre: "Tamil", audio: "leo-naa-ready.mp3" },
+            { id: 68, title: "Ma Belle", artist: "AP Dhillon", duration: "3:15", image: "https://i.scdn.co/image/ab67616d0000b273ee59b4a3aebc27ea279e79da", genre: "Romance", audio: "ma-belle.mp3" },
+            { id: 69, title: "Mafia", artist: "Various Artists", duration: "3:45", image: "https://i.ytimg.com/vi/cZxnY7cXq-k/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC52jBJeeAThlF84FrO7i15eZ2g1w", genre: "Hip Hop", audio: "mafia.mp3" },
+            { id: 70, title: "Malang Sajna", artist: "Sachet Tandon", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT_gIsg8V8gPSEX8bHLBArLVR4wf3CldERIg&s", genre: "Romance", audio: "malang-sajna.mp3" },
+            { id: 71, title: "Jhaanjar", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUmFuZk81qrdY5b-BouQ1n-XNxJCotu9-tZw&s", genre: "Punjabi", audio: "jhaanjar.mp3" },
+            { id: 72, title: "Judge", artist: "Various Artists", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgM5BcNmndLF0KkVIPj5sfhVIVfY0033itcA&s", genre: "Hip Hop", audio: "judge.mp3" },
+            { id: 73, title: "Kaka Holi", artist: "Various Artists", duration: "3:25", image: "https://i.ytimg.com/vi/ho4suAnXPLY/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGHIgOShVMA8=&rs=AOn4CLDzghWrLceRqvukJNQcYKi6IRgtDw", genre: "Festival", audio: "kaka-holi.mp3" },
+            { id: 74, title: "Kale Je Libaas", artist: "Various Artists", duration: "3:40", image: "https://c.saavncdn.com/596/Kaka-Kale-Je-Libaas-Punjabi-2023-20230808154717-500x500.jpg", genre: "Punjabi", audio: "kaka-kale-je-libaas.mp3" },
+            { id: 75, title: "Kaka Keh Len De", artist: "Various Artists", duration: "3:15", image: "https://c.saavncdn.com/596/Kaka-Keh-Len-De-Punjabi-2023-20230718154717-500x500.jpg", genre: "Punjabi", audio: "kaka-keh-len-de.mp3" },
+            { id: 76, title: "Kaka Temporary Pyaar", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/Kaka-Temporary-Pyaar-Punjabi-2023-20230612154717-500x500.jpg", genre: "Romance", audio: "kaka-temporary-pyaar.mp3" },
+            { id: 77, title: "Kalla Sohna Nai", artist: "Raftaar", duration: "3:20", image: "https://c.saavncdn.com/596/Kalla-Sohna-Nai-Punjabi-2022-20221128154717-500x500.jpg", genre: "Punjabi", audio: "kalla-sohna-nai.mp3" },
+            { id: 78, title: "Kamsin Kali", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Kamsin-Kali-Punjabi-2022-20221015154717-500x500.jpg", genre: "Bollywood", audio: "kamsin-kali.mp3" },
+            { id: 79, title: "Khabbi Seat", artist: "Various Artists", duration: "3:30", image: "https://c.saavncdn.com/596/Khabbi-Seat-Punjabi-2023-20230515154717-500x500.jpg", genre: "Punjabi", audio: "khabbi-seat.mp3" },
+            { id: 80, title: "Gire Gore", artist: "Benny Dayal", duration: "4:05", image: "https://c.saavncdn.com/382/Gire-Gore-Hindi-2022-20220915154717-500x500.jpg", genre: "Bollywood", audio: "gire-gore.mp3" },
+            { id: 81, title: "Good Bad Ugly", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/Good-Bad-Ugly-Punjabi-2023-20230428154717-500x500.jpg", genre: "Hip Hop", audio: "goid-bad-ugly.mp3" },
+            { id: 82, title: "Horn Blow", artist: "Various Artists", duration: "3:10", image: "https://c.saavncdn.com/596/Horn-Blow-Punjabi-2023-20230828154717-500x500.jpg", genre: "Punjabi", audio: "horn-blow.mp3" },
+            { id: 83, title: "Ilzaam", artist: "Various Artists", duration: "3:35", image: "https://c.saavncdn.com/596/Ilzaam-Punjabi-2022-20221205154717-500x500.jpg", genre: "Romance", audio: "ilzaam.mp3" },
+            { id: 84, title: "Jaane Tu", artist: "Various Artists", duration: "4:00", image: "https://c.saavncdn.com/596/Jaane-Tu-Punjabi-2023-20230705154717-500x500.jpg", genre: "Romance", audio: "jaane-tu.mp3" },
+            { id: 85, title: "Jatt Flex", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Jatt-Flex-Punjabi-2023-20230528154717-500x500.jpg", genre: "Punjabi", audio: "jatt-flex.mp3" },
+            { id: 86, title: "Jatt Te Jawani", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Jatt-Te-Jawani-Punjabi-2022-20221108154717-500x500.jpg", genre: "Punjabi", audio: "jatt-te-jawani.mp3" },
+            { id: 87, title: "Fly Karke", artist: "Various Artists", duration: "3:05", image: "https://c.saavncdn.com/596/Fly-Karke-Punjabi-2023-20230915154717-500x500.jpg", genre: "Punjabi", audio: "fly-karke.mp3" },
+            { id: 88, title: "Bol Kafar Kya Hoga", artist: "Various Artists", duration: "4:15", image: "https://c.saavncdn.com/596/Bol-Kafar-Kya-Hoga-Punjabi-2022-20221028154717-500x500.jpg", genre: "Spiritual", audio: "bol-kafar-kya-hoga.mp3" },
+            { id: 89, title: "California Love", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/California-Love-Punjabi-2023-20230615154717-500x500.jpg", genre: "Hip Hop", audio: "california-love.mp3" },
+            { id: 90, title: "Chithiyan", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Chithiyan-Punjabi-2022-20220828154717-500x500.jpg", genre: "Punjabi", audio: "chithiyan.mp3" },
+            { id: 91, title: "Choli K Peeche", artist: "Alka Yagnik, Ila Arun", duration: "4:10", image: "https://c.saavncdn.com/382/Khalnayak-Hindi-1993-20191025154717-500x500.jpg", genre: "Bollywood", audio: "choli-k-peeche.mp3" },
+            { id: 92, title: "Dhun Saiyaara", artist: "Various Artists", duration: "4:25", image: "https://c.saavncdn.com/382/Tamasha-Hindi-2015-20151115154717-500x500.jpg", genre: "Romance", audio: "dhun-saiyaara.mp3" },
+            { id: 93, title: "Dil Hariya", artist: "Various Artists", duration: "4:35", image: "https://c.saavncdn.com/596/Dil-Hariya-Punjabi-2023-20230728154717-500x500.jpg", genre: "Romance", audio: "dil-hariya.mp3" },
+            { id: 94, title: "Dil Jhoom", artist: "Various Artists", duration: "4:45", image: "https://c.saavncdn.com/596/Dil-Jhoom-Punjabi-2022-20220905154717-500x500.jpg", genre: "Romance", audio: "dil-jhoom.mp3" },
+            { id: 95, title: "Dilbar Ki Ankhon Ka", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/Dilbar-Ki-Ankhon-Ka-Punjabi-2023-20230812154717-500x500.jpg", genre: "Romance", audio: "dilbar-ki-ankhon-ka.mp3" },
+            { id: 96, title: "Asraar", artist: "Geetkarz", duration: "3:40", image: "https://c.saavncdn.com/596/Asraar-Punjabi-2023-20230520154717-500x500.jpg", genre: "Romance", audio: "asraar-geetkarz.mp3" },
+            { id: 97, title: "Bachalo", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Bachalo-Punjabi-2023-20230412154717-500x500.jpg", genre: "Punjabi", audio: "bachalo.mp3" },
+            { id: 98, title: "Bamb Aagya", artist: "Various Artists", duration: "3:35", image: "https://c.saavncdn.com/596/Bamb-Aagya-Punjabi-2023-20230715154717-500x500.jpg", genre: "Punjabi", audio: "bamb-aagya.mp3" },
+            { id: 99, title: "Bamb Jatt", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Bamb-Jatt-Punjabi-2023-20230605154717-500x500.jpg", genre: "Punjabi", audio: "bamb-jatt.mp3" },
+            { id: 100, title: "Barbaad Saiyaara", artist: "Various Artists", duration: "4:10", image: "https://c.saavncdn.com/596/Barbaad-Saiyaara-Punjabi-2023-20230908154717-500x500.jpg", genre: "Romance", audio: "barbaad-saiyaara.mp3" },
+            { id: 101, title: "Bhaabhi", artist: "Various Artists", duration: "4:20", image: "https://c.saavncdn.com/596/Bhaabhi-Punjabi-2023-20230805154717-500x500.jpg", genre: "Punjabi", audio: "bhaabhi.mp3" },
+            { id: 102, title: "Bijlee Bijlee", artist: "Harrdy Sandhu", duration: "3:15", image: "https://c.saavncdn.com/596/Bijlee-Bijlee-Punjabi-2021-20210515154717-500x500.jpg", genre: "Punjabi", audio: "bijlee-bijlee.mp3" },
+            { id: 103, title: "Black Effect", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/Black-Effect-Punjabi-2023-20230912154717-500x500.jpg", genre: "Hip Hop", audio: "black-effect.mp3" },
+            { id: 104, title: "2 Raflaan", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/2-Raflaan-Punjabi-2023-20230720154717-500x500.jpg", genre: "Punjabi", audio: "2-raflaan.mp3" },
+            { id: 105, title: "3 Peg", artist: "Sharry Maan", duration: "3:40", image: "https://c.saavncdn.com/596/3-Peg-Punjabi-2017-20170815154717-500x500.jpg", genre: "Punjabi", audio: "3-peg-sharry.mp3" },
+            { id: 106, title: "52 Bars", artist: "Various Artists", duration: "3:30", image: "https://c.saavncdn.com/596/52-Bars-Punjabi-2023-20230525154717-500x500.jpg", genre: "Hip Hop", audio: "52-bars.mp3" },
+            { id: 107, title: "8 Parche", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/8-Parche-Punjabi-2023-20230618154717-500x500.jpg", genre: "Punjabi", audio: "8-parche.mp3" },
+            { id: 108, title: "8 Raflaan", artist: "Various Artists", duration: "4:05", image: "https://c.saavncdn.com/596/8-Raflaan-Punjabi-2023-20230815154717-500x500.jpg", genre: "Punjabi", audio: "8-raflaan.mp3" },
+            { id: 109, title: "Aaj Ki Raat", artist: "Various Artists", duration: "3:35", image: "https://c.saavncdn.com/596/Aaj-Ki-Raat-Punjabi-2023-20230918154717-500x500.jpg", genre: "Bollywood", audio: "aaj-ki-raat.mp3" },
+            { id: 110, title: "Akhian Ghulab", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/Akhian-Ghulab-Punjabi-2023-20230708154717-500x500.jpg", genre: "Romance", audio: "akhian-ghulab.mp3" },
+            { id: 111, title: "Amber Arabic", artist: "Various Artists", duration: "3:10", image: "https://c.saavncdn.com/596/Amber-Arabic-Punjabi-2023-20230825154717-500x500.jpg", genre: "Arabic", audio: "amber-arabic.mp3" },
+            { id: 112, title: "Apa Fer Milaange", artist: "Various Artists", duration: "4:00", image: "https://c.saavncdn.com/596/Apa-Fer-Milaange-Punjabi-2023-20230905154717-500x500.jpg", genre: "Punjabi", audio: "apa-fer-milaange.mp3" },
+            { id: 113, title: "White Brown Black", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/White-Brown-Black-Punjabi-2023-20230622154717-500x500.jpg", genre: "Hip Hop", audio: "white-brown-black.mp3" },
+            { id: 114, title: "With You", artist: "AP Dhillon", duration: "2:55", image: "https://c.saavncdn.com/596/With-You-Punjabi-2022-20220315154717-500x500.jpg", genre: "Romance", audio: "with-you.mp3" },
+            { id: 115, title: "Yentamma", artist: "Various Artists", duration: "3:40", image: "https://c.saavncdn.com/596/Yentamma-Punjabi-2023-20230515154717-500x500.jpg", genre: "Bollywood", audio: "yentamma.mp3" },
+            { id: 116, title: "Tujhko Mirchi Lagi", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Tujhko-Mirchi-Lagi-Punjabi-2023-20230730154717-500x500.jpg", genre: "Bollywood", audio: "tujhko-mirchi-lagi.mp3" },
+            { id: 117, title: "Tum Hia Ana", artist: "Various Artists", duration: "4:15", image: "https://c.saavncdn.com/596/Tum-Hia-Ana-Punjabi-2023-20230820154717-500x500.jpg", genre: "Romance", audio: "tum-hia-ana.mp3" },
+            { id: 118, title: "Tum Mere Na Hue", artist: "Various Artists", duration: "3:30", image: "https://c.saavncdn.com/596/Tum-Mere-Na-Hue-Punjabi-2023-20230910154717-500x500.jpg", genre: "Romance", audio: "tum-mere-na-hue.mp3" },
+            { id: 119, title: "Tum Se", artist: "Various Artists", duration: "4:25", image: "https://c.saavncdn.com/596/Tum-Se-Punjabi-2023-20230830154717-500x500.jpg", genre: "Romance", audio: "tum-se.mp3" },
+            { id: 120, title: "Uyi Amma", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Uyi-Amma-Punjabi-2023-20230712154717-500x500.jpg", genre: "Regional", audio: "uyi-amma.mp3" },
+            { id: 121, title: "Vail", artist: "Various Artists", duration: "4:05", image: "https://c.saavncdn.com/596/Vail-Punjabi-2023-20230628154717-500x500.jpg", genre: "Pop", audio: "vail.mp3" },
+            { id: 122, title: "Waaliyan", artist: "Harnoor", duration: "3:55", image: "https://c.saavncdn.com/596/Waaliyan-Punjabi-2022-20220415154717-500x500.jpg", genre: "Punjabi", audio: "waaliyan-harnoor.mp3" },
+            { id: 123, title: "Wakhra Swag", artist: "Navv Inder", duration: "3:15", image: "https://c.saavncdn.com/596/Wakhra-Swag-Punjabi-2015-20150815154717-500x500.jpg", genre: "Hip Hop", audio: "wakhra-swag.mp3" },
+            { id: 124, title: "Wayy", artist: "Various Artists", duration: "3:10", image: "https://c.saavncdn.com/596/Wayy-Punjabi-2023-20230530154717-500x500.jpg", genre: "Pop", audio: "wayy.mp3" },
+            { id: 125, title: "Soory Bol", artist: "Various Artists", duration: "4:20", image: "https://c.saavncdn.com/596/Soory-Bol-Punjabi-2023-20230810154717-500x500.jpg", genre: "Bollywood", audio: "soory-bol.mp3" },
+            { id: 126, title: "Take It Easy", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/Take-It-Easy-Punjabi-2023-20230722154717-500x500.jpg", genre: "Pop", audio: "tak-it-easy.mp3" },
+            { id: 127, title: "Talja", artist: "Various Artists", duration: "4:10", image: "https://c.saavncdn.com/596/Talja-Punjabi-2023-20230625154717-500x500.jpg", genre: "Punjabi", audio: "talja.mp3" },
+            { id: 128, title: "Tell Me Honestly", artist: "Various Artists", duration: "4:30", image: "https://c.saavncdn.com/596/Tell-Me-Honestly-Punjabi-2023-20230915154717-500x500.jpg", genre: "Romance", audio: "tell-me-honestly.mp3" },
+            { id: 129, title: "Teri Baaton Mein", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/Teri-Baaton-Mein-Punjabi-2023-20230818154717-500x500.jpg", genre: "Romance", audio: "teri-baaton-mein.mp3" },
+            { id: 130, title: "Top Notch Gabru", artist: "Various Artists", duration: "3:15", image: "https://c.saavncdn.com/596/Top-Notch-Gabru-Punjabi-2023-20230705154717-500x500.jpg", genre: "Punjabi", audio: "top-notch-gabru.mp3" },
+            { id: 131, title: "Tu Hain To", artist: "Various Artists", duration: "3:40", image: "https://c.saavncdn.com/596/Tu-Hain-To-Punjabi-2023-20230908154717-500x500.jpg", genre: "Romance", audio: "tu-hain-to.mp3" },
+            { id: 132, title: "Pyar Hota Kayi Baar Hai", artist: "Various Artists", duration: "3:35", image: "https://c.saavncdn.com/596/Pyar-Hota-Kayi-Baar-Hai-Punjabi-2023-20230822154717-500x500.jpg", genre: "Romance", audio: "pyar-hota-kayi-baar-hai.mp3" },
+            { id: 133, title: "Ranjhaan", artist: "Various Artists", duration: "4:15", image: "https://c.saavncdn.com/596/Ranjhaan-Punjabi-2023-20230718154717-500x500.jpg", genre: "Punjabi", audio: "ranjhaan.mp3" },
+            { id: 134, title: "Rubicon Drill", artist: "Laddi Chahal", duration: "3:30", image: "https://c.saavncdn.com/596/Rubicon-Drill-Punjabi-2023-20230608154717-500x500.jpg", genre: "Punjabi", audio: "rubicon-drill-laddi-chahal.mp3" },
+            { id: 135, title: "Sahiba", artist: "Various Artists", duration: "4:25", image: "https://c.saavncdn.com/596/Sahiba-Punjabi-2023-20230518154717-500x500.jpg", genre: "Romance", audio: "sahiba.mp3" },
+            { id: 136, title: "Saiyaan Ji", artist: "Various Artists", duration: "4:05", image: "https://c.saavncdn.com/596/Saiyaan-Ji-Punjabi-2023-20230912154717-500x500.jpg", genre: "Romance", audio: "saiyaan-ji.mp3" },
+            { id: 137, title: "Settagalla", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/Settagalla-Punjabi-2023-20230808154717-500x500.jpg", genre: "Punjabi", audio: "settagalla.mp3" },
+            { id: 138, title: "Minna Minna", artist: "Various Artists", duration: "3:05", image: "https://c.saavncdn.com/596/Minna-Minna-Punjabi-2023-20230728154717-500x500.jpg", genre: "Regional", audio: "minna-minna.mp3" },
+            { id: 139, title: "Perfect Guru", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/Perfect-Guru-Punjabi-2023-20230915154717-500x500.jpg", genre: "Spiritual", audio: "perfect-guru.mp3" },
+            { id: 140, title: "Pecha", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Pecha-Punjabi-2023-20230812154717-500x500.jpg", genre: "Punjabi", audio: "pecha.mp3" },
+            { id: 141, title: "Oye Hoye Hoye", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/Eye-Hoye-Hoye-Punjabi-2023-20230612154717-500x500.jpg", genre: "Punjabi", audio: "eye-hoye-hoye.mp3" },           
+            { id: 142, title: "Phir Bhi Tumko Chahunga", artist: "Various Artists", duration: "4:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHoHsV3c60tVwtzIGBt9VWzWpcKbktqu8bG7jOdKlR8Q&s=10", genre: ["Romance","Sad"], audio: "mein-phir-bhi.mp3" },
+            { id: 143, title: "Sir Da Soda", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtC4YVGxsR-RMOCdtOEGh7HIAQAd9krUgk2Pn7Pp5U7ZLkNU10E5HVfQNQ&s=10", genre: ["Punjabi","Saraiki"], audio: "sir-da-soda.mp3" },
+            { id: 144, title: "Taylor Swift", artist: "Taylor Swift", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9z9JsbjQVObsu9EZ7QFU3G7HMI5s1Soy78ogI1J9XsOYIZ6X4bLO1vHI&s=10", genre: "Pop", audio: "taylor-swift.mp3" },
+            { id: 145, title: "Top 6 Arijit Sad Song", artist: "Arijit Singh", duration: "15:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9N46Z3XmrVMo0ZR8UpZrC1Z7jRcdju-LKaBDP07Tp8kLKkiIcDzXGmJqH&s=10", genre: ["Romance","Lofi","Sad"], audio: "top-6-arijit-sad.mp3" },
+            { id: 146, title: "Banjara", artist: "Various Artists", duration: "4:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi9NDU-e1NLQtnWPG0ajVGeaqNTX0QZEIZAV6F0qDGeSBuqNfy3jyHlgJs&s=10", genre: ["Sad","Lofi"], audio: "banjara.mp3" },
+            { id: 147, title: "Baton Ko Teri", artist: "Various Artists", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEHG7_RSvkd_rPm1e1hSaLbHWtEFecFqZrNGqw1_hB96o82hfFKKyACERP&s=10", genre: ["Romance","Sad","Lofi"], audio: "baton-ko-teri.mp3" },
+            { id: 148, title: "Daman Bacha", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQss0ivJyXhZuPgH1Xh88L1OKxucD6Y-Wi88YiD2Z-7QZNXeOAf7Cs9jPaC&s=10", genre: "Saraiki", audio: "daman-bacha.mp3" },
+            { id: 149, title: "Dhola Menu Janda", artist: "Various Artists", duration: "4:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr11RqWdUEXiy3dMOrb5GgMgT3l7FkdKNz03XBHZOW-wqLSoU3Ef87NSo&s=10", genre: ["Romance","Saraiki","Lofi"], audio: "dhola-menu-janda.mp3" },
+            { id: 150, title: "Hammava Mere", artist: "Various Artists", duration: "4:20", image: "https://i.ytimg.com/vi/vnWd2rukeGY/sddefault.jpg", genre: ["Romance","Sad","Lofi"], audio: "hammava-mere.mp3" },
+            { id: 151, title: "Ishq", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Mqkik3bOO3Vw2jDMv1b1oq8oETI_DKZmzX1QW4sYbA&s=10", genre: ["Romance","Sad","Lofi"], audio: "ishq.mp3" },
+            { id: 152, title: "Jinde Naal Dil", artist: "Various Artists", duration: "5:15", image: "https://i.ytimg.com/vi/bWbnHKX6xME/maxresdefault.jpg", genre: ["Saraiki","Lofi"], audio: "jinde-naal-dil.mp3" },
+            { id: 153, title: "Kabhi Jo Badal", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSC9p2k29qb6x5Y7GnbNCqVIdZlbsS7p5pt7KmAtEziZsb3U0EBww8Rh9E&s=10", genre: ["Romance","Sad","Lofi"], audio: "kabhi-jo-badal.mp3" }
+        ];
 
         // State
         let currentSongIndex = 0;
@@ -2175,6 +1403,17 @@
             audio.addEventListener('timeupdate', updateProgress);
             audio.addEventListener('ended', handleSongEnd);
             audio.addEventListener('loadedmetadata', updateDuration);
+            
+            // Better mobile audio handling
+            audio.addEventListener('canplay', () => {
+                console.log('Audio can play');
+            });
+            
+            audio.addEventListener('error', (e) => {
+                console.error('Audio error:', e);
+                showNotif('Audio loading error. Please try again.');
+            });
+            
             progressBar.addEventListener('click', seek);
             volumeBar.addEventListener('click', setVolume);
             searchInput.addEventListener('input', handleSearch);
@@ -2293,7 +1532,11 @@
                 { name: 'Punjabi', color: 'from-purple-500 to-pink-500', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600' },
                 { name: 'Pop', color: 'from-blue-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600' },
                 { name: 'Tamil', color: 'from-green-500 to-emerald-500', image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600' },
-                { name: 'Hip Hop', color: 'from-yellow-500 to-orange-500', image: 'https://cdn.aaihs.org/wp-content/uploads/2023/08/shutterstock_517774291-1536x1024.jpg' }
+                { name: 'Hip Hop', color: 'from-yellow-500 to-orange-500', image: 'https://images.unsplash.com/photo-1571609167768-5d5c7f86c6c1?w=600' },
+                { name: 'Urdu', color: 'from-teal-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600' },
+                { name: 'Saraiki', color: 'from-amber-500 to-yellow-500', image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600' },
+                { name: 'Sad', color: 'from-slate-500 to-gray-600', image: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?w=600' },
+                { name: 'Lofi', color: 'from-purple-400 to-pink-400', image: 'https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=600' }
             ];
 
             container.innerHTML = genres.map(genre => {
@@ -2312,7 +1555,7 @@
 
         function renderPunjabi() {
             const container = document.getElementById('punjabiGrid');
-            const punjabiSongs = songs.filter(s => s.genre === 'Punjabi').slice(0, 6);
+            const punjabiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Punjabi') : s.genre === 'Punjabi').slice(0, 6);
             
             container.innerHTML = punjabiSongs.map(song => `
                 <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
@@ -2332,7 +1575,7 @@
 
         function renderBollywood() {
             const container = document.getElementById('bollywoodGrid');
-            const bollywoodSongs = songs.filter(s => s.genre === 'Bollywood').slice(0, 6);
+            const bollywoodSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Bollywood') : s.genre === 'Bollywood').slice(0, 6);
             
             container.innerHTML = bollywoodSongs.map(song => `
                 <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
@@ -2352,7 +1595,7 @@
 
         function renderRomance() {
             const container = document.getElementById('romanceGrid');
-            const romanceSongs = songs.filter(s => s.genre === 'Romance').slice(0, 6);
+            const romanceSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Romance') : s.genre === 'Romance').slice(0, 6);
             
             container.innerHTML = romanceSongs.map(song => `
                 <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
@@ -2372,7 +1615,7 @@
 
         function renderHipHop() {
             const container = document.getElementById('hiphopGrid');
-            const hiphopSongs = songs.filter(s => s.genre === 'Hip Hop' || s.genre === 'Pop').slice(0, 6);
+            const hiphopSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Hip Hop') : s.genre === 'Hip Hop' || s.genre === 'Pop').slice(0, 6);
             
             container.innerHTML = hiphopSongs.map(song => `
                 <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
@@ -2391,30 +1634,36 @@
         }
 
         function updateGenreCounts() {
-            const counts = {
-                'Tamil': songs.filter(s => s.genre === 'Tamil').length,
-                'Pop': songs.filter(s => s.genre === 'Pop').length,
-                'Electronic': songs.filter(s => s.genre === 'Electronic').length,
-                'Rock': songs.filter(s => s.genre === 'Rock').length,
-                'Urdu': songs.filter(s => s.genre === 'Urdu').length,
-                'Saraiki': songs.filter(s => s.genre === 'Saraiki').length,
-                'Sad': songs.filter(s => s.genre === 'Sad').length,
-                'Lofi': songs.filter(s => s.genre === 'Lofi').length
+            const getSongsByGenre = (genre) => {
+                return songs.filter(s => Array.isArray(s.genre) ? s.genre.includes(genre) : s.genre === genre).length;
             };
 
-            document.getElementById('tamilCount').textContent = `${counts.Tamil} songs`;
-            document.getElementById('popCount').textContent = `${counts.Pop} songs`;
-            document.getElementById('electronicCount').textContent = `${counts.Electronic} songs`;
-            document.getElementById('rockCount').textContent = `${counts.Rock} songs`;
-            document.getElementById('urduCount').textContent = `${counts.Urdu} songs`;
-            document.getElementById('saraikiCount').textContent = `${counts.Saraiki} songs`;
-            document.getElementById('sadCount').textContent = `${counts.Sad} songs`;
-            document.getElementById('lofiCount').textContent = `${counts.Lofi} songs`;
+            const counts = {
+                'English': getSongsByGenre('English'),
+                'Arabic': getSongsByGenre('Arabic'),
+                'Pop': getSongsByGenre('Pop'),
+                'Electronic': getSongsByGenre('Electronic'),
+                'Rock': getSongsByGenre('Rock'),
+                'Urdu': getSongsByGenre('Urdu'),
+                'Saraiki': getSongsByGenre('Saraiki'),
+                'Sad': getSongsByGenre('Sad'),
+                'Lofi': getSongsByGenre('Lofi')
+            };
+
+            if (document.getElementById('englishCount')) document.getElementById('englishCount').textContent = `${counts.English} songs`;
+            if (document.getElementById('arabicCount')) document.getElementById('arabicCount').textContent = `${counts.Arabic} songs`;
+            if (document.getElementById('popCount')) document.getElementById('popCount').textContent = `${counts.Pop} songs`;
+            if (document.getElementById('electronicCount')) document.getElementById('electronicCount').textContent = `${counts.Electronic} songs`;
+            if (document.getElementById('rockCount')) document.getElementById('rockCount').textContent = `${counts.Rock} songs`;
+            if (document.getElementById('urduCount')) document.getElementById('urduCount').textContent = `${counts.Urdu} songs`;
+            if (document.getElementById('saraikiCount')) document.getElementById('saraikiCount').textContent = `${counts.Saraiki} songs`;
+            if (document.getElementById('sadCount')) document.getElementById('sadCount').textContent = `${counts.Sad} songs`;
+            if (document.getElementById('lofiCount')) document.getElementById('lofiCount').textContent = `${counts.Lofi} songs`;
         }
 
         function renderSaraiki() {
             const container = document.getElementById('saraikiGrid');
-            const saraikiSongs = songs.filter(s => s.genre === 'Saraiki').slice(0, 6);
+            const saraikiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Saraiki') : s.genre === 'Saraiki').slice(0, 6);
             
             if (saraikiSongs.length === 0) {
                 container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Saraiki songs available yet</p>';
@@ -2439,7 +1688,7 @@
 
         function renderUrdu() {
             const container = document.getElementById('urduGrid');
-            const urduSongs = songs.filter(s => s.genre === 'Urdu').slice(0, 6);
+            const urduSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Urdu') : s.genre === 'Urdu').slice(0, 6);
             
             if (urduSongs.length === 0) {
                 container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Urdu songs available yet</p>';
@@ -2464,7 +1713,7 @@
 
         function renderSad() {
             const container = document.getElementById('sadGrid');
-            const sadSongs = songs.filter(s => s.genre === 'Sad').slice(0, 6);
+            const sadSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Sad') : s.genre === 'Sad').slice(0, 6);
             
             if (sadSongs.length === 0) {
                 container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No sad songs available yet</p>';
@@ -2489,7 +1738,7 @@
 
         function renderLofi() {
             const container = document.getElementById('lofiGrid');
-            const lofiSongs = songs.filter(s => s.genre === 'Lofi').slice(0, 6);
+            const lofiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Lofi') : s.genre === 'Lofi').slice(0, 6);
             
             if (lofiSongs.length === 0) {
                 container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Lo-Fi songs available yet</p>';
@@ -2535,18 +1784,44 @@
             audio.src = song.audio;
             audio.load();
             updateLikeButton();
+            updateFullscreenPlayer();
             renderAllSections();
         }
 
         function playSong() {
-            audio.play().then(() => {
-                isPlaying = true;
-                updatePlayButton();
-                document.getElementById('nowPlayingBanner').classList.remove('hidden');
-            }).catch(err => {
-                console.error('Playback error:', err);
-                showNotif('Error playing song');
-            });
+            // Show bottom player when song starts
+            document.getElementById('bottomPlayer').classList.remove('hidden');
+            
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isPlaying = true;
+                    updatePlayButton();
+                    document.getElementById('nowPlayingBanner').classList.remove('hidden');
+                }).catch(error => {
+                    console.error('Playback error:', error);
+                    
+                    // Enhanced mobile playback fix
+                    audio.load();
+                    
+                    // Create a user interaction to enable audio on mobile
+                    const retryPlay = () => {
+                        audio.play().then(() => {
+                            isPlaying = true;
+                            updatePlayButton();
+                            document.getElementById('nowPlayingBanner').classList.remove('hidden');
+                        }).catch(err => {
+                            console.error('Retry failed:', err);
+                            showNotif('Tap play button to start');
+                            isPlaying = false;
+                            updatePlayButton();
+                        });
+                    };
+                    
+                    setTimeout(retryPlay, 100);
+                });
+            }
         }
 
         function pauseSong() {
@@ -2609,10 +1884,15 @@
             const percent = (audio.currentTime / audio.duration) * 100;
             progressFill.style.width = percent + '%';
             document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+            
+            // Update fullscreen player progress
+            document.getElementById('fullscreenProgressFill').style.width = percent + '%';
+            document.getElementById('fullscreenCurrentTime').textContent = formatTime(audio.currentTime);
         }
 
         function updateDuration() {
             document.getElementById('duration').textContent = formatTime(audio.duration);
+            document.getElementById('fullscreenDuration').textContent = formatTime(audio.duration);
         }
 
         function seek(e) {
@@ -2622,10 +1902,11 @@
         }
 
         function setVolume(e) {
-            const rect = volumeBar.getBoundingClientRect();
+            const rect = e.target.getBoundingClientRect ? e.target.getBoundingClientRect() : e.target.parentElement.getBoundingClientRect();
             const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
             volume = percent;
             volumeFill.style.width = percent * 100 + '%';
+            document.getElementById('fullscreenVolumeFill').style.width = percent * 100 + '%';
             audio.volume = volume;
             updateVolumeIcon();
             saveUserData();
@@ -2718,6 +1999,44 @@
         function updatePlayButton() {
             const icon = playBtn.querySelector('i');
             icon.className = isPlaying ? 'fas fa-pause text-xl' : 'fas fa-play text-xl ml-1';
+            
+            // Update fullscreen play button
+            const fullscreenIcon = document.getElementById('fullscreenPlayBtn').querySelector('i');
+            fullscreenIcon.className = isPlaying ? 'fas fa-pause text-2xl' : 'fas fa-play text-2xl ml-1';
+            
+            // Update album art rotation
+            const albumArt = document.getElementById('fullscreenAlbumArt');
+            if (isPlaying) {
+                albumArt.classList.add('playing');
+            } else {
+                albumArt.classList.remove('playing');
+            }
+        }
+
+        // Fullscreen Player Functions
+        function openFullscreenPlayer() {
+            document.getElementById('fullscreenPlayer').classList.add('active');
+            updateFullscreenPlayer();
+        }
+
+        function closeFullscreenPlayer() {
+            document.getElementById('fullscreenPlayer').classList.remove('active');
+        }
+
+        function updateFullscreenPlayer() {
+            const song = songs[currentSongIndex];
+            if (song) {
+                document.getElementById('fullscreenAlbumArt').src = song.image;
+                document.getElementById('fullscreenTitle').textContent = song.title;
+                document.getElementById('fullscreenArtist').textContent = song.artist;
+                
+                // Update like button
+                const isFav = favorites.includes(song.id);
+                const likeBtn = document.getElementById('fullscreenLike');
+                likeBtn.querySelector('i').className = isFav ? 'fas fa-heart text-2xl' : 'far fa-heart text-2xl';
+                likeBtn.classList.toggle('text-red-400', isFav);
+                likeBtn.classList.toggle('text-white/60', !isFav);
+            }
         }
 
         // Queue Functions
@@ -2826,7 +2145,7 @@
 
         // Genre Functions
         function showGenre(genreName) {
-            const genreSongs = songs.filter(s => s.genre === genreName);
+            const genreSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes(genreName) : s.genre === genreName);
             document.getElementById('genreTitle').textContent = genreName;
             document.getElementById('genreCount').textContent = `${genreSongs.length} songs`;
 
@@ -2984,11 +2303,12 @@
             document.getElementById('clearSearch').classList.toggle('hidden', !query);
 
             if (query) {
-                const filtered = songs.filter(s =>
-                    s.title.toLowerCase().includes(query) ||
-                    s.artist.toLowerCase().includes(query) ||
-                    s.genre.toLowerCase().includes(query)
-                );
+                const filtered = songs.filter(s => {
+                    const genres = Array.isArray(s.genre) ? s.genre.join(' ').toLowerCase() : s.genre.toLowerCase();
+                    return s.title.toLowerCase().includes(query) ||
+                           s.artist.toLowerCase().includes(query) ||
+                           genres.includes(query);
+                });
                 displaySearchResults(filtered);
             } else {
                 renderAllSections();
@@ -3043,10 +2363,25 @@
         function toggleSidebar() {
             sidebar.classList.toggle('open');
             overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+            
+            // Toggle menu icon
+            const menuIcon = document.getElementById('menuIcon');
+            if (sidebar.classList.contains('open')) {
+                menuIcon.className = 'fas fa-times text-xl';
+            } else {
+                menuIcon.className = 'fas fa-bars text-xl';
+            }
         }
 
         function closeSidebar() {
             sidebar.classList.remove('open');
+            document.body.classList.remove('sidebar-open');
+            
+            // Reset menu icon
+            const menuIcon = document.getElementById('menuIcon');
+            menuIcon.className = 'fas fa-bars text-xl';
+            
             if (!document.querySelector('.modal.active')) {
                 overlay.classList.remove('active');
             }
@@ -3208,6 +2543,10 @@
         window.shuffleAll = shuffleAll;
         window.openModal = openModal;
         window.closeModal = closeModal;
+        window.openFullscreenPlayer = openFullscreenPlayer;
+        window.closeFullscreenPlayer = closeFullscreenPlayer;
+        window.seek = seek;
+        window.setVolume = setVolume;
 
         // Auto-save
         setInterval(saveUserData, 30000);
