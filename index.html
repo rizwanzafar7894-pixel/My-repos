@@ -1,0 +1,3249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miraculous - Modern Music Player</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            transition: background-color 0.3s ease;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #ffffff;
+        }
+
+        body.light {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1a202c;
+        }
+
+        .card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light .card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(128, 128, 128, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-thumb {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar:hover .progress-thumb {
+            opacity: 1;
+        }
+
+        .equalizer {
+            display: flex;
+            align-items: flex-end;
+            height: 20px;
+            gap: 3px;
+        }
+
+        .equalizer span {
+            width: 3px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: equalize 0.8s ease-in-out infinite;
+        }
+
+        .equalizer span:nth-child(1) { animation-delay: 0s; height: 10px; }
+        .equalizer span:nth-child(2) { animation-delay: 0.2s; height: 15px; }
+        .equalizer span:nth-child(3) { animation-delay: 0.4s; height: 8px; }
+
+        @keyframes equalize {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1.2); }
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(128, 128, 128, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        main {
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            main {
+                margin-left: 0;
+                padding-bottom: 180px;
+            }
+            
+            body.sidebar-open {
+                overflow: hidden;
+                height: 100vh;
+            }
+        }
+
+        .song-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(10px);
+        }
+
+        .genre-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .genre-card:hover {
+            transform: scale(1.05);
+        }
+
+        .genre-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+            z-index: 1;
+        }
+
+        .genre-card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .light .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .album-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+
+        .play-btn-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .album-card:hover .play-btn-overlay {
+            opacity: 1;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            padding-left: 48px;
+            padding-right: 48px;
+        }
+
+        .artist-avatar {
+            border: 3px solid rgba(102, 126, 234, 0.5);
+            transition: all 0.3s;
+        }
+
+        .artist-avatar:hover {
+            border-color: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+
+        /* Fullscreen Player */
+        .fullscreen-player {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .fullscreen-player.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .fullscreen-player::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .album-art-large {
+            animation: rotate 20s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .album-art-large.playing {
+            animation-play-state: running;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Bottom Navigation - FIXED */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 150;
+            background: rgba(15, 12, 41, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 0;
+            display: none;
+        }
+
+        .light .bottom-nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .light .bottom-nav-item {
+            color: #1a202c;
+        }
+
+        .light .bottom-nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .light .bottom-nav-item:not(.active):hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        @media (max-width: 1024px) {
+            .bottom-nav {
+                display: block;
+            }
+        }
+
+        .bottom-nav-container {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 0 16px;
+            gap: 8px;
+        }
+
+        .bottom-nav-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bottom-nav-item {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            min-width: 70px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .bottom-nav-item.active {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .bottom-nav-item i {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .bottom-nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Bottom Player - FIXED */
+        #bottomPlayer {
+            transition: transform 0.3s ease;
+            z-index: 160;
+            height: 140px;
+        }
+
+        #bottomPlayer.hidden {
+            transform: translateY(100%);
+        }
+
+        /* Better mobile layout */
+        @media (max-width: 1024px) {
+            main {
+                padding-bottom: 180px;
+            }
+            
+            #bottomPlayer {
+                height: 140px;
+                border-radius: 12px;
+                bottom: 70px;
+            }
+        }
+
+        /* Particles Background */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* Wave Animation Container */
+        .wave-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Main Wave SVG - Purple */
+        .wave-main {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%238B5CF6' fill-opacity='0.1'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            animation: wave-move 20s linear infinite;
+        }
+
+        /* Secondary Wave SVG - Cyan */
+        .wave-secondary {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='%2306B6D4' fill-opacity='0.15'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            animation: wave-move 15s linear infinite reverse;
+            opacity: 0.8;
+        }
+
+        /* Top Wave SVG - Orange */
+        .wave-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23F59E0B' fill-opacity='0.1'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            transform: rotate(180deg);
+            animation: wave-move 25s linear infinite;
+            opacity: 0.6;
+        }
+
+        /* Complex Wave SVG - Gradient */
+        .wave-complex {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%238B5CF6' stop-opacity='0.2'/%3E%3Cstop offset='50%25' stop-color='%2306B6D4' stop-opacity='0.15'/%3E%3Cstop offset='100%25' stop-color='%23F59E0B' stop-opacity='0.1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='url(%23grad)'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            animation: wave-move 18s linear infinite;
+            opacity: 0.7;
+        }
+
+        /* Wave Animation Keyframes */
+        @keyframes wave-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100px); }
+        }
+
+        /* Music Notes Animation */
+        .music-note {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.3;
+            animation: float-note 6s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float-note {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Responsive adjustments for waves */
+        @media (max-width: 768px) {
+            .wave-container {
+                height: 100px;
+            }
+            
+            .wave-main {
+                height: 60px;
+            }
+            
+            .wave-secondary {
+                height: 40px;
+            }
+            
+            .wave-top {
+                height: 30px;
+            }
+            
+            .wave-complex {
+                height: 70px;
+            }
+        }
+
+        /* Light theme wave adjustments */
+        body.light .wave-main {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%238B5CF6' fill-opacity='0.05'%3E%3C/path%3E%3C/svg%3E");
+        }
+
+        body.light .wave-secondary {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='%2306B6D4' fill-opacity='0.08'%3E%3C/path%3E%3C/svg%3E");
+        }
+
+        body.light .wave-top {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23F59E0B' fill-opacity='0.05'%3E%3C/path%3E%3C/svg%3E");
+        }
+        
+        
+    </style>
+</head>
+<body class="dark">
+     <!-- Add this to your HTML -->
+<div id="snowfall"></div>
+
+<style>
+#snowfall {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.snowflake {
+    position: absolute;
+    color: white;
+    font-size: 20px;
+    opacity: 0.8;
+    animation: snowfall linear infinite;
+    user-select: none;
+}
+
+@keyframes snowfall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+</style>
+
+<script>
+// Add this to your JavaScript
+function createSnowfall() {
+    const container = document.getElementById('snowfall');
+    
+    for (let i = 0; i < 80; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        snowflake.textContent = '❄️';
+        snowflake.style.fontSize = (Math.random() * 15 + 15) + 'px';
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        snowflake.style.animationDelay = Math.random() * 5 + 's';
+        snowflake.style.opacity = (Math.random() * 0.5 + 0.3).toString();
+        container.appendChild(snowflake);
+    }
+}
+createSnowfall();
+</script>
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Wave Container with CSS-based SVGs -->
+    <div class="wave-container">
+        <div class="wave-complex"></div>
+        <div class="wave-main"></div>
+        <div class="wave-secondary"></div>
+        <div class="wave-top"></div>
+    </div>
+    
+    <!-- Music Notes Animation Container -->
+    <div id="musicNotes"></div>
+    
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar card overflow-y-auto custom-scrollbar p-6">
+        <!-- Close Button for Mobile -->
+        <button id="closeSidebar" class="lg:hidden absolute top-4 right-4 text-gray-400 hover:text-white z-10">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3 mb-8">
+            <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                <i class="fas fa-music"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold gradient-text">Miraculous</h1>
+                <p class="text-xs text-gray-400">Music Player</p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="space-y-2 mb-8">
+            <a href="#discover" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl transition-all gradient-primary">
+                <i class="fas fa-home w-5"></i>
+                <span class="font-medium">Discover</span>
+            </a>
+            <a href="#trending" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-fire w-5"></i>
+                <span class="font-medium">Trending</span>
+            </a>
+            <a href="#punjabi" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-music w-5"></i>
+                <span class="font-medium">Punjabi</span>
+            </a>
+            <a href="#bollywood" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-film w-5"></i>
+                <span class="font-medium">Bollywood</span>
+            </a>
+            <a href="#romance" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-heart w-5"></i>
+                <span class="font-medium">Romance</span>
+            </a>
+            <a href="#hiphop" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-microphone-alt w-5"></i>
+                <span class="font-medium">Hip Hop</span>
+            </a>
+            <a href="#saraiki" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-drum w-5"></i>
+                <span class="font-medium">Saraiki</span>
+            </a>
+            <a href="#urdu" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-feather w-5"></i>
+                <span class="font-medium">Urdu</span>
+            </a>
+            <a href="#sad" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-cloud-rain w-5"></i>
+                <span class="font-medium">Sad Songs</span>
+            </a>
+            <a href="#lofi" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-compact-disc w-5"></i>
+                <span class="font-medium">Lo-Fi</span>
+            </a>
+            <a href="#albums" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-record-vinyl w-5"></i>
+                <span class="font-medium">Albums</span>
+            </a>
+            <a href="#artists" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-microphone w-5"></i>
+                <span class="font-medium">Artists</span>
+            </a>
+            <a href="#genres" class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-guitar w-5"></i>
+                <span class="font-medium">All Genres</span>
+            </a>
+        </nav>
+
+        <!-- Library -->
+        <div class="space-y-2 mb-8">
+            <h3 class="text-xs uppercase text-gray-400 font-semibold mb-3 px-4">Your Library</h3>
+            <button onclick="showFavorites()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-heart w-5 text-red-400"></i>
+                <span class="font-medium">Liked Songs</span>
+                <span id="favCount" class="ml-auto text-xs bg-red-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showQueue()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-list-ul w-5 text-purple-400"></i>
+                <span class="font-medium">Queue</span>
+                <span id="queueCount" class="ml-auto text-xs bg-purple-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showHistory()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-history w-5 text-blue-400"></i>
+                <span class="font-medium">Recently Played</span>
+            </button>
+        </div>
+
+        <!-- Audio Tools -->
+        <div class="space-y-2 mb-8">
+            <h3 class="text-xs uppercase text-gray-400 font-semibold mb-3 px-4">Audio</h3>
+            <button onclick="showEqualizer()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-sliders-h w-5 text-cyan-400"></i>
+                <span class="font-medium">Equalizer</span>
+            </button>
+            <button onclick="showSleepTimer()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-moon w-5 text-orange-400"></i>
+                <span class="font-medium">Sleep Timer</span>
+            </button>
+            <button onclick="cycleSpeed()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-tachometer-alt w-5 text-lime-400"></i>
+                <span class="font-medium">Speed: <span id="speedDisplay">1.0x</span></span>
+            </button>
+        </div>
+
+        <!-- Settings -->
+        <div class="space-y-2">
+            <button onclick="toggleTheme()" id="themeBtn" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-moon w-5 text-indigo-400"></i>
+                <span class="font-medium">Dark Mode</span>
+            </button>
+            <button onclick="showSettings()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-cog w-5 text-gray-400"></i>
+                <span class="font-medium">Settings</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="card rounded-xl p-4 mt-8">
+            <h3 class="text-sm font-semibold mb-3">Your Stats</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Songs Played</span>
+                    <span id="totalPlayed" class="font-semibold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Favorites</span>
+                    <span id="totalFav" class="font-semibold">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-400">Total Time</span>
+                    <span id="totalTime" class="font-semibold">0h 0m</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="min-h-screen pb-40 px-6 pt-6">
+        <!-- Header -->
+        <header class="sticky top-0 z-50  py-4 mb-8 rounded-2xl">
+            <div class="flex items-center gap-4">
+                <div class="flex-1 search-bar">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 z-10"></i>
+                    <input type="text" id="searchInput" placeholder="Search songs, artists, albums..." 
+                           class="w-full card rounded-full py-3 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <button id="clearSearch" class="hidden absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white z-10">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-section p-8 lg:p-12 mb-12 relative">
+            <div class="hero-pattern"></div>
+            <div class="relative z-10 max-w-2xl">
+                <h1 class="text-4xl lg:text-6xl font-bold mb-4">Your Music,<br>Your Vibe</h1>
+                <p class="text-lg opacity-90 mb-6">Discover and enjoy millions of songs from your favorite artists</p>
+                <div class="flex gap-4 flex-wrap">
+                    <button onclick="playAll()" class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform shadow-lg">
+                        <i class="fas fa-play mr-2"></i>Play All
+                    </button>
+                    <button onclick="shuffleAll()" class="bg-white/20 backdrop-blur-sm px-8 py-3 rounded-full font-semibold hover:scale-105 transition-transform">
+                        <i class="fas fa-random mr-2"></i>Shuffle
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showFavorites()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-heart text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statFav">0</p>
+                        <p class="text-sm text-gray-400">Liked</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-music text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">27</p>
+                        <p class="text-sm text-gray-400">Songs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showHistory()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play-circle text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statPlayed">0</p>
+                        <p class="text-sm text-gray-400">Played</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card card rounded-2xl p-6 cursor-pointer" onclick="showQueue()">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-list-ul text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold" id="statQueue">0</p>
+                        <p class="text-sm text-gray-400">In Queue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Now Playing Banner -->
+        <div id="nowPlayingBanner" class="hidden card rounded-2xl p-6 mb-8 border-2 border-purple-500">
+            <div class="flex items-center gap-4">
+                <img id="bannerImg" class="w-20 h-20 rounded-xl object-cover shadow-lg" src="">
+                <div class="flex-1">
+                    <p class="text-sm text-gray-400 mb-1">Now Playing</p>
+                    <h3 id="bannerTitle" class="text-xl font-bold mb-1"></h3>
+                    <p id="bannerArtist" class="text-gray-400"></p>
+                </div>
+                <div class="equalizer">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trending Tracks -->
+        <section id="trending" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Trending Now</h2>
+            </div>
+            <div id="trendingList" class="space-y-2"></div>
+            <button id="trendingViewMore" onclick="toggleViewMore('trending')" class="hidden mt-6 w-full text-center py-3 card rounded-xl hover:bg-white/10 transition-all font-semibold">
+                Show More
+            </button>
+        </section>
+
+        <!-- Punjabi Hits -->
+        <section id="punjabi" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Punjabi Hits</h2>
+                </div>
+                <button onclick="toggleViewMore('punjabi')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="punjabiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Bollywood -->
+        <section id="bollywood" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Bollywood Chartbusters</h2>
+                </div>
+                <button onclick="toggleViewMore('bollywood')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="bollywoodGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Romance -->
+        <section id="romance" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Romantic Melodies</h2>
+                </div>
+                <button onclick="toggleViewMore('romance')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="romanceGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Hip Hop & Rap -->
+        <section id="hiphop" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Hip Hop & Rap</h2>
+                </div>
+                <button onclick="toggleViewMore('hiphop')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="hiphopGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Regional Music -->
+        <section id="regional" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Regional Music</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('English')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-music text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">English</h3>
+                            <p class="text-sm text-gray-400" id="englishCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Arabic')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-orange-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mosque text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Arabic</h3>
+                            <p class="text-sm text-gray-400" id="arabicCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Urdu')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-feather text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Urdu</h3>
+                            <p class="text-sm text-gray-400" id="urduCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Saraiki')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-drum text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Saraiki</h3>
+                            <p class="text-sm text-gray-400" id="saraikiCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Pop')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Pop</h3>
+                            <p class="text-sm text-gray-400" id="popCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mood & Vibes -->
+        <section id="moods" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Moods & Vibes</h2>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Sad')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cloud-rain text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Sad Songs</h3>
+                            <p class="text-sm text-gray-400" id="sadCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Lofi')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-compact-disc text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Lo-Fi Chill</h3>
+                            <p class="text-sm text-gray-400" id="lofiCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Electronic')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-headphones text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Electronic</h3>
+                            <p class="text-sm text-gray-400" id="electronicCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6 cursor-pointer hover:scale-105 transition-transform" onclick="showGenre('Rock')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-guitar text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Rock</h3>
+                            <p class="text-sm text-gray-400" id="rockCount">0 songs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Saraiki Hits -->
+        <section id="saraiki" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-drum"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Saraiki Collection</h2>
+                </div>
+                <button onclick="toggleViewMore('saraiki')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="saraikiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Urdu Poetry & Music -->
+        <section id="urdu" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-feather"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Urdu Poetry & Music</h2>
+                </div>
+                <button onclick="toggleViewMore('urdu')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="urduGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Sad Songs -->
+        <section id="sad" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-slate-500 to-gray-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cloud-rain"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Emotional Ballads</h2>
+                </div>
+                <button onclick="toggleViewMore('sad')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="sadGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Lofi & Chill -->
+        <section id="lofi" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold">Lo-Fi Chill Beats</h2>
+                </div>
+                <button onclick="toggleViewMore('lofi')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="lofiGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Albums -->
+        <section id="albums" class="mb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Popular Albums</h2>
+                <button onclick="toggleViewMore('albums')" class="text-purple-400 hover:text-purple-300 font-semibold">
+                    <span class="view-text">View All</span>
+                </button>
+            </div>
+            <div id="albumGrid" class="album-grid"></div>
+        </section>
+
+        <!-- Artists -->
+        <section id="artists" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Featured Artists</h2>
+            <div id="artistGrid" class="flex gap-6 overflow-x-auto scrollbar-hide pb-4"></div>
+        </section>
+
+        <!-- Genres -->
+        <section id="genres" class="mb-12">
+            <h2 class="text-3xl font-bold mb-6">Browse by Genre</h2>
+            <div id="genreGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) - FIXED -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-container">
+            <div class="bottom-nav-item active" onclick="scrollToSection('discover')">
+                <i class="fas fa-home"></i>
+                <span>Discover</span>
+            </div>
+            <div class="bottom-nav-item" onclick="scrollToSection('trending')">
+                <i class="fas fa-fire"></i>
+                <span>Trending</span>
+            </div>
+            <div class="bottom-nav-item" onclick="scrollToSection('punjabi')">
+                <i class="fas fa-music"></i>
+                <span>Punjabi</span>
+            </div>
+            <div class="bottom-nav-item" onclick="scrollToSection('bollywood')">
+                <i class="fas fa-film"></i>
+                <span>Bollywood</span>
+            </div>
+            <div class="bottom-nav-item" onclick="scrollToSection('romance')">
+                <i class="fas fa-heart"></i>
+                <span>Romance</span>
+            </div>
+            <div class="bottom-nav-item" onclick="scrollToSection('hiphop')">
+                <i class="fas fa-microphone-alt"></i>
+                <span>Hip Hop</span>
+            </div>
+            <div class="bottom-nav-item" onclick="showLibrary()">
+                <i class="fas fa-book"></i>
+                <span>Library</span>
+            </div>
+            <div class="bottom-nav-item" onclick="showSettings()">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Music Player - FIXED -->
+    <div class="fixed bottom-0 left-0 right-0 card border-t border-white/10 px-6 py-4 z-[160] hidden" id="bottomPlayer">
+        <div class="max-w-screen-2xl mx-auto cursor-pointer" onclick="openFullscreenPlayer()">
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="progress-bar" id="progressBar" onclick="event.stopPropagation(); seek(event)">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">
+                        <div class="progress-thumb"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-400 mt-2">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+                <!-- Song Info -->
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <img id="playerImg" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100" 
+                         class="w-16 h-16 rounded-xl object-cover shadow-lg">
+                    <div class="min-w-0 flex-1">
+                        <h4 id="playerTitle" class="font-semibold truncate">Select a song</h4>
+                        <p id="playerArtist" class="text-sm text-gray-400 truncate">Miraculous Player</p>
+                    </div>
+                    <button id="likeBtn" onclick="event.stopPropagation(); toggleLike()" class="text-gray-400 hover:text-red-400 transition-colors hidden lg:block">
+                        <i class="far fa-heart text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-6" onclick="event.stopPropagation()">
+                    <button onclick="toggleShuffle()" id="shuffleBtn" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
+                        <i class="fas fa-random text-lg"></i>
+                    </button>
+                    <button onclick="playPrevious()" class="hover:scale-110 transition-transform">
+                        <i class="fas fa-step-backward text-2xl"></i>
+                    </button>
+                    <button id="playBtn" onclick="togglePlay()" 
+                            class="w-14 h-14 gradient-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+                        <i class="fas fa-play text-xl ml-1"></i>
+                    </button>
+                    <button onclick="playNext()" class="hover:scale-110 transition-transform">
+                        <i class="fas fa-step-forward text-2xl"></i>
+                    </button>
+                    <button onclick="toggleRepeat()" id="repeatBtn" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
+                        <i class="fas fa-redo text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Volume & Actions -->
+                <div class="hidden lg:flex items-center gap-4 flex-1 justify-end" onclick="event.stopPropagation()">
+                    <button onclick="showQueue()" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-list-ul text-lg"></i>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleMute()" id="volumeIcon" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-volume-up text-lg"></i>
+                        </button>
+                        <div class="w-24 h-2 bg-gray-600 rounded-full cursor-pointer" id="volumeBar" onclick="setVolume(event)">
+                            <div id="volumeFill" class="h-full gradient-primary rounded-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Player -->
+    <div id="fullscreenPlayer" class="fullscreen-player">
+        <div class="relative z-10 h-full flex flex-col p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <button onclick="closeFullscreenPlayer()" class="w-12 h-12 bg-white/10 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-chevron-down text-xl"></i>
+                </button>
+                <h3 class="text-lg font-semibold">Now Playing</h3>
+                <button onclick="showQueue()" class="w-12 h-12 bg-white/10 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-list-ul"></i>
+                </button>
+            </div>
+
+            <!-- Album Art -->
+            <div class="flex-1 flex items-center justify-center">
+                <div class="relative">
+                    <img id="fullscreenAlbumArt" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400" 
+                         class="album-art-large w-72 h-72 md:w-96 md:h-96 rounded-3xl object-cover shadow-2xl">
+                </div>
+            </div>
+
+            <!-- Song Info -->
+            <div class="text-center mb-6">
+                <h1 id="fullscreenTitle" class="text-3xl md:text-4xl font-bold mb-2">Select a song</h1>
+                <p id="fullscreenArtist" class="text-xl text-white/80">Miraculous Player</p>
+            </div>
+
+            <!-- Progress -->
+            <div class="mb-6">
+                <div class="progress-bar h-2" id="fullscreenProgress" onclick="seek(event)">
+                    <div class="progress-fill" id="fullscreenProgressFill" style="width: 0%">
+                        <div class="progress-thumb"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between text-sm text-white/80 mt-2">
+                    <span id="fullscreenCurrentTime">0:00</span>
+                    <span id="fullscreenDuration">0:00</span>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-8 mb-6">
+                <button onclick="toggleShuffle()" id="fullscreenShuffle" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-random text-2xl"></i>
+                </button>
+                <button onclick="playPrevious()" class="hover:scale-110 transition-transform">
+                    <i class="fas fa-step-backward text-3xl"></i>
+                </button>
+                <button id="fullscreenPlayBtn" onclick="togglePlay()" 
+                        class="w-20 h-20 bg-white text-purple-600 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl">
+                    <i class="fas fa-play text-2xl ml-1"></i>
+                </button>
+                <button onclick="playNext()" class="hover:scale-110 transition-transform">
+                    <i class="fas fa-step-forward text-3xl"></i>
+                </button>
+                <button onclick="toggleRepeat()" id="fullscreenRepeat" class="text-white/60 hover:text-white transition-colors">
+                    <i class="fas fa-redo text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Extra Controls -->
+            <div class="flex items-center justify-between">
+                <button onclick="toggleLike()" id="fullscreenLike" class="text-white/60 hover:text-red-400 transition-colors">
+                    <i class="far fa-heart text-2xl"></i>
+                </button>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMute()" id="fullscreenVolume" class="text-white/80 hover:text-white">
+                        <i class="fas fa-volume-up text-xl"></i>
+                    </button>
+                    <div class="w-32 h-2 bg-white/20 rounded-full cursor-pointer" onclick="setVolume(event)">
+                        <div id="fullscreenVolumeFill" class="h-full bg-white rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Queue Modal -->
+    <div id="queueModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Queue</h3>
+            <button onclick="closeModal('queueModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="queueList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div id="favoritesModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Liked Songs</h3>
+            <button onclick="closeModal('favoritesModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="favoritesList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Recently Played</h3>
+            <button onclick="closeModal('historyModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="historyList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Library Modal -->
+    <div id="libraryModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Your Library</h3>
+            <button onclick="closeModal('libraryModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            <button onclick="showFavorites()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-heart w-5 text-red-400"></i>
+                <span class="font-medium">Liked Songs</span>
+                <span id="libraryFavCount" class="ml-auto text-xs bg-red-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showQueue()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-list-ul w-5 text-purple-400"></i>
+                <span class="font-medium">Queue</span>
+                <span id="libraryQueueCount" class="ml-auto text-xs bg-purple-500/20 px-2 py-1 rounded-full">0</span>
+            </button>
+            <button onclick="showHistory()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                <i class="fas fa-history w-5 text-blue-400"></i>
+                <span class="font-medium">Recently Played</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Genre Modal -->
+    <div id="genreModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="text-2xl font-bold" id="genreTitle">Genre</h3>
+                <p class="text-sm text-gray-400" id="genreCount"></p>
+            </div>
+            <button onclick="closeModal('genreModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="genreList" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Equalizer Modal -->
+    <div id="equalizerModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Equalizer</h3>
+            <button onclick="closeModal('equalizerModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="mb-6">
+            <div class="grid grid-cols-5 gap-4 mb-4">
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">60Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">230Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">910Hz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">4kHz</p>
+                </div>
+                <div class="text-center">
+                    <input type="range" min="-12" max="12" value="0" orient="vertical" class="eq-slider w-full">
+                    <p class="text-xs text-gray-400 mt-2">14kHz</p>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="setEQPreset('flat')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Flat</button>
+            <button onclick="setEQPreset('bass')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Bass Boost</button>
+            <button onclick="setEQPreset('vocal')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Vocal</button>
+            <button onclick="setEQPreset('treble')" class="card px-4 py-3 rounded-lg hover:bg-white/10">Treble Boost</button>
+        </div>
+    </div>
+
+    <!-- Sleep Timer Modal -->
+    <div id="sleepTimerModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Sleep Timer</h3>
+            <button onclick="closeModal('sleepTimerModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="timerOptions" class="space-y-4">
+            <p class="text-gray-400 mb-4">Stop playback after:</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="setSleepTimer(15)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">15 minutes</button>
+                <button onclick="setSleepTimer(30)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">30 minutes</button>
+                <button onclick="setSleepTimer(45)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">45 minutes</button>
+                <button onclick="setSleepTimer(60)" class="card px-4 py-4 rounded-lg hover:bg-white/10 font-semibold">1 hour</button>
+            </div>
+        </div>
+        <div id="timerActive" class="hidden text-center py-6">
+            <i class="fas fa-moon text-5xl text-purple-400 mb-4"></i>
+            <p class="text-lg mb-3">Timer Active</p>
+            <p class="text-4xl font-bold gradient-text mb-6" id="timerDisplay">00:00</p>
+            <button onclick="cancelSleepTimer()" class="bg-red-500/20 text-red-400 px-8 py-3 rounded-lg hover:bg-red-500/30 font-semibold">
+                Cancel Timer
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal card rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Settings</h3>
+            <button onclick="closeModal('settingsModal')" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="space-y-6">
+            <!-- Audio Settings -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Audio Settings</h4>
+                <div class="space-y-4">
+                    <button onclick="showEqualizer()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                        <i class="fas fa-sliders-h w-5 text-cyan-400"></i>
+                        <span class="font-medium">Equalizer</span>
+                    </button>
+                    <button onclick="showSleepTimer()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                        <i class="fas fa-moon w-5 text-orange-400"></i>
+                        <span class="font-medium">Sleep Timer</span>
+                    </button>
+                    <button onclick="cycleSpeed()" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                        <i class="fas fa-tachometer-alt w-5 text-lime-400"></i>
+                        <span class="font-medium">Speed: <span id="settingsSpeedDisplay">1.0x</span></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Theme</h4>
+                <button onclick="toggleTheme()" id="settingsThemeBtn" class="w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all hover:bg-white/10">
+                    <i class="fas fa-moon w-5 text-indigo-400"></i>
+                    <span class="font-medium">Dark Mode</span>
+                </button>
+            </div>
+
+            <!-- App Settings -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">App Settings</h4>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-4 card rounded-lg">
+                        <div>
+                            <h4 class="font-semibold">Auto Play Next</h4>
+                            <p class="text-xs text-gray-400">Automatically play next song</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoPlayToggle" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center p-4 card rounded-lg">
+                        <div>
+                            <h4 class="font-semibold">Crossfade</h4>
+                            <p class="text-xs text-gray-400">Seamless song transitions</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="crossfadeToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-purple-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Your Stats</h4>
+                <div class="card rounded-xl p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Songs Played</span>
+                            <span id="settingsTotalPlayed" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Favorites</span>
+                            <span id="settingsTotalFav" class="font-semibold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Total Time</span>
+                            <span id="settingsTotalTime" class="font-semibold">0h 0m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Data Management</h4>
+                <button onclick="clearAllData()" class="w-full bg-red-500/20 text-red-400 px-4 py-4 rounded-lg hover:bg-red-500/30 font-semibold">
+                    <i class="fas fa-trash mr-2"></i>Clear All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="metadata"></audio>
+
+    <script>
+    // Music Library
+    const songs = [
+        { id: 1, title: "Saiyaara", artist: "Faheem Abdullah", duration: "5:44", image: "https://c.saavncdn.com/598/Saiyaara-Hindi-2025-20250703061754-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/saiyaara.mp3" },
+            { id: 2, title: "Deewaniyat", artist: "Vishal Mishra", duration: "3:22", image: "https://i.ytimg.com/vi/sIpLZNhD5J4/hq720.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/deewaniyat.mp3" },
+            { id: 3, title: "Laal Pairi", artist: "Yo Yo Honey Singh", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOE2YmYvrWGrXLMOzb5JK0V8BpAlrEEewBRoacCRg5GRTGYy5dP1r0w1U&s=10", genre: "Pop", audio: "https://rizwanzafarpro.vercel.app/laal-pari.mp3" },
+            { id: 4, title: "Kesariya", artist: "Arijit Singh", duration: "4:28", image: "https://c.saavncdn.com/191/Kesariya-From-Brahmastra-Hindi-2022-20220717092820-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/kesariya.mp3" },
+            { id: 5, title: "Maan Meri Jaan", artist: "King", duration: "3:14", image: "https://i.ytimg.com/vi/eZnntxPl44g/sddefault.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/maan-meri-jaan.mp3" },
+            { id: 6, title: "Tere Vaaste", artist: "Sachin-Jigar", duration: "3:59", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyVOFaiNyQKcSMhrX_cv7Qyo1fRtNTzxzHmTaGKmhlohBSjVlK5tyxe-qh&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tere-vaaste.mp3" },
+            { id: 7, title: "What Jhumka", artist: "Arijit Singh", duration: "3:59", image: "https://i.ytimg.com/vi/LNegGbBmbLI/maxresdefault.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/what-jhumka.mp3" },
+            { id: 8, title: "Brown Munde", artist: "AP Dhillon", duration: "4:14", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrzAKS-OKC79Am0FHjPxkLVbYmKv8CqogSLyBCsn6z3-7K_15RWvqOx10B&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/brown-munde.mp3" },
+            { id: 9, title: "Tere Pyaar Mein", artist: "Arijit Singh", duration: "4:26", image: "https://i1.sndcdn.com/artworks-riLqSdpUqlIQt7kB-D0zdZw-t500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tere-pyaar-mein.mp3" },
+            { id: 10, title: "Chaleya", artist: "Arijit Singh", duration: "4:49", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfAWOSOviBx0hs06h_7foNgZeMIgFD2IuFDeGFZNwtwjIkDGKbp3KgtDVy&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/chaleya.mp3" },
+            { id: 11, title: "Arabic Kuthu", artist: "Anirudh", duration: "4:39", image: "https://m.media-amazon.com/images/I/51ci1yvC0kL._UXNaN_FMjpg_QL85_.jpg", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/arabic-kuthu.mp3" },
+            { id: 12, title: "Besharam Rang", artist: "Vishal-Shekhar", duration: "4:18", image: "https://i.ytimg.com/vi/7SJodKV_pGA/maxresdefault.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/besharam-rang.mp3" },
+            { id: 13, title: "Lehnga", artist: "Diljit Dosanjh", duration: "3:19", image: "https://i.ytimg.com/vi/G8PU1HjZZj4/hq720.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/lehnga.mp3" },
+            { id: 14, title: "Illegal Weapon 2.0", artist: "Garry Sandhu", duration: "3:08", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPlMgItkCiqMKZQNjMmdw8NWaiM23gKjYy_02L4kurEhUf54wnydwj044&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/illegal-weapon.mp3" },
+            { id: 15, title: "G.O.A.T", artist: "Diljit Dosanjh", duration: "3:43", image: "https://i.ytimg.com/vi/tAizFLCucdY/maxresdefault.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/g.o.a.t-diljit.mp3" },
+            { id: 16, title: "Saami Saami", artist: "Sunidhi Chauhan", duration: "3:55", image: "https://i.ytimg.com/vi/R32Vf2M5VGA/hq720.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/saami-saami.mp3" },
+            { id: 17, title: "Naacho Naacho", artist: "Vishal Mishra", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDAyrV_dPy060QVzq-dv__jfcyXBYbfaBpTxaL0-yBRdFO9v6SVBryTnc&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/naacho-naacho.mp3" },
+            { id: 18, title: "Lutt Putt Gaya", artist: "Arijit Singh", duration: "3:54", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_OgBswbsrpIDYiT_kttr8j94rJYTLFxEV-zn1H9qyivmDDCpsYxP8qKur&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/lutt-putt-gaya.mp3" },
+            { id: 19, title: "Chitta Kurta", artist: "Yo Yo Honey Singh", duration: "3:51", image: "https://i1.sndcdn.com/artworks-000650502514-hchjlx-t500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/chitta-kurta.mp3" },
+            { id: 20, title: "Character Dheela", artist: "Neeraj Shridhar", duration: "4:11", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3jkbwNKwnb5gHdlRHI_L0dEFBCQM3j0UqLJXMQGrHedraFQwjol02tLM&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/character-dheela.mp3" },
+            { id: 21, title: "Jhoome Jo Pathaan", artist: "Arijit Singh", duration: "3:28", image: "https://upload.wikimedia.org/wikipedia/en/8/8b/Jhoome_Jo_Pathaan_song_cover.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/jhoome-jo-pathaan.mp3" },
+            { id: 22, title: "Arjan Vailly", artist: "Manan Bhardwaj", duration: "3:02", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU4RrwA0cbOdiHtRQYQh_Mc0IWMs1c--M-h-lSQpUhbMsrbvmEZJQa78ak&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/arjan-vailly.mp3" },
+            { id: 23, title: "Satranga", artist: "Arijit Singh", duration: "4:28", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiU-MmJJCZ4gB8eZk_p-VNU7k-fWVwQr284CruMrVHAVeR2MG_Rp7Xi50&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/satranga.mp3" },
+            { id: 24, title: "Hua Main", artist: "Raghav Chaitanya", duration: "4:33", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjNxq67RY3EsCmPWUOSVWLq4Ef4q3Ghtt3ytn5ML59F7qRCkCk73TGzZA&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/hua-main-animal.mp3" },
+            { id: 25, title: "Pehle Bhi Mein", artist: "Vishal Mishra", duration: "4:10", image: "https://c.saavncdn.com/413/Marham-Pehle-Bhi-Main-From-ANIMAL-Hindi-2023-20231223151003-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/pehle-bhi-mein.mp3" },
+            { id: 26, title: "Tum Kya Mile", artist: "Arijit Singh, Shreya Ghoshal", duration: "4:34", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMhz5U2Ky2ZyfgVl-RIqHaB9WYZgCsMsLZahDh2hIIvSy6wuCbEPvTDLDk&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tum-kya-mile.mp3" },
+            { id: 27, title: "Ve Kamleya", artist: "Arijit Singh, Shreya Ghoshal", duration: "4:07", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSY2hK1KoxoV5fVGhoVPMJiwSHTrVuz5cE_aoQu3Aushx-MP3cUWxnLl9s&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/ve-kamleya.mp3" },
+            { id: 28, title: "Yaari", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/290/Yaari-Punjabi-2019-20190611222620-500x500.jpg", genre: "Friendship", audio: "https://rizwanzafarpro.vercel.app/yaari.mp3" },
+            { id: 29, title: "Yimmy Yimmy", artist: "Tayc, Shreya Ghoshal", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0pzprB1pTBEvjFGcC8uC3WqN7p8NrNRLDtwiWZ2Z4xPCMsqjl9sCsHA8&s=10", genre: "Pop", audio: "https://rizwanzafarpro.vercel.app/yimmy-yimmy.mp3" },
+            { id: 30, title: "Udaariyan", artist: "Various Artists", duration: "4:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhp4rX5eamOCC_ZwIVabhGaUNnglfuukr_WivzW_lLJOBoicmvm-Vp8o8&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/udaariyan.mp3" },
+            { id: 31, title: "Titliyan", artist: "Hardy Sandhu", duration: "3:52", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoCVEIVICwn1l_jzlsQT4BbpQ5k2OIoTNrIMBdws_Iv3YlX7msxywmyOI&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/titilyaan.mp3" },
+            { id: 32, title: "Sajni", artist: "Arijit Singh", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTga_CQbq_F_t1qSSo2_1VQ0UXWygIIozSb5segTwYdoqL1AhFjqiZ5YRw&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/sajni.mp3" },
+            { id: 33, title: "Softly", artist: "Karan Aujla", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyzgx1zUt3-B09Zc3z2KsyuFfvH8CfUz98H7Xc2M7rcjzb6Njdy-EXmuZo&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/softly.mp3" },
+            { id: 34, title: "Soni Soni", artist: "Various Artists", duration: "3:40", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPKYk6x16M8HVi3JCPik2dANR06HTD1z0Z7OLNoLBX0Q&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/soni-soni.mp3" },
+            { id: 35, title: "No Love", artist: "Shubh", duration: "2:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOPMpHhPU3IypLvE04xzOHvOymlmXKxPx4XhzZrU0Ugw&s=10", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/no-love.mp3" },
+            { id: 36, title: "Panjeban", artist: "Shivjot", duration: "3:25", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhDg-NHOJEJntHACS4_mOVbdWRoIt3PUTwahnRc1tbw&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/panjeban-shivjot.mp3" },
+            { id: 37, title: "Panwadi", artist: "Various Artists", duration: "3:45", image: "https://i.ytimg.com/vi/i4UZmRaGZ2U/sddefault.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/panwadi.mp3" },
+            { id: 38, title: "Payal", artist: "Jasmine Sandlas", duration: "3:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ212UXLDH2MHdHLtGDDpRYPcnICxmAd4fzfSEcl3-s_w&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/payal-song.mp3" },
+            { id: 39, title: "Phir Aur Kya Chahiye", artist: "Arijit Singh", duration: "4:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfLmxYrlUjP2aacdlrN6VYplccLkBoyGejeQ&s", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/phir-aur-kya-chahiye.mp3" },
+            { id: 40, title: "Player", artist: "Badshah, Karan Aujla", duration: "3:33", image: "https://i.ytimg.com/vi/CeFQO9MQNqs/sddefault.jpg", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/player-badshah-karan.mp3" },
+            { id: 41, title: "Mahiya", artist: "Various Artists", duration: "3:55", image: "https://pagalworldi.com.co/wp-content/uploads/2025/08/Mahiya-Mp3-SongPagalworldi.com_.co_.webp", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/mahya.mp3" },
+            { id: 42, title: "Mexico Koka", artist: "Koka", duration: "3:40", image: "https://i.ytimg.com/vi/PRjFAk7hRSc/hqdefault.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/mexico-koka.mp3" },
+            { id: 43, title: "MF Gabhru", artist: "Various Artists", duration: "3:25", image: "https://i.ytimg.com/vi/iV2srNklqZw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLA5-Qqz10ypv97u_H25vQ0xtqxBZw", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/mf-gabhru.mp3" },
+            { id: 44, title: "Move Your Lakk", artist: "Various Artists", duration: "3:15", image: "https://c.saavncdn.com/557/Move-Your-Lakk-Hindi-2017-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/mive-your-lakk.mp3" },
+            { id: 45, title: "Moon Rise", artist: "Guru Randhawa", duration: "3:28", image: "https://static.toiimg.com/thumb/imgsize-23456,msid-96705277,width-600,resizemode-4/96705277.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/moon-rise.mp3" },
+            { id: 46, title: "Kaun Nachdi", artist: "Guru Randhawa", duration: "3:20", image: "https://i.ytimg.com/vi/NbWKYgaWzbI/maxresdefault.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/nachdi-sonofsardaar2.mp3" },
+            { id: 47, title: "Naiyo Lagda", artist: "Harrdy Sandhu", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7XA3gqglExDv6av9GWcCcVeJJYLBnfxmPbg&s", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/naiyo-lagda.mp3" },
+            { id: 48, title: "Ring Song", artist: "Neha Kakkar", duration: "3:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2MNFo31W3NV1JFRwSq-ON0OrY1LRgArq6vQ&s", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/neha-kakkar-ring-song.mp3" },
+            { id: 49, title: "Maan Meri Jaan", artist: "Nick Jonas", duration: "3:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4sG45CEGGxRaxrXR_Xd4qhP0MSkg0Jekq6A&s", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/nick-maan-meri-jaan.mp3" },
+            { id: 50, title: "Khyaal Rakhya Kar", artist: "Ranjit Bawa", duration: "4:05", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfnWkvKyqNk7RTAnIqpOtr6etxPKIWRdPAkg&s", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/khyaal-rakhya-kr.mp3" },
+            { id: 51, title: "Kya Baat Aa", artist: "Karan Aujla", duration: "3:40", image: "https://i.ytimg.com/vi/0pX03P2Ho-s/hqdefault.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/kya-baat-aa-karan.mp3" },
+            { id: 52, title: "Kya Karu", artist: "Various Artists", duration: "3:55", image: "https://i.ytimg.com/vi/OneNK10ZFtY/maxresdefault.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/kya-kru.mp3" },
+            { id: 53, title: "Lafda", artist: "Various Artists", duration: "3:20", image: "https://i.ytimg.com/vi/ClaXEbK5rz8/sddefault.jpg", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/lafda.mp3" },
+            { id: 54, title: "Leo Naa Ready", artist: "Anirudh Ravichander", duration: "4:05", image: "https://i.ytimg.com/vi/OwigUwengG0/hqdefault.jpg", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/leo-naa-ready.mp3" },
+            { id: 55, title: "Ma Belle", artist: "AP Dhillon", duration: "3:15", image: "https://i.scdn.co/image/ab67616d0000b273ee59b4a3aebc27ea279e79da", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/ma-belle.mp3" },
+            { id: 56, title: "Mafia", artist: "Various Artists", duration: "3:45", image: "https://i.ytimg.com/vi/cZxnY7cXq-k/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC52jBJeeAThlF84FrO7i15eZ2g1w", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/mafia.mp3" },
+            { id: 57, title: "Malang Sajna", artist: "Sachet Tandon", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT_gIsg8V8gPSEX8bHLBArLVR4wf3CldERIg&s", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/malang-sajna.mp3" },
+            { id: 58, title: "Jhaanjar", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUmFuZk81qrdY5b-BouQ1n-XNxJCotu9-tZw&s", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/jhaanjar.mp3" },
+            { id: 59, title: "Judge", artist: "Various Artists", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgM5BcNmndLF0KkVIPj5sfhVIVfY0033itcA&s", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/judge.mp3" },
+            { id: 60, title: "Kaka Holi", artist: "Various Artists", duration: "3:25", image: "https://i.ytimg.com/vi/ho4suAnXPLY/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGHIgOShVMA8=&rs=AOn4CLDzghWrLceRqvukJNQcYKi6IRgtDw", genre: "Festival", audio: "https://rizwanzafarpro.vercel.app/kaka-holi.mp3" },
+            { id: 61, title: "Kale Je Libaas", artist: "Various Artists", duration: "3:40", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThyY9qbrRutu1wVZ2vLyKY8Z501bfLuJIfDfOZ5H3Hkd4vP2Zk4JCCszhn&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/kaka-kale-je-libaas.mp3" },
+            { id: 62, title: "Kaka Keh Len De", artist: "Various Artists", duration: "3:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeEXO_RAicqLdr_aFmNcCjYgARc5UD6QEDmvlIbKBPeQ&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/kaka-keh-len-de.mp3" },
+            { id: 63, title: "Kaka Temporary Pyaar", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8OHEhKsdyAKXj1dHIGHKpuJSCEQU80X5Jj2L0Rg9wnw&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/kaka-temporary-pyaar.mp3" },
+            { id: 64, title: "Kalla Sohna Nai", artist: "Raftaar", duration: "3:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-e513rtKI-FuSOmSZoRCJBGilGKVjle7XFUsoLGPulg&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/kalla-sohna-nai.mp3" },
+            { id: 65, title: "Kamsin Kali", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-DuQQOlJ9AX-3DiVp9mCxuWNHYM2h2MoFGmv1F-kz-6tTmhY0hEJ5gs8&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/kamsin-kali.mp3" },
+            { id: 66, title: "Khabbi Seat", artist: "Various Artists", duration: "3:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt2ryIoJa-CNEWMqKGdGNjwvXiSMxGKt4CnGV5kV1kpQ&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/khabbi-seat.mp3" },
+            { id: 67, title: "Gore Gore", artist: "Benny Dayal", duration: "4:05", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSARAuWPi7t6LXiaREGQQR9KnqPD0QgJwGXhdGdoJlZ5g&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/gire-gore.mp3" },
+            { id: 68, title: "Good Bad Ugly", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTuCmse7_ZLztdORtYp_1foZ2DatwICQoImqoBVtfa4gLMJaWX4uHe0MjN&s=10", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/goid-bad-ugly.mp3" },
+            { id: 69, title: "Horn Blow", artist: "Various Artists", duration: "3:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZe-qVg35d518dUhS2jMRxO9cXe75JMn3B79GAyZ-50Kaj8QnyZ3fKFts&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/horn-blow.mp3" },
+            { id: 70, title: "Ilzaam", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdhAmcxtg5Gi9zjmaIlYQjZI2fKF5nZRAZPv6Z5BRIyg&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/ilzaam.mp3" },
+            { id: 71, title: "Jaane Tu", artist: "Various Artists", duration: "4:00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkJ_dtuupGNIGXxj2o199_LfJ08WIi-J9i8O8j7xvRaw&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/jaane-tu.mp3" },
+            { id: 72, title: "Jatt Flex", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5vuLzU9fTUOWqV6DEdrkI5aNP46aMTYEI3zz_pycLLA&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/jatt-flex.mp3" },
+            { id: 73, title: "Jatt Te Jawani", artist: "Various Artists", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR04GK0vXtz6kELlTO3gfpPdEG2h_oMgo_BK5h8n7oNIQ&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/jatt-te-jawani.mp3" },
+            { id: 74, title: "Fly Karke", artist: "Various Artists", duration: "3:05", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTU2fX9LX8x8liItc6vFcCdm_Yi-SB3qMOTaeEs2kYGSQ&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/fly-karke.mp3" },
+            { id: 75, title: "Bol Kafara Kya Hoga", artist: "Various Artists", duration: "4:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPYtnhrETarX0kOUQGZVEhfJ1ZipQ1HZeakYmIdy_ZQg&s=10", genre: "Spiritual", audio: "https://rizwanzafarpro.vercel.app/bol-kafar-kya-hoga.mp3" },
+            { id: 76, title: "California Love", artist: "Various Artists", duration: "3:20", image: "https://i.ytimg.com/vi/rSxTumD4kew/maxresdefault.jpg", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/california-love.mp3" },
+            { id: 77, title: "Chithiyan", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmY7XfK1hvpQT-N41yNRmwfHjutc0IS3uy0y9_6pdN_g&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/chithiyan.mp3" },
+            { id: 78, title: "Choli K Peeche", artist: "Alka Yagnik, Ila Arun", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTigbceGqe9ovjEnnu2VfCqdcNv1sZ1Pjxm08RgODrev93yZVRGZheKMD4&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/choli-k-peeche.mp3" },
+            { id: 79, title: "Dhun Saiyaara", artist: "Various Artists", duration: "4:25", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMdRmOhOXLMS8dzUlHVZi-awaUl4380iEXON4JeBdYCw&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/dhun-saiyaara.mp3" },
+            { id: 80, title: "Dil Haareya", artist: "Various Artists", duration: "4:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSAJlEfzUsDlZ_3wS1wLMiwfpF9XcQwL7-ovA&usqp=CAU", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/dil-hariya.mp3" },
+            { id: 81, title: "Dil Jhoom", artist: "Various Artists", duration: "4:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROXdTjox9tC_wJ9gfdInbn0zxURNwJ5sZxmQaiNPAOgg&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/dil-jhoom.mp3" },
+            { id: 82, title: "Dilbar Ki Ankhon Ka", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSziGqP3hirES7fh7mXZHj1d1hvtdwUc_spAKx4ELSLQ&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/dilbar-ki-ankhon-ka.mp3" },
+            { id: 83, title: "Asraar", artist: "Geetkarz", duration: "3:40", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPv4Wbhm2JaRSH6WwzakJ-JZxI9LIZL9bfGXv6EgIPeg&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/asraar-geetkarz.mp3" },
+            { id: 84, title: "Bachalo", artist: "Various Artists", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4pN3APeXjeP-CF6Oixe0By1toRZvhMWU-pGFGi4oE_Q&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/bachalo.mp3" },
+            { id: 85, title: "Bamb Aagya", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQylFCHtRXEPw2W44oQXVOEAy9wNYkWjJJ8OXWKYQCh6Q&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/bamb-aagya.mp3" },
+            { id: 86, title: "Bamb Jatt", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUd_0O69iMfau1VIWyf4BV0HXiWfw2i8YaNanLk7YxFA&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/bamb-jatt.mp3" },
+            { id: 87, title: "Barbaad Saiyaara", artist: "Various Artists", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhEegxCQ4gMLydzY0G6gtXDmQjeiYw4jKxRrz0g2yrWA&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/barbaad-saiyaara.mp3" },
+            { id: 88, title: "Bhaabhi", artist: "Various Artists", duration: "4:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqqtAAIYGVRIBC9ZHFFVJeTiK5hHmroFkED3oXvNhfsg&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/bhaabhi.mp3" },
+            { id: 89, title: "Bijlee Bijlee", artist: "Harrdy Sandhu", duration: "3:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3Upu04iPJ2IgyRHOjbd-A9yNoOWrqH50Gzq1o-mUqQA&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/bijlee-bijlee.mp3" },
+            { id: 90, title: "Black Effect", artist: "Various Artists", duration: "3:25", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQomwJxGoAYFoshvk9Gl3UvPV_sSs3QfwFGbaKOgdixInqXHqLMk5biI&s=10", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/black-effect.mp3" },
+            { id: 91, title: "2 Raflaan", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWr4DNVv1WiUf-ZXMuumVtzc9kwD-Ztv9F39qP9kxpTA&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/2-raflaan.mp3" },
+            { id: 92, title: "3 Peg", artist: "Sharry Maan", duration: "3:40", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJT6-wNQFd-AnmOEibWJcIaZwmagZ0gkLFeHZRFaxY0g&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/3-peg-sharry.mp3" },
+            { id: 93, title: "52 Bars", artist: "Various Artists", duration: "3:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqTprqsQ7KBOOaZJOisTKSbr-uyFQFx0r1WCo3N4dp--yKpp1Mry5KmBgC&s=10", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/52-bars.mp3" },
+            { id: 94, title: "8 Parche", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCPR19Ok0zNeyAN-gZo9OvCfpjKA14Spp4Y10k_RLts-2-FWrruc9mJE8&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/8-parche.mp3" },
+            { id: 95, title: "8 Raflaan", artist: "Various Artists", duration: "4:05", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJdcnb-EzBqtptDH449FsMaCWl0rs8w5Wg_LDnNIu9VQ&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/8-raflaan.mp3" },
+            { id: 96, title: "Aaj Ki Raat", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnRTgFQkWKnwuUN1jTb-7bDr-x5sHlYswJn-hyS_RenQ&s=10", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/aaj-ki-raat.mp3" },
+            { id: 97, title: "Akhian Ghulab", artist: "Various Artists", duration: "3:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFebpMM08L_Gyg2qcrnARNT6k_MSH7FBtkqEJ0eaFl4A&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/akhian-ghulab.mp3" },
+            { id: 98, title: "Amber Arabic", artist: "Various Artists", duration: "3:10", image: "https://i.ytimg.com/vi/DBoYAYysInw/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGH8gSygoMA8=&rs=AOn4CLAwmQzpni_nyBGS7sQhnUutfwL_DQ", genre: "Arabic", audio: "https://rizwanzafarpro.vercel.app/amber-arabic.mp3" },
+            { id: 99, title: "Apa Fer Milaange", artist: "Various Artists", duration: "4:00", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-J0jLDnZkIsLxH_wAewH_f-RgqJYQzWbtiA86OVyy1g&s=10", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/apa-fer-milaange.mp3" },
+            { id: 100, title: "White Brown Black", artist: "Various Artists", duration: "3:25", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjbmNBNyU7SChpb9HUeh4lSFhQ05he5RomGg7Weibr5A&s=10", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/white-brown-black.mp3" },
+            { id: 101, title: "With You", artist: "AP Dhillon", duration: "2:55", image: "https://c.saavncdn.com/596/With-You-Punjabi-2022-20220315154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/with-you.mp3" },
+            { id: 102, title: "Yentamma", artist: "Various Artists", duration: "3:40", image: "https://c.saavncdn.com/596/Yentamma-Punjabi-2023-20230515154717-500x500.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/yentamma.mp3" },
+            { id: 103, title: "Tujhko Mirchi Lagi", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Tujhko-Mirchi-Lagi-Punjabi-2023-20230730154717-500x500.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/tujhko-mirchi-lagi.mp3" },
+            { id: 104, title: "Tum Hia Ana", artist: "Various Artists", duration: "4:15", image: "https://c.saavncdn.com/596/Tum-Hia-Ana-Punjabi-2023-20230820154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tum-hia-ana.mp3" },
+            { id: 105, title: "Tum Mere Na Hue", artist: "Various Artists", duration: "3:30", image: "https://c.saavncdn.com/596/Tum-Mere-Na-Hue-Punjabi-2023-20230910154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tum-mere-na-hue.mp3" },
+            { id: 106, title: "Tum Se", artist: "Various Artists", duration: "4:25", image: "https://c.saavncdn.com/596/Tum-Se-Punjabi-2023-20230830154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tum-se.mp3" },
+            { id: 107, title: "Uyi Amma", artist: "Various Artists", duration: "3:45", image: "https://c.saavncdn.com/596/Uyi-Amma-Punjabi-2023-20230712154717-500x500.jpg", genre: "Regional", audio: "https://rizwanzafarpro.vercel.app/uyi-amma.mp3" },
+            { id: 108, title: "Vail", artist: "Various Artists", duration: "4:05", image: "https://c.saavncdn.com/596/Vail-Punjabi-2023-20230628154717-500x500.jpg", genre: "Pop", audio: "https://rizwanzafarpro.vercel.app/vail.mp3" },
+            { id: 109, title: "Waaliyan", artist: "Harnoor", duration: "3:55", image: "https://c.saavncdn.com/596/Waaliyan-Punjabi-2022-20220415154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/waaliyan-harnoor.mp3" },
+            { id: 110, title: "Wakhra Swag", artist: "Navv Inder", duration: "3:15", image: "https://c.saavncdn.com/596/Wakhra-Swag-Punjabi-2015-20150815154717-500x500.jpg", genre: "Hip Hop", audio: "https://rizwanzafarpro.vercel.app/wakhra-swag.mp3" },
+            { id: 111, title: "Wayy", artist: "Various Artists", duration: "3:10", image: "https://c.saavncdn.com/596/Wayy-Punjabi-2023-20230530154717-500x500.jpg", genre: "Pop", audio: "https://rizwanzafarpro.vercel.app/wayy.mp3" },
+            { id: 112, title: "Soory Bol", artist: "Various Artists", duration: "4:20", image: "https://c.saavncdn.com/596/Soory-Bol-Punjabi-2023-20230810154717-500x500.jpg", genre: "Bollywood", audio: "https://rizwanzafarpro.vercel.app/soory-bol.mp3" },
+            { id: 113, title: "Take It Easy", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/Take-It-Easy-Punjabi-2023-20230722154717-500x500.jpg", genre: "Pop", audio: "https://rizwanzafarpro.vercel.app/tak-it-easy.mp3" },
+            { id: 114, title: "Talja", artist: "Various Artists", duration: "4:10", image: "https://c.saavncdn.com/596/Talja-Punjabi-2023-20230625154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/talja.mp3" },
+            { id: 115, title: "Tell Me Honestly", artist: "Various Artists", duration: "4:30", image: "https://c.saavncdn.com/596/Tell-Me-Honestly-Punjabi-2023-20230915154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tell-me-honestly.mp3" },
+            { id: 116, title: "Teri Baaton Mein", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/Teri-Baaton-Mein-Punjabi-2023-20230818154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/teri-baaton-mein.mp3" },
+            { id: 117, title: "Top Notch Gabru", artist: "Various Artists", duration: "3:15", image: "https://c.saavncdn.com/596/Top-Notch-Gabru-Punjabi-2023-20230705154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/top-notch-gabru.mp3" },
+            { id: 118, title: "Tu Hain To", artist: "Various Artists", duration: "3:40", image: "https://c.saavncdn.com/596/Tu-Hain-To-Punjabi-2023-20230908154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/tu-hain-to.mp3" },
+            { id: 119, title: "Pyar Hota Kayi Baar Hai", artist: "Various Artists", duration: "3:35", image: "https://c.saavncdn.com/596/Pyar-Hota-Kayi-Baar-Hai-Punjabi-2023-20230822154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/pyar-hota-kayi-baar-hai.mp3" },
+            { id: 120, title: "Ranjhaan", artist: "Various Artists", duration: "4:15", image: "https://c.saavncdn.com/596/Ranjhaan-Punjabi-2023-20230718154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/ranjhaan.mp3" },
+            { id: 121, title: "Rubicon Drill", artist: "Laddi Chahal", duration: "3:30", image: "https://c.saavncdn.com/596/Rubicon-Drill-Punjabi-2023-20230608154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/rubicon-drill-laddi-chahal.mp3" },
+            { id: 122, title: "Sahiba", artist: "Various Artists", duration: "4:25", image: "https://c.saavncdn.com/596/Sahiba-Punjabi-2023-20230518154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/sahiba.mp3" },
+            { id: 123, title: "Saiyaan Ji", artist: "Various Artists", duration: "4:05", image: "https://c.saavncdn.com/596/Saiyaan-Ji-Punjabi-2023-20230912154717-500x500.jpg", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/saiyaan-ji.mp3" },
+            { id: 124, title: "Settagalla", artist: "Various Artists", duration: "3:55", image: "https://c.saavncdn.com/596/Settagalla-Punjabi-2023-20230808154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/settagalla.mp3" },
+            { id: 125, title: "Minna Minna", artist: "Various Artists", duration: "3:05", image: "https://c.saavncdn.com/596/Minna-Minna-Punjabi-2023-20230728154717-500x500.jpg", genre: "Regional", audio: "https://rizwanzafarpro.vercel.app/minna-minna.mp3" },
+            { id: 126, title: "Perfect Guru", artist: "Various Artists", duration: "3:25", image: "https://c.saavncdn.com/596/Perfect-Guru-Punjabi-2023-20230915154717-500x500.jpg", genre: "Spiritual", audio: "https://rizwanzafarpro.vercel.app/perfect-guru.mp3" },
+            { id: 127, title: "Pecha", artist: "Various Artists", duration: "3:50", image: "https://c.saavncdn.com/596/Pecha-Punjabi-2023-20230812154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/pecha.mp3" },
+            { id: 128, title: "Oye Hoye Hoye", artist: "Various Artists", duration: "3:20", image: "https://c.saavncdn.com/596/Eye-Hoye-Hoye-Punjabi-2023-20230612154717-500x500.jpg", genre: "Punjabi", audio: "https://rizwanzafarpro.vercel.app/eye-hoye-hoye.mp3" },
+            { id: 129, title: "Phir Bhi Tumko Chahunga", artist: "Various Artists", duration: "4:15", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHoHsV3c60tVwtzIGBt9VWzWpcKbktqu8bG7jOdKlR8Q&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/mein-phir-bhi.mp3" },
+            { id: 130, title: "Sir Da Soda", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtC4YVGxsR-RMOCdtOEGh7HIAQAd9krUgk2Pn7Pp5U7ZLkNU10E5HVfQNQ&s=10", genre: ["Punjabi", "Saraiki"], audio: "https://rizwanzafarpro.vercel.app/sir-da-soda.mp3" },
+            { id: 131, title: "Taylor Swift", artist: "Taylor Swift", duration: "3:50", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9z9JsbjQVObsu9EZ7QFU3G7HMI5s1Soy78ogI1J9XsOYIZ6X4bLO1vHI&s=10", genre: ["Pop", "English"], audio: "https://rizwanzafarpro.vercel.app/taylor-swift.mp3" },
+            { id: 132, title: "Top 6 Arijit Sad Song", artist: "Arijit Singh", duration: "15:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9N46Z3XmrVMo0ZR8UpZrC1Z7jRcdju-LKaBDP07Tp8kLKkiIcDzXGmJqH&s=10", genre: "Romance", audio: "https://rizwanzafarpro.vercel.app/top-6-arijit-sad.mp3" },
+            { id: 133, title: "Banjara", artist: "Various Artists", duration: "4:20", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi9NDU-e1NLQtnWPG0ajVGeaqNTX0QZEIZAV6F0qDGeSBuqNfy3jyHlgJs&s=10", genre: ["Sad", "Lofi"], audio: "https://rizwanzafarpro.vercel.app/banjara.mp3" },
+            { id: 134, title: "Baton Ko Teri", artist: "Various Artists", duration: "4:10", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEHG7_RSvkd_rPm1e1hSaLbHWtEFecFqZrNGqw1_hB96o82hfFKKyACERP&s=10", genre: ["Romance", "Lofi", "Sad"], audio: "https://rizwanzafarpro.vercel.app/baton-ko-teri.mp3" },
+            { id: 135, title: "Daman Bacha", artist: "Various Artists", duration: "3:35", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQss0ivJyXhZuPgH1Xh88L1OKxucD6Y-Wi88YiD2Z-7QZNXeOAf7Cs9jPaC&s=10", genre: "Saraiki", audio: "https://rizwanzafarpro.vercel.app/daman-bacha.mp3" },
+            { id: 136, title: "Dhola Menu Janda", artist: "Various Artists", duration: "4:30", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr11RqWdUEXiy3dMOrb5GgMgT3l7FkdKNz03XBHZOW-wqLSoU3Ef87NSo&s=10", genre: ["Romance", "Lofi", "Saraiki"], audio: "https://rizwanzafarpro.vercel.app/dhola-menu-janda.mp3" },
+            { id: 137, title: "Hammava Mere", artist: "Various Artists", duration: "4:20", image: "https://i.ytimg.com/vi/vnWd2rukeGY/sddefault.jpg", genre: ["Romance", "Lofi"], audio: "https://rizwanzafarpro.vercel.app/hammava-mere.mp3" },
+            { id: 138, title: "Ishq", artist: "Various Artists", duration: "3:55", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Mqkik3bOO3Vw2jDMv1b1oq8oETI_DKZmzX1QW4sYbA&s=10", genre: ["Romance", "Lofi"], audio: "https://rizwanzafarpro.vercel.app/ishq.mp3" },
+            { id: 139, title: "Jinde Naal Dil", artist: "Various Artists", duration: "5:15", image: "https://i.ytimg.com/vi/bWbnHKX6xME/maxresdefault.jpg", genre: "Saraiki", audio: "https://rizwanzafarpro.vercel.app/jinde-naal-dil.mp3" },
+            { id: 140, title: "Kabhi Jo Badal", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSC9p2k29qb6x5Y7GnbNCqVIdZlbsS7p5pt7KmAtEziZsb3U0EBww8Rh9E&s=10", genre: ["Romance", "Lofi"], audio: "https://rizwanzafarpro.vercel.app/kabhi-jo-badal.mp3" },
+            { id: 141, title: "Chhalawa Chhalawa", artist: "Various Artists", duration: "3:45", image: "https://i1.sndcdn.com/artworks-000552509019-ota265-t500x500.jpg", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/chhalawa-chhalawa.mp3" },
+{ id: 142, title: "Ishq Ne Pakra Na Tha Ghalib", artist: "Rahat Fateh", duration: "3:45", image: "https://c.saavncdn.com/415/Ishq-Ne-Pakra-Na-Tha-Ghalib-Urdu-2012-20250102081101-500x500.jpg", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/ishq-ne-pakra-na-tha-ghalib.mp3" },
+{ id: 143, title: "Kahin Deep Jalay", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd44P9w_aCOuTlVjbjQAFe3wVsZoz0WyG-sA&usqp=CAU", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/kahin-deep-jalay.mp3" },
+{ id: 144, title: "Kalabaaz Dil", artist: "Various Artists", duration: "3:45", image: "https://i1.sndcdn.com/artworks-000193450568-n50os6-t500x500.jpg", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/kalabaaz-dil.mp3" },
+{ id: 145, title: "Kuri Da Jhumka", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsIntZMK0a_DiYggUMVOtpuWRmlP8KXRkkeFpwp6gn2Q&s", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/kuri-da-jhumka.mp3" },
+{ id: 146, title: "Pakistan Gayi", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJPaSeKDqdO_wrl1nrlgsYnypZ0WFup1x5BA&usqp=CAU", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/pakistan-gayi.mp3" },
+{ id: 147, title: "Rafta Rafta", artist: "Atif Aslam", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQL0G4Z3OpZppaWbVs50LlIcODZo486F8um2P4l2E91hJhbxyAw0jiPI46X&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/rafta-rafta.mp3" },
+{ id: 148, title: "Sanwal Yaar Piya", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg38tb0UNXvxADoUjDyf1wRHTpEZfIqhSQlJQeBbNq8A&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/sanwal-yaar-piya.mp3" },
+{ id: 149, title: "Trutti Frutti", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQek5MOVAYqu5EoZTsl0JtEj7PrZ_a0uw3jruoyMF2vpw&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/trutti-frutti.mp3" },
+{ id: 150, title: "Dillagi", artist: "Rahat Fateh", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_JjVBueKbvjckDdvVU4dbBU6V9JCx1yS3Y2FnRqVt-NoGILs85rblusFK&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/dillagi.mp3" },
+{ id: 151, title: "Kabhi To Pass Mere Aao", artist: "Atif Aslam", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtgs4EaBrBq_v0yzeNrmOuJdKKqsIRPsCHrqfHL0yn2Q78lw-yOpnaSJM7&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/kabhi-to-pass-mere-aao.mp3" },
+{ id: 152, title: "Mere Pass Tum Ho", artist: "Rahat Fateh", duration: "3:45", image: "https://c.saavncdn.com/090/Mere-Pas-Tum-Ho-Urdu-2021-20210317044411-500x500.jpg", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/mere-pass-tum-ho.mp3" },
+{ id: 153, title: "Zaroori Tha", artist: "Rahat Fateh", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7GSflLJiH9ZujniBwXrEMN7ltEnyDCBs7RkXKfEB6uOtcu5wt3UaTJgGU&s=10", genre: ["Urdu", "Romance"], audio: "https://rizwanzafarpro.vercel.app/zaroori-tha.mp3" },
+{ id: 154, title: "Heeriye X Chaleya X Tu Ake", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFQAfo8eyrU3wsaSnfscTC_SSKqvqE7nFbDA&usqp=CAU", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/heeriye-x-chaleya-x-tu-ake.mp3" },
+{ id: 155, title: "Nainowale Ne X Sugar Browny", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6NHlkLttv-ZaAanSUmnK5KL7kNA3yGIWGDvPtAn5aPSoHku4qzL8JcZk&s=10", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/nainowale-ne-x-sugar-browny.mp3" },
+{ id: 156, title: "Nasha X Let The Music", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFQAfo8eyrU3wsaSnfscTC_SSKqvqE7nFbDA&usqp=CAU", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/nasha-x-let-the-music.mp3" },
+{ id: 157, title: "Stay X Ranjha", artist: "Various Artists", duration: "3:45", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBe-i0OYgi8XayEiiFOsf2YAjXB7fvfswkIQ&usqp=CAU", genre: "Mashup", audio: "https://rizwanzafarpro.vercel.app/stay-x-ranjha.mp3" },
+{ id: 158, title: "Bollywood Hit Songs", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/bollywood-hit-songs.mp3" },
+{ id: 159, title: "Bollywood Mashup", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/bollywood-mashup.mp3" },
+{ id: 160, title: "Dance Party Mashup", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/dance-party-mashup.mp3" },
+{ id: 161, title: "Laal Pari Mashup", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/laal-pari-mashup.mp3" },
+{ id: 162, title: "Love Mashup", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/love-mashup.mp3" },
+{ id: 163, title: "New Year Party Mashup", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Mashup"], audio: "https://rizwanzafarpro.vercel.app/new-year-party-mashup.mp3" },
+{ id: 164, title: "Aankh Maray", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/aankh-maray.mp3" },
+{ id: 165, title: "Abhi To Party", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/abhi-to-party.mp3" },
+{ id: 166, title: "Akh Lad Jaave", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/akh-lad-jaave.mp3" },
+{ id: 167, title: "Ankhiyon Se Goli Mare", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/ankhiyon-se-goli-mare.mp3" },
+{ id: 168, title: "Baby Doll", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/baby-doll.mp3" },
+{ id: 169, title: "Baby Nu Base Pasand", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/baby-nu-base-pasand.mp3" },
+{ id: 170, title: "Badtameez Dil", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/badtameez-dil.mp3" },
+{ id: 171, title: "Balam Pichkari", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/balam-pichkari.mp3" },
+{ id: 172, title: "Balma Remix", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/balma-remix.mp3" },
+{ id: 173, title: "Besharmi Ki Height", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/besharmi-ki-height.mp3" },
+{ id: 174, title: "Bom Diggy Diggy", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/bom-diggy-diggy.mp3" },
+{ id: 175, title: "Chhote Chhote Peg", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/chhote-chhote-peg.mp3" },
+{ id: 176, title: "Chikni Channeli", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/chikni-channeli.mp3" },
+{ id: 177, title: "Dheeme Dheeme", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/dheeme-dheeme.mp3" },
+{ id: 178, title: "Diibar Diibar", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/diibar-diibar.mp3" },
+{ id: 179, title: "Diliwali Girlfriend", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/diliwali-girlfriend.mp3" },
+{ id: 180, title: "Dj Walay Babu", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/dj-walay-babu.mp3" },
+{ id: 181, title: "Jumme Ki Raat", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/jumme-ki-raat.mp3" },
+{ id: 182, title: "Kamli", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/kamil.mp3" },
+{ id: 183, title: "Kar Gayi Chull", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/kar-gayi-chull.mp3" },
+{ id: 184, title: "Lets Nacho", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/lets-nacho.mp3" },
+{ id: 185, title: "Main Tera Boyfriend", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/main-tera-boyfriend.mp3" },
+{ id: 186, title: "Manali Trance", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/manali-trance.mp3" },
+{ id: 187, title: "Mera Wala Dance", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/mera-wala-dance.mp3" },
+{ id: 188, title: "Nachange Saari Raat", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/nachange-saari-raat.mp3" },
+{ id: 189, title: "Nashe Si Chadh Gayi", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/nashe-si-chadh-gayi.mp3" },
+{ id: 190, title: "O Saki Saki", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/o-saki-saki.mp3" },
+{ id: 191, title: "Tamma Tamma Again", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/tanma-tamma-again.mp3" },
+{ id: 192, title: "Ude Dil Befikri", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1571974599782-87624638275f?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/ude-dil-befikri.mp3" },
+{ id: 193, title: "Year Na Milay", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1549923746-7c0f4e69d6e5?w=400", genre: ["Bollywood", "Romance"], audio: "https://rizwanzafarpro.vercel.app/year-na-milay.mp3" },
+{ id: 194, title: "Zingaat", artist: "Various Artists", duration: "3:45", image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400", genre: ["Bollywood", "Pop"], audio: "https://rizwanzafarpro.vercel.app/zingaat.mp3" }
+  ];
+
+    // State
+    let currentSongIndex = 0;
+    let isPlaying = false;
+    let volume = 0.7;
+    let isShuffle = false;
+    let repeatMode = 0;
+    let favorites = [];
+    let queue = [];
+    let history = [];
+    let viewStates = {};
+    let playbackSpeed = 1.0;
+    let sleepTimer = null;
+    let sleepTimeRemaining = 0;
+    let totalPlayTime = 0;
+    let isDarkMode = true;
+
+    // DOM Elements
+    const audio = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const volumeBar = document.getElementById('volumeBar');
+    const volumeFill = document.getElementById('volumeFill');
+    const searchInput = document.getElementById('searchInput');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const bottomPlayer = document.getElementById('bottomPlayer');
+
+    // Initialize
+    function init() {
+        audio.volume = volume;
+        renderAllSections();
+        attachListeners();
+        loadUserData();
+        updateStats();
+        
+        // Initialize bottom navigation
+        initBottomNav();
+        
+        // Initialize particles
+        initParticles();
+        
+        // Initialize music notes
+        createMusicNotes();
+    }
+
+    function initBottomNav() {
+        // Add click handlers to bottom nav items
+        const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+        bottomNavItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                bottomNavItems.forEach(i => i.classList.remove('active'));
+                // Add active class to clicked item
+                this.classList.add('active');
+            });
+        });
+    }
+
+    function initParticles() {
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { 
+                        value: 80, 
+                        density: { 
+                            enable: true, 
+                            value_area: 800 
+                        } 
+                    },
+                    color: { 
+                        value: "#8B5CF6" 
+                    },
+                    shape: { 
+                        type: "circle" 
+                    },
+                    opacity: { 
+                        value: 0.5, 
+                        random: true 
+                    },
+                    size: { 
+                        value: 3, 
+                        random: true 
+                    },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#8B5CF6",
+                        opacity: 0.4,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 2,
+                        direction: "none",
+                        random: true,
+                        out_mode: "out"
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { 
+                            enable: true, 
+                            mode: "repulse" 
+                        },
+                        onclick: { 
+                            enable: true, 
+                            mode: "push" 
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function createMusicNotes() {
+        const container = document.getElementById('musicNotes');
+        if (!container) return;
+        
+        const notes = ['♩', '♪', '♫', '♬', '♭', '♮', '♯'];
+        
+        // Clear existing notes
+        container.innerHTML = '';
+        
+        for (let i = 0; i < 15; i++) {
+            const note = document.createElement('div');
+            note.className = 'music-note';
+            note.textContent = notes[Math.floor(Math.random() * notes.length)];
+            note.style.left = Math.random() * 100 + 'vw';
+            note.style.top = Math.random() * 100 + 'vh';
+            note.style.animationDelay = Math.random() * 6 + 's';
+            note.style.fontSize = (Math.random() * 20 + 16) + 'px';
+            note.style.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            container.appendChild(note);
+        }
+    }
+
+    function attachListeners() {
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('ended', handleSongEnd);
+        audio.addEventListener('loadedmetadata', updateDuration);
+        
+        // Better mobile audio handling
+        audio.addEventListener('canplay', () => {
+            console.log('Audio can play');
+        });
+        
+        audio.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            showNotif('Audio loading error. Please try again.');
+        });
+        
+        progressBar.addEventListener('click', seek);
+        volumeBar.addEventListener('click', setVolume);
+        searchInput.addEventListener('input', handleSearch);
+        overlay.addEventListener('click', closeAllModals);
+
+        document.getElementById('clearSearch').addEventListener('click', () => {
+            searchInput.value = '';
+            document.getElementById('clearSearch').classList.add('hidden');
+            renderAllSections();
+        });
+
+        // Nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(l => {
+                    l.classList.remove('active', 'gradient-primary');
+                });
+                this.classList.add('active', 'gradient-primary');
+                const href = this.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        document.addEventListener('keydown', handleKeyboard);
+    }
+
+    function renderAllSections() {
+        renderTrending();
+        renderAlbums();
+        renderArtists();
+        renderGenres();
+        renderPunjabi();
+        renderBollywood();
+        renderRomance();
+        renderHipHop();
+        renderSaraiki();
+        renderUrdu();
+        renderSad();
+        renderLofi();
+        updateGenreCounts();
+    }
+
+    function renderTrending() {
+        const container = document.getElementById('trendingList');
+        const isExpanded = viewStates['trending'];
+        const displaySongs = isExpanded ? songs : songs.slice(0, 10);
+        const btn = document.getElementById('trendingViewMore');
+
+        container.innerHTML = displaySongs.map((song, i) => {
+            const isActive = currentSongIndex === songs.findIndex(s => s.id === song.id) && isPlaying;
+            const isFav = favorites.includes(song.id);
+            return `
+                <div class="card song-item rounded-xl p-4 flex items-center gap-4 cursor-pointer transition-all" onclick="playSongById(${song.id})">
+                    <div class="text-xl font-bold text-purple-400 w-8">${i + 1}</div>
+                    <img src="${song.image}" class="w-14 h-14 rounded-lg object-cover shadow-lg">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold truncate">${song.title}</h4>
+                        <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                    </div>
+                    ${isActive ? '<div class="equalizer"><span></span><span></span><span></span></div>' : ''}
+                    <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400 transition-colors">
+                        <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                    </button>
+                    <span class="text-sm text-gray-400 hidden sm:block">${song.duration}</span>
+                    <button onclick="event.stopPropagation(); addToQueue(${song.id})" class="text-gray-400 hover:text-purple-400 transition-colors">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        if (songs.length > 10) {
+            btn.classList.remove('hidden');
+            btn.textContent = isExpanded ? 'Show Less' : 'Show More';
+        }
+    }
+
+    function renderAlbums() {
+        const container = document.getElementById('albumGrid');
+        const displaySongs = viewStates['albums'] ? songs : songs.slice(0, 12);
+
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderArtists() {
+        const container = document.getElementById('artistGrid');
+        const artists = [...new Set(songs.map(s => s.artist))].slice(0, 12);
+
+        container.innerHTML = artists.map(artist => {
+            const artistImage = songs.find(s => s.artist === artist).image;
+            return `
+                <div class="flex-shrink-0 text-center cursor-pointer">
+                    <img src="${artistImage}" class="w-24 h-24 rounded-full object-cover artist-avatar shadow-lg mb-3">
+                    <p class="font-semibold text-sm">${artist}</p>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderGenres() {
+        const container = document.getElementById('genreGrid');
+        const genres = [
+            { name: 'Romance', color: 'from-pink-500 to-rose-500', image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600' },
+            { name: 'Bollywood', color: 'from-orange-500 to-red-500', image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600' },
+            { name: 'Punjabi', color: 'from-purple-500 to-pink-500', image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600' },
+            { name: 'Pop', color: 'from-blue-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600' },
+            { name: 'Mashup', color: 'from-green-500 to-emerald-500', image: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600' },
+            { name: 'Hip Hop', color: 'from-yellow-500 to-orange-500', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXvIP_VOtrzinDxXtjEj19KGTYKx95b0AYnLTfrA3DTQ&s=10' },
+            { name: 'Urdu', color: 'from-teal-500 to-cyan-500', image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600' },
+            { name: 'Saraiki', color: 'from-amber-500 to-yellow-500', image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600' },
+            { name: 'Sad', color: 'from-slate-500 to-gray-600', image: 'https://images.unsplash.com/photo-1518176258769-f227c798150e?w=600' },
+            { name: 'Lofi', color: 'from-purple-400 to-pink-400', image: 'https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=600' }
+        ];
+
+        container.innerHTML = genres.map(genre => {
+            const genreSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes(genre.name) : s.genre === genre.name);
+            return `
+                <div class="genre-card h-32" onclick="showGenre('${genre.name}')">
+                    <img src="${genre.image}" class="absolute inset-0 w-full h-full object-cover">
+                    <div class="genre-card-content p-6">
+                        <h3 class="text-2xl font-bold mb-1">${genre.name}</h3>
+                        <p class="text-sm opacity-90">${genreSongs.length} songs</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderPunjabi() {
+        const container = document.getElementById('punjabiGrid');
+        const punjabiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Punjabi') : s.genre === 'Punjabi');
+        const isExpanded = viewStates['punjabi'];
+        const displaySongs = isExpanded ? punjabiSongs : punjabiSongs.slice(0, 6);
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#punjabi .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderBollywood() {
+        const container = document.getElementById('bollywoodGrid');
+        const bollywoodSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Bollywood') : s.genre === 'Bollywood');
+        const isExpanded = viewStates['bollywood'];
+        const displaySongs = isExpanded ? bollywoodSongs : bollywoodSongs.slice(0, 6);
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#bollywood .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderRomance() {
+        const container = document.getElementById('romanceGrid');
+        const romanceSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Romance') : s.genre === 'Romance');
+        const isExpanded = viewStates['romance'];
+        const displaySongs = isExpanded ? romanceSongs : romanceSongs.slice(0, 6);
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#romance .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderHipHop() {
+        const container = document.getElementById('hiphopGrid');
+        const hiphopSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Hip Hop') : s.genre === 'Hip Hop' || s.genre === 'Pop');
+        const isExpanded = viewStates['hiphop'];
+        const displaySongs = isExpanded ? hiphopSongs : hiphopSongs.slice(0, 6);
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#hiphop .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function updateGenreCounts() {
+        const getSongsByGenre = (genre) => {
+            return songs.filter(s => Array.isArray(s.genre) ? s.genre.includes(genre) : s.genre === genre).length;
+        };
+
+        const counts = {
+            'English': getSongsByGenre('English'),
+            'Arabic': getSongsByGenre('Arabic'),
+            'Urdu': getSongsByGenre('Urdu'),
+            'Saraiki': getSongsByGenre('Saraiki'),
+            'Pop': getSongsByGenre('Pop'),
+            'Electronic': getSongsByGenre('Electronic'),
+            'Rock': getSongsByGenre('Rock'),
+            'Sad': getSongsByGenre('Sad'),
+            'Lofi': getSongsByGenre('Lofi')
+        };
+
+        if (document.getElementById('englishCount')) document.getElementById('englishCount').textContent = `${counts.English} songs`;
+        if (document.getElementById('arabicCount')) document.getElementById('arabicCount').textContent = `${counts.Arabic} songs`;
+        if (document.getElementById('urduCount')) document.getElementById('urduCount').textContent = `${counts.Urdu} songs`;
+        if (document.getElementById('saraikiCount')) document.getElementById('saraikiCount').textContent = `${counts.Saraiki} songs`;
+        if (document.getElementById('popCount')) document.getElementById('popCount').textContent = `${counts.Pop} songs`;
+        if (document.getElementById('electronicCount')) document.getElementById('electronicCount').textContent = `${counts.Electronic} songs`;
+        if (document.getElementById('rockCount')) document.getElementById('rockCount').textContent = `${counts.Rock} songs`;
+        if (document.getElementById('sadCount')) document.getElementById('sadCount').textContent = `${counts.Sad} songs`;
+        if (document.getElementById('lofiCount')) document.getElementById('lofiCount').textContent = `${counts.Lofi} songs`;
+    }
+
+    function renderSaraiki() {
+        const container = document.getElementById('saraikiGrid');
+        const saraikiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Saraiki') : s.genre === 'Saraiki');
+        const isExpanded = viewStates['saraiki'];
+        const displaySongs = isExpanded ? saraikiSongs : saraikiSongs.slice(0, 6);
+        
+        if (saraikiSongs.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Saraiki songs available yet</p>';
+            return;
+        }
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#saraiki .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderUrdu() {
+        const container = document.getElementById('urduGrid');
+        const urduSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Urdu') : s.genre === 'Urdu');
+        const isExpanded = viewStates['urdu'];
+        const displaySongs = isExpanded ? urduSongs : urduSongs.slice(0, 6);
+        
+        if (urduSongs.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Urdu songs available yet</p>';
+            return;
+        }
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#urdu .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderSad() {
+        const container = document.getElementById('sadGrid');
+        const sadSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Sad') : s.genre === 'Sad');
+        const isExpanded = viewStates['sad'];
+        const displaySongs = isExpanded ? sadSongs : sadSongs.slice(0, 6);
+        
+        if (sadSongs.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No sad songs available yet</p>';
+            return;
+        }
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#sad .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    function renderLofi() {
+        const container = document.getElementById('lofiGrid');
+        const lofiSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes('Lofi') : s.genre === 'Lofi');
+        const isExpanded = viewStates['lofi'];
+        const displaySongs = isExpanded ? lofiSongs : lofiSongs.slice(0, 6);
+        
+        if (lofiSongs.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No Lo-Fi songs available yet</p>';
+            return;
+        }
+        
+        container.innerHTML = displaySongs.map(song => `
+            <div class="album-card card rounded-xl overflow-hidden cursor-pointer relative" onclick="playSongById(${song.id})">
+                <img src="${song.image}" class="w-full aspect-square object-cover">
+                <div class="play-btn-overlay">
+                    <button class="w-12 h-12 gradient-primary rounded-full flex items-center justify-center shadow-lg">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-semibold truncate">${song.title}</h4>
+                    <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        // Update button text
+        const btn = document.querySelector('#lofi .view-text');
+        if (btn) {
+            btn.textContent = isExpanded ? 'Show Less' : 'View All';
+        }
+    }
+
+    // Player Functions
+    function playSongById(id) {
+        const index = songs.findIndex(s => s.id === id);
+        if (index !== -1) {
+            currentSongIndex = index;
+            loadSong();
+            playSong();
+            addToHistory(id);
+            
+            // Show bottom player when song is clicked
+            bottomPlayer.classList.remove('hidden');
+        }
+    }
+
+    function loadSong() {
+        const song = songs[currentSongIndex];
+        document.getElementById('playerImg').src = song.image;
+        document.getElementById('playerTitle').textContent = song.title;
+        document.getElementById('playerArtist').textContent = song.artist;
+        document.getElementById('bannerImg').src = song.image;
+        document.getElementById('bannerTitle').textContent = song.title;
+        document.getElementById('bannerArtist').textContent = song.artist;
+
+        // Preload audio for better mobile experience
+        audio.src = song.audio;
+        audio.load();
+        
+        // Wait for audio to be ready on mobile
+        audio.addEventListener('canplaythrough', function onCanPlay() {
+            audio.removeEventListener('canplaythrough', onCanPlay);
+            console.log('Audio ready to play');
+        }, { once: true });
+        
+        updateLikeButton();
+        updateFullscreenPlayer();
+        renderAllSections();
+    }
+
+    function playSong() {
+        // Show bottom player when song starts
+        bottomPlayer.classList.remove('hidden');
+        
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isPlaying = true;
+                updatePlayButton();
+                document.getElementById('nowPlayingBanner').classList.remove('hidden');
+            }).catch(error => {
+                console.error('Playback error:', error);
+                
+                // Enhanced mobile playback fix
+                audio.load();
+                
+                // Create a user interaction to enable audio on mobile
+                const retryPlay = () => {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        updatePlayButton();
+                        document.getElementById('nowPlayingBanner').classList.remove('hidden');
+                    }).catch(err => {
+                        console.error('Retry failed:', err);
+                        showNotif('Tap play button to start');
+                        isPlaying = false;
+                        updatePlayButton();
+                    });
+                };
+                
+                setTimeout(retryPlay, 100);
+            });
+        }
+    }
+
+    function pauseSong() {
+        audio.pause();
+        isPlaying = false;
+        updatePlayButton();
+        document.getElementById('nowPlayingBanner').classList.add('hidden');
+        
+        // Don't hide bottom player when paused - let user still see controls
+        // Only hide when explicitly closed or no song is playing
+    }
+
+    function togglePlay() {
+        if (isPlaying) {
+            pauseSong();
+        } else {
+            if (!audio.src) {
+                playSongById(songs[0].id);
+            } else {
+                playSong();
+            }
+        }
+    }
+
+    function playNext() {
+        if (queue.length > 0) {
+            const nextId = queue.shift();
+            updateQueueCount();
+            playSongById(nextId);
+        } else if (isShuffle) {
+            currentSongIndex = Math.floor(Math.random() * songs.length);
+            loadSong();
+            playSong();
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong();
+            playSong();
+        }
+    }
+
+    function playPrevious() {
+        currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+        loadSong();
+        playSong();
+    }
+
+    function handleSongEnd() {
+        totalPlayTime += audio.duration;
+        updateStats();
+
+        if (repeatMode === 2) {
+            audio.currentTime = 0;
+            playSong();
+        } else if (document.getElementById('autoPlayToggle').checked) {
+            playNext();
+        } else {
+            isPlaying = false;
+            updatePlayButton();
+        }
+    }
+
+    function updateProgress() {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = percent + '%';
+        document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+        
+        // Update fullscreen player progress
+        document.getElementById('fullscreenProgressFill').style.width = percent + '%';
+        document.getElementById('fullscreenCurrentTime').textContent = formatTime(audio.currentTime);
+    }
+
+    function updateDuration() {
+        document.getElementById('duration').textContent = formatTime(audio.duration);
+        document.getElementById('fullscreenDuration').textContent = formatTime(audio.duration);
+    }
+
+    function seek(e) {
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    }
+
+    function setVolume(e) {
+        const rect = e.target.getBoundingClientRect ? e.target.getBoundingClientRect() : e.target.parentElement.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        volume = percent;
+        volumeFill.style.width = percent * 100 + '%';
+        document.getElementById('fullscreenVolumeFill').style.width = percent * 100 + '%';
+        audio.volume = volume;
+        updateVolumeIcon();
+        saveUserData();
+    }
+
+    function toggleMute() {
+        if (volume > 0) {
+            audio.dataset.prevVolume = volume;
+            volume = 0;
+            audio.volume = 0;
+            volumeFill.style.width = '0%';
+        } else {
+            volume = parseFloat(audio.dataset.prevVolume) || 0.7;
+            audio.volume = volume;
+            volumeFill.style.width = volume * 100 + '%';
+        }
+        updateVolumeIcon();
+    }
+
+    function updateVolumeIcon() {
+        const icon = document.getElementById('volumeIcon').querySelector('i');
+        if (volume === 0) {
+            icon.className = 'fas fa-volume-mute text-lg';
+        } else if (volume < 0.5) {
+            icon.className = 'fas fa-volume-down text-lg';
+        } else {
+            icon.className = 'fas fa-volume-up text-lg';
+        }
+    }
+
+    function toggleShuffle() {
+        isShuffle = !isShuffle;
+        const btn = document.getElementById('shuffleBtn');
+        btn.classList.toggle('text-purple-400', isShuffle);
+        btn.classList.toggle('text-gray-400', !isShuffle);
+        showNotif(isShuffle ? 'Shuffle ON' : 'Shuffle OFF');
+    }
+
+    function toggleRepeat() {
+        repeatMode = (repeatMode + 1) % 3;
+        const btn = document.getElementById('repeatBtn');
+        const icon = btn.querySelector('i');
+        btn.classList.remove('text-purple-400', 'text-gray-400');
+
+        if (repeatMode === 0) {
+            btn.classList.add('text-gray-400');
+            icon.className = 'fas fa-redo text-lg';
+            showNotif('Repeat OFF');
+        } else if (repeatMode === 1) {
+            btn.classList.add('text-purple-400');
+            icon.className = 'fas fa-redo text-lg';
+            showNotif('Repeat All');
+        } else {
+            btn.classList.add('text-purple-400');
+            btn.innerHTML = '<i class="fas fa-redo text-lg"></i><sup class="text-xs">1</sup>';
+            showNotif('Repeat One');
+        }
+    }
+
+    function toggleLike() {
+        if (songs[currentSongIndex]) {
+            toggleFavorite(songs[currentSongIndex].id);
+        }
+    }
+
+    function toggleFavorite(id) {
+        if (favorites.includes(id)) {
+            favorites = favorites.filter(fid => fid !== id);
+            showNotif('Removed from Liked Songs');
+        } else {
+            favorites.push(id);
+            showNotif('Added to Liked Songs');
+        }
+        updateLikeButton();
+        updateStats();
+        renderAllSections();
+        saveUserData();
+    }
+
+    function updateLikeButton() {
+        const btn = document.getElementById('likeBtn');
+        if (songs[currentSongIndex]) {
+            const isFav = favorites.includes(songs[currentSongIndex].id);
+            btn.querySelector('i').className = isFav ? 'fas fa-heart text-xl' : 'far fa-heart text-xl';
+            btn.classList.toggle('text-red-400', isFav);
+            btn.classList.toggle('text-gray-400', !isFav);
+        }
+    }
+
+    function updatePlayButton() {
+        const icon = playBtn.querySelector('i');
+        icon.className = isPlaying ? 'fas fa-pause text-xl' : 'fas fa-play text-xl ml-1';
+        
+        // Update fullscreen play button
+        const fullscreenIcon = document.getElementById('fullscreenPlayBtn').querySelector('i');
+        fullscreenIcon.className = isPlaying ? 'fas fa-pause text-2xl' : 'fas fa-play text-2xl ml-1';
+        
+        // Update album art rotation
+        const albumArt = document.getElementById('fullscreenAlbumArt');
+        if (isPlaying) {
+            albumArt.classList.add('playing');
+        } else {
+            albumArt.classList.remove('playing');
+        }
+    }
+
+    // Fullscreen Player Functions
+    function openFullscreenPlayer() {
+        document.getElementById('fullscreenPlayer').classList.add('active');
+        updateFullscreenPlayer();
+    }
+
+    function closeFullscreenPlayer() {
+        document.getElementById('fullscreenPlayer').classList.remove('active');
+    }
+
+    function updateFullscreenPlayer() {
+        const song = songs[currentSongIndex];
+        if (song) {
+            document.getElementById('fullscreenAlbumArt').src = song.image;
+            document.getElementById('fullscreenTitle').textContent = song.title;
+            document.getElementById('fullscreenArtist').textContent = song.artist;
+            
+            // Update like button
+            const isFav = favorites.includes(song.id);
+            const likeBtn = document.getElementById('fullscreenLike');
+            likeBtn.querySelector('i').className = isFav ? 'fas fa-heart text-2xl' : 'far fa-heart text-2xl';
+            likeBtn.classList.toggle('text-red-400', isFav);
+            likeBtn.classList.toggle('text-white/60', !isFav);
+        }
+    }
+
+    // Queue Functions
+    function addToQueue(id) {
+        if (!queue.includes(id)) {
+            queue.push(id);
+            updateQueueCount();
+            showNotif('Added to Queue');
+            saveUserData();
+        }
+    }
+
+    function updateQueueCount() {
+        document.getElementById('queueCount').textContent = queue.length;
+        document.getElementById('statQueue').textContent = queue.length;
+    }
+
+    function showQueue() {
+        const list = document.getElementById('queueList');
+        if (queue.length === 0) {
+            list.innerHTML = '<p class="text-gray-400 text-center py-8">Queue is empty</p>';
+        } else {
+            list.innerHTML = queue.map(id => {
+                const song = songs.find(s => s.id === id);
+                return `
+                    <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                        <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm">${song.title}</h4>
+                            <p class="text-xs text-gray-400">${song.artist}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); removeFromQueue(${id})" class="text-gray-400 hover:text-red-400">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        openModal('queueModal');
+    }
+
+    function removeFromQueue(id) {
+        queue = queue.filter(qid => qid !== id);
+        updateQueueCount();
+        showQueue();
+        showNotif('Removed from Queue');
+        saveUserData();
+    }
+
+    // Favorites Functions
+    function showFavorites() {
+        const list = document.getElementById('favoritesList');
+        if (favorites.length === 0) {
+            list.innerHTML = '<p class="text-gray-400 text-center py-8">No liked songs yet</p>';
+        } else {
+            list.innerHTML = favorites.map(id => {
+                const song = songs.find(s => s.id === id);
+                return `
+                    <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                        <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm">${song.title}</h4>
+                            <p class="text-xs text-gray-400">${song.artist}</p>
+                        </div>
+                        <span class="text-xs text-gray-400">${song.duration}</span>
+                        <button onclick="event.stopPropagation(); toggleFavorite(${id})" class="text-red-400 hover:text-gray-400">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+        openModal('favoritesModal');
+    }
+
+    // History Functions
+    function addToHistory(id) {
+        history = history.filter(hid => hid !== id);
+        history.unshift(id);
+        if (history.length > 50) history.pop();
+        saveUserData();
+        updateStats();
+    }
+
+    function showHistory() {
+        const list = document.getElementById('historyList');
+        if (history.length === 0) {
+            list.innerHTML = '<p class="text-gray-400 text-center py-8">No history yet</p>';
+        } else {
+            list.innerHTML = history.map(id => {
+                const song = songs.find(s => s.id === id);
+                return `
+                    <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${id})">
+                        <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-sm">${song.title}</h4>
+                            <p class="text-xs text-gray-400">${song.artist}</p>
+                        </div>
+                        <span class="text-xs text-gray-400">${song.duration}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        openModal('historyModal');
+    }
+
+    // Library Functions
+    function showLibrary() {
+        // Update counts in library modal
+        document.getElementById('libraryFavCount').textContent = favorites.length;
+        document.getElementById('libraryQueueCount').textContent = queue.length;
+        
+        openModal('libraryModal');
+    }
+
+    // Genre Functions
+    function showGenre(genreName) {
+        const genreSongs = songs.filter(s => Array.isArray(s.genre) ? s.genre.includes(genreName) : s.genre === genreName);
+        document.getElementById('genreTitle').textContent = genreName;
+        document.getElementById('genreCount').textContent = `${genreSongs.length} songs`;
+
+        const list = document.getElementById('genreList');
+        list.innerHTML = genreSongs.map((song, i) => {
+            const isFav = favorites.includes(song.id);
+            return `
+                <div class="card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-white/5" onclick="playSongById(${song.id})">
+                    <div class="text-lg font-bold text-purple-400 w-8">${i + 1}</div>
+                    <img src="${song.image}" class="w-12 h-12 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-sm">${song.title}</h4>
+                        <p class="text-xs text-gray-400">${song.artist}</p>
+                    </div>
+                    <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400">
+                        <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                    </button>
+                    <span class="text-xs text-gray-400">${song.duration}</span>
+                </div>
+            `;
+        }).join('');
+
+        openModal('genreModal');
+    }
+
+    // Audio Tools
+    function showEqualizer() {
+        openModal('equalizerModal');
+    }
+
+    function setEQPreset(preset) {
+        const sliders = document.querySelectorAll('.eq-slider');
+        let values;
+
+        switch(preset) {
+            case 'flat':
+                values = [0, 0, 0, 0, 0];
+                break;
+            case 'bass':
+                values = [8, 6, 2, -2, -4];
+                break;
+            case 'vocal':
+                values = [-2, 1, 4, 3, 0];
+                break;
+            case 'treble':
+                values = [-4, -2, 2, 6, 8];
+                break;
+        }
+
+        sliders.forEach((slider, i) => {
+            slider.value = values[i];
+        });
+
+        showNotif(`EQ: ${preset.charAt(0).toUpperCase() + preset.slice(1)}`);
+    }
+
+    function showSleepTimer() {
+        openModal('sleepTimerModal');
+    }
+
+    function setSleepTimer(minutes) {
+        sleepTimeRemaining = minutes * 60;
+        document.getElementById('timerOptions').classList.add('hidden');
+        document.getElementById('timerActive').classList.remove('hidden');
+        
+        updateTimerDisplay();
+        
+        if (sleepTimer) clearInterval(sleepTimer);
+        
+        sleepTimer = setInterval(() => {
+            sleepTimeRemaining--;
+            updateTimerDisplay();
+            
+            if (sleepTimeRemaining <= 0) {
+                pauseSong();
+                cancelSleepTimer();
+                showNotif('Sleep timer ended');
+                closeModal('sleepTimerModal');
+            }
+        }, 1000);
+        
+        showNotif(`Sleep timer: ${minutes} minutes`);
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(sleepTimeRemaining / 60);
+        const secs = sleepTimeRemaining % 60;
+        document.getElementById('timerDisplay').textContent = 
+            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function cancelSleepTimer() {
+        if (sleepTimer) {
+            clearInterval(sleepTimer);
+            sleepTimer = null;
+        }
+        sleepTimeRemaining = 0;
+        document.getElementById('timerOptions').classList.remove('hidden');
+        document.getElementById('timerActive').classList.add('hidden');
+        showNotif('Timer cancelled');
+    }
+
+    function cycleSpeed() {
+        const speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+        const currentIndex = speeds.indexOf(playbackSpeed);
+        playbackSpeed = speeds[(currentIndex + 1) % speeds.length];
+        audio.playbackRate = playbackSpeed;
+        document.getElementById('speedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+        document.getElementById('settingsSpeedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+        showNotif(`Speed: ${playbackSpeed}x`);
+    }
+
+    // Settings Functions
+    function showSettings() {
+        // Update settings with current values
+        document.getElementById('settingsSpeedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+        document.getElementById('settingsTotalPlayed').textContent = history.length;
+        document.getElementById('settingsTotalFav').textContent = favorites.length;
+        
+        const hours = Math.floor(totalPlayTime / 3600);
+        const mins = Math.floor((totalPlayTime % 3600) / 60);
+        document.getElementById('settingsTotalTime').textContent = `${hours}h ${mins}m`;
+        
+        // Update theme button
+        const themeBtn = document.getElementById('settingsThemeBtn');
+        const icon = themeBtn.querySelector('i');
+        const text = themeBtn.querySelector('span');
+        
+        if (isDarkMode) {
+            icon.className = 'fas fa-moon w-5 text-indigo-400';
+            text.textContent = 'Dark Mode';
+        } else {
+            icon.className = 'fas fa-sun w-5 text-yellow-400';
+            text.textContent = 'Light Mode';
+        }
+        
+        openModal('settingsModal');
+    }
+
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('dark', isDarkMode);
+        document.body.classList.toggle('light', !isDarkMode);
+        
+        const btn = document.getElementById('themeBtn');
+        const icon = btn.querySelector('i');
+        const text = btn.querySelector('span');
+        
+        if (isDarkMode) {
+            icon.className = 'fas fa-moon w-5 text-indigo-400';
+            text.textContent = 'Dark Mode';
+        } else {
+            icon.className = 'fas fa-sun w-5 text-yellow-400';
+            text.textContent = 'Light Mode';
+        }
+        
+        // Update settings modal theme button
+        const settingsThemeBtn = document.getElementById('settingsThemeBtn');
+        const settingsIcon = settingsThemeBtn.querySelector('i');
+        const settingsText = settingsThemeBtn.querySelector('span');
+        
+        if (isDarkMode) {
+            settingsIcon.className = 'fas fa-moon w-5 text-indigo-400';
+            settingsText.textContent = 'Dark Mode';
+        } else {
+            settingsIcon.className = 'fas fa-sun w-5 text-yellow-400';
+            settingsText.textContent = 'Light Mode';
+        }
+        
+        saveUserData();
+    }
+
+    function clearAllData() {
+        if (confirm('Clear all data? This cannot be undone.')) {
+            favorites = [];
+            queue = [];
+            history = [];
+            totalPlayTime = 0;
+            localStorage.removeItem('miraculousMusicData');
+            updateStats();
+            renderAllSections();
+            showNotif('All data cleared');
+            closeModal('settingsModal');
+        }
+    }
+
+    // Search
+    function handleSearch(e) {
+        const query = e.target.value.toLowerCase().trim();
+        document.getElementById('clearSearch').classList.toggle('hidden', !query);
+
+        if (query) {
+            const filtered = songs.filter(s => {
+                const genres = Array.isArray(s.genre) ? s.genre.join(' ').toLowerCase() : s.genre.toLowerCase();
+                return s.title.toLowerCase().includes(query) ||
+                       s.artist.toLowerCase().includes(query) ||
+                       genres.includes(query);
+            });
+            displaySearchResults(filtered);
+        } else {
+            renderAllSections();
+        }
+    }
+
+    function displaySearchResults(results) {
+        const container = document.getElementById('trendingList');
+        if (results.length === 0) {
+            container.innerHTML = '<p class="text-gray-400 text-center py-8">No results found</p>';
+        } else {
+            container.innerHTML = results.map((song, i) => {
+                const isFav = favorites.includes(song.id);
+                return `
+                    <div class="card song-item rounded-xl p-4 flex items-center gap-4 cursor-pointer" onclick="playSongById(${song.id})">
+                        <div class="text-xl font-bold text-purple-400 w-8">${i + 1}</div>
+                        <img src="${song.image}" class="w-14 h-14 rounded-lg object-cover">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold truncate">${song.title}</h4>
+                            <p class="text-sm text-gray-400 truncate">${song.artist}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleFavorite(${song.id})" class="text-gray-400 hover:text-red-400">
+                            <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
+                        </button>
+                        <span class="text-sm text-gray-400 hidden sm:block">${song.duration}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+
+    // Modal Functions
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+        overlay.classList.add('active');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    function closeAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.remove('active');
+        });
+        overlay.classList.remove('active');
+    }
+
+    // UI Functions
+    function toggleViewMore(section) {
+        viewStates[section] = !viewStates[section];
+        renderAllSections();
+        
+        // Scroll to the section after updating
+        setTimeout(() => {
+            document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+
+    // Bottom Navigation Functions
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Utility Functions
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function showNotif(message) {
+        const notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+        document.body.appendChild(notif);
+        setTimeout(() => {
+            notif.style.opacity = '0';
+            notif.style.transform = 'translateX(400px)';
+            setTimeout(() => notif.remove(), 300);
+        }, 2500);
+    }
+
+    function updateStats() {
+        document.getElementById('favCount').textContent = favorites.length;
+        document.getElementById('totalFav').textContent = favorites.length;
+        document.getElementById('statFav').textContent = favorites.length;
+        document.getElementById('totalPlayed').textContent = history.length;
+        document.getElementById('statPlayed').textContent = history.length;
+        
+        const hours = Math.floor(totalPlayTime / 3600);
+        const mins = Math.floor((totalPlayTime % 3600) / 60);
+        document.getElementById('totalTime').textContent = `${hours}h ${mins}m`;
+        
+        updateQueueCount();
+    }
+
+    function saveUserData() {
+        const data = {
+            favorites,
+            queue,
+            history,
+            totalPlayTime,
+            volume,
+            isDarkMode,
+            viewStates,
+            playbackSpeed
+        };
+        localStorage.setItem('miraculousMusicData', JSON.stringify(data));
+    }
+
+    function loadUserData() {
+        const data = localStorage.getItem('miraculousMusicData');
+        if (data) {
+            const parsed = JSON.parse(data);
+            favorites = parsed.favorites || [];
+            queue = parsed.queue || [];
+            history = parsed.history || [];
+            totalPlayTime = parsed.totalPlayTime || 0;
+            volume = parsed.volume || 0.7;
+            isDarkMode = parsed.isDarkMode !== undefined ? parsed.isDarkMode : true;
+            viewStates = parsed.viewStates || {};
+            playbackSpeed = parsed.playbackSpeed || 1.0;
+            
+            audio.volume = volume;
+            audio.playbackRate = playbackSpeed;
+            volumeFill.style.width = volume * 100 + '%';
+            document.getElementById('speedDisplay').textContent = playbackSpeed.toFixed(1) + 'x';
+            
+            document.body.classList.toggle('dark', isDarkMode);
+            document.body.classList.toggle('light', !isDarkMode);
+        }
+    }
+
+    function handleKeyboard(e) {
+        if (e.target.tagName === 'INPUT') return;
+
+        switch(e.code) {
+            case 'Space':
+                e.preventDefault();
+                togglePlay();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                playNext();
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                playPrevious();
+                break;
+            case 'KeyL':
+                e.preventDefault();
+                toggleLike();
+                break;
+            case 'KeyQ':
+                e.preventDefault();
+                showQueue();
+                break;
+            case 'Escape':
+                e.preventDefault();
+                closeAllModals();
+                break;
+        }
+    }
+
+    function playAll() {
+        currentSongIndex = 0;
+        loadSong();
+        playSong();
+        showNotif('Playing all songs');
+    }
+
+    function shuffleAll() {
+        isShuffle = true;
+        const btn = document.getElementById('shuffleBtn');
+        btn.classList.add('text-purple-400');
+        btn.classList.remove('text-gray-400');
+        
+        currentSongIndex = Math.floor(Math.random() * songs.length);
+        loadSong();
+        playSong();
+        showNotif('Shuffle activated');
+    }
+
+    // Make functions global
+    window.playSongById = playSongById;
+    window.togglePlay = togglePlay;
+    window.playNext = playNext;
+    window.playPrevious = playPrevious;
+    window.toggleLike = toggleLike;
+    window.toggleFavorite = toggleFavorite;
+    window.toggleShuffle = toggleShuffle;
+    window.toggleRepeat = toggleRepeat;
+    window.toggleMute = toggleMute;
+    window.addToQueue = addToQueue;
+    window.removeFromQueue = removeFromQueue;
+    window.showQueue = showQueue;
+    window.showFavorites = showFavorites;
+    window.showHistory = showHistory;
+    window.showLibrary = showLibrary;
+    window.showGenre = showGenre;
+    window.showEqualizer = showEqualizer;
+    window.setEQPreset = setEQPreset;
+    window.showSleepTimer = showSleepTimer;
+    window.setSleepTimer = setSleepTimer;
+    window.cancelSleepTimer = cancelSleepTimer;
+    window.cycleSpeed = cycleSpeed;
+    window.toggleTheme = toggleTheme;
+    window.showSettings = showSettings;
+    window.clearAllData = clearAllData;
+    window.toggleViewMore = toggleViewMore;
+    window.playAll = playAll;
+    window.shuffleAll = shuffleAll;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.openFullscreenPlayer = openFullscreenPlayer;
+    window.closeFullscreenPlayer = closeFullscreenPlayer;
+    window.seek = seek;
+    window.setVolume = setVolume;
+    window.scrollToSection = scrollToSection;
+
+    // Auto-save
+    setInterval(saveUserData, 30000);
+    window.addEventListener('beforeunload', saveUserData);
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
