@@ -663,10 +663,45 @@
     90% { opacity: 0.8; }
     100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+    .snowflake {
+        font-size: 16px;
+    }
+}
+
+/* Tablet Devices */
+@media (min-width: 481px) and (max-width: 768px) {
+    .snowflake {
+        font-size: 18px;
+    }
+}
+
+/* Small Desktop */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .snowflake {
+        font-size: 20px;
+    }
+}
+
+/* Large Desktop */
+@media (min-width: 1025px) {
+    .snowflake {
+        font-size: 22px;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .snowflake {
+        font-size: 14px;
+    }
+}
 </style>
 
 <script>
-// Add this to your JavaScript
+// Your original code with responsive adjustments
 function createSnowfall() {
     const container = document.getElementById('snowfall');
     
