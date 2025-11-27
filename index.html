@@ -632,62 +632,9 @@
         
         
     </style>
-    <style>
-#snowfall {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.snowflake {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.7;
-    transform: translate3d(0, 0, 0);
-    animation: fall linear infinite;
-}
-
-@keyframes fall {
-    0% { transform: translateY(-10px) translateX(0); opacity: 0; }
-    10% { opacity: 0.8; }
-    100% { transform: translateY(100vh) translateX(20px); opacity: 0; }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .snowflake { animation: none; }
-}
-    </style>
+    
 </head>
 <body class="dark">
-     <!-- Add this to your HTML -->
-<div id="snowfall"></div>
-
-
-<script>
-function createSnowfall() {
-    const container = document.getElementById('snowfall');
-    const flakes = window.innerWidth < 600 ? 12 : 18; // mobile optimized
-
-    for (let i = 0; i < flakes; i++) {
-        const flake = document.createElement('div');
-        flake.className = 'snowflake';
-
-        flake.style.left = Math.random() * 100 + 'vw';
-        flake.style.animationDuration = (Math.random() * 6 + 5) + 's';
-        flake.style.animationDelay = Math.random() * 5 + 's';
-        flake.style.opacity = (Math.random() * 0.5 + 0.3);
-
-        container.appendChild(flake);
-    }
-}
-
-createSnowfall();
-</script>
     
     <!-- Particles Background -->
     <div id="particles-js"></div>
