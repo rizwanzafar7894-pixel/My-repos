@@ -1,11 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamify Media Gallery</title>
+    <title>M.Rizwan - Media Gallery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -14,996 +15,1849 @@
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-            color: #e5e7eb;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1f2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #06b6d4, #10b981);
-            border-radius: 5px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #0891b2, #059669);
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            z-index: 100;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        /* Video Card Animations */
-        .video-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .video-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(6, 182, 212, 0.3);
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        /* Modern Video Player */
-        .modern-video-container {
-            position: relative;
-            background: #000;
-            border-radius: 12px;
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f0f0f0;
+            border-radius: 25px;
+            padding: 10px 16px;
+            gap: 10px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        .search-box i {
+            color: #666;
+        }
+
+        .profile-header {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: #e0e0e0;
+            border: 2px solid #000;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
-        video {
+        .profile-header:active {
+            transform: scale(0.95);
+        }
+
+        .profile-header img {
             width: 100%;
             height: 100%;
-            display: block;
+            object-fit: cover;
         }
 
-        .video-controls {
+        .main-content {
+            margin-top: 70px;
+            margin-bottom: 70px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .snap-container {
+            height: calc(100vh - 140px);
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .snap-item {
+            height: calc(100vh - 140px);
+            scroll-snap-align: start;
+            position: relative;
+            background: #000;
+        }
+
+        video, .snap-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .overlay {
             position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        }
+
+        .action-buttons {
+            position: absolute;
+            right: 12px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:active {
+            transform: scale(0.9);
+        }
+
+        .action-btn i {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .action-btn span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .action-btn.liked i {
+            color: #ff0050;
+        }
+
+        .profile-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        .profile-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bottom-nav {
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s;
+            height: 65px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
         }
 
-        .modern-video-container:hover .video-controls {
-            opacity: 1;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #999;
             cursor: pointer;
-            margin-bottom: 15px;
-        }
-
-        .progress-filled {
-            height: 100%;
-            background: linear-gradient(90deg, #06b6d4, #10b981);
-            border-radius: 3px;
-            transition: width 0.1s;
-        }
-
-        .control-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
+            transition: color 0.3s;
+            flex: 1;
             padding: 8px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
         }
 
-        .control-btn:hover {
-            background: rgba(6, 182, 212, 0.5);
-            transform: scale(1.1);
+        .nav-item.active {
+            color: #000;
         }
 
-        /* Image Viewer */
-        .image-container {
+        .nav-item i {
+            font-size: 24px;
+        }
+
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 3px;
+            padding: 3px;
+            background: #f5f5f5;
+        }
+
+        /* Responsive Grid */
+        @media (max-width: 640px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1025px) and (max-width: 1440px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1441px) {
+            .grid-container {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .grid-item {
+            aspect-ratio: 9/16;
             position: relative;
-            background: #000;
-            border-radius: 12px;
+            cursor: pointer;
             overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+        }
+
+        .grid-item img, .grid-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .grid-item:hover img,
+        .grid-item:hover video {
+            transform: scale(1.05);
+        }
+
+        .grid-item:active img,
+        .grid-item:active video {
+            transform: scale(0.95);
+        }
+
+        .grid-views {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #fff;
+        }
+
+        .grid-duration {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .description-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        }
+
+        .description-modal.active {
+            transform: translateY(0);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .modal-backdrop.active {
+            display: block;
+        }
+
+        .full-top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(rgba(0,0,0,0.6), transparent);
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
-        .image-container img {
-            max-width: 100%;
-            max-height: 70vh;
-            object-fit: contain;
+        .back-btn i {
+            color: #333;
         }
 
-        /* Download Button Animation */
-        .download-btn {
-            position: relative;
-            overflow: hidden;
+        .video-stats {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: rgba(255,255,255,0.9);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #333;
         }
 
-        .download-btn::before {
-            content: '';
+        ::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 0 auto 16px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .no-results i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            color: #ddd;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .video-play-icon {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
             transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .download-btn:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        /* Hero Section Animation */
-        .hero-section {
-            animation: fadeIn 1s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Badge Styles */
-        .badge {
-            display: inline-flex;
+            background: rgba(0, 0, 0, 0.7);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
+            justify-content: center;
+            z-index: 2;
         }
 
-        .badge-video {
-            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+        .video-play-icon i {
+            color: white;
+            font-size: 16px;
+            margin-left: 2px;
         }
 
-        .badge-image {
-            background: linear-gradient(135deg, #10b981, #06b6d4);
+        .grid-item video {
+            position: relative;
         }
 
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+        .thumbnail-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .thumbnail-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .fullscreen-back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.9);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* Responsive video thumbnail */
-        .video-thumbnail {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        @media (min-width: 640px) {
-            .video-thumbnail {
-                height: 225px;
-            }
-        }
-
-        /* Aspect Ratio Classes */
-        .aspect-ratio-16-9 {
-            aspect-ratio: 16 / 9;
-        }
-        
-        .aspect-ratio-4-3 {
-            aspect-ratio: 4 / 3;
-        }
-        
-        .aspect-ratio-1-1 {
-            aspect-ratio: 1 / 1;
-        }
-        
-        .aspect-ratio-21-9 {
-            aspect-ratio: 21 / 9;
-        }
-        
-        .aspect-ratio-3-2 {
-            aspect-ratio: 3 / 2;
-        }
-        
-        .aspect-ratio-9-16 {
-            aspect-ratio: 9 / 16;
-        }
-
-        /* Aspect ratio fallback for older browsers */
-        .aspect-ratio-container {
-            position: relative;
-            width: 100%;
-        }
-        
-        .aspect-ratio-container::before {
-            content: '';
-            display: block;
-        }
-        
-        .aspect-ratio-16-9::before {
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-        }
-        
-        .aspect-ratio-4-3::before {
-            padding-top: 75%; /* 4:3 Aspect Ratio */
-        }
-        
-        .aspect-ratio-1-1::before {
-            padding-top: 100%; /* 1:1 Aspect Ratio */
-        }
-        
-        .aspect-ratio-21-9::before {
-            padding-top: 42.857%; /* 21:9 Aspect Ratio */
-        }
-        
-        .aspect-ratio-3-2::before {
-            padding-top: 66.667%; /* 3:2 Aspect Ratio */
-        }
-        
-        .aspect-ratio-9-16::before {
-            padding-top: 177.778%; /* 9:16 Aspect Ratio */
-        }
-        
-        .aspect-ratio-content {
+        .video-error {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-
-        /* Zoom animation for images */
-        .zoomable-image {
-            transition: transform 0.3s ease;
-            cursor: zoom-in;
-        }
-        
-        .zoomable-image.zoomed {
-            transform: scale(1.5);
-            cursor: zoom-out;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            font-size: 14px;
         }
     </style>
 </head>
-<body class="min-h-screen">
-
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 shadow-2xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-8">
-                <div class="text-2xl font-bold flex items-center text-white">
-                    <svg class="w-8 h-8 mr-2 text-cyan-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                    </svg>
-                    Streamify
-                </div>
-                <nav class="hidden md:flex space-x-6 text-sm font-semibold">
-                    <a href="#" class="text-white hover:text-cyan-400 border-b-2 border-cyan-400 pb-1 transition-colors">Home</a>
-                    <a href="#" class="text-gray-400 hover:text-white pb-1 transition-colors">Browse</a>
-                    <a href="#" class="text-gray-400 hover:text-white pb-1 transition-colors">Categories</a>
-                </nav>
+<body>
+    <!-- Top Header with Search -->
+    <div class="top-header">
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search content..." oninput="handleSearch()">
             </div>
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" placeholder="Search media..." class="bg-gray-800 text-sm text-white rounded-full py-2 pl-4 pr-10 focus:ring-2 focus:ring-cyan-500 focus:outline-none w-40 md:w-60 transition-all">
-                    <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
+            <div class="profile-header" onclick="showProfile()">
+                <img src="profile-picture.png" alt="M.Rizwan" onerror="this.src='https://ui-avatars.com/api/?name=M+Rizwan&background=000&color=fff&size=90'">
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div id="app-container"></div>
-    </main>
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Grid View (Images) -->
+        <div id="imageGridView" class="hidden">
+            <div class="grid-container" id="imageGrid"></div>
+        </div>
+
+        <!-- Grid View (Videos) -->
+        <div id="videoGridView" class="hidden">
+            <div class="grid-container" id="videoGrid"></div>
+        </div>
+
+        <!-- Full Screen View -->
+        <div id="fullView" class="hidden">
+            <div class="snap-container" id="fullViewContainer"></div>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="description-modal" id="descriptionModal">
+        <div class="modal-handle"></div>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Description</h3>
+            <button onclick="closeDescription()" class="text-3xl text-gray-400 hover:text-gray-600">&times;</button>
+        </div>
+        <div id="descriptionContent" class="text-gray-600"></div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('video')">
+            <i class="fas fa-video"></i>
+            <span>Videos</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('image')">
+            <i class="fas fa-image"></i>
+            <span>Images</span>
+        </div>
+    </div>
 
     <script>
-        // Mock Data with aspect ratios
-        const mediaItems = [
+        const mediaData = [
+            // Videos
             {
-                id: 1,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video1.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video1.mp4',
+                creator: 'M.Rizwan',
+                title: 'Big Buck Bunny',
+                views: '125K',
+                likes: '8.5K',
+                duration: '0:33',
+                description: 'Big Buck Bunny - A classic open-source animated short film featuring amazing graphics and storytelling. Perfect example of creative animation.'
             },
             {
-                id: 2,
-                title: "Arctic Wilderness Adventure",
-                category: "Trending Now",
-                description: "Experience the unforgiving conditions of the Arctic Circle. Learn essential skills for survival in extreme cold, isolation, and unpredictable weather.",
-                author: "Liam O'Connell",
-                type: "video",
-                videoUrl: "video2.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video2.mp4.mp4',
+                creator: 'M.Rizwan',
+                title: 'Sample Video Clip',
+                views: '98K',
+                likes: '6.2K',
+                duration: '0:13',
+                description: 'Short video demonstration showcasing video playback capabilities with smooth transitions and quality content.'
             },
             {
-                id: 3,
-                title: "Quantum Computing Revolution",
-                category: "Trending Now",
-                description: "An exclusive look at the groundbreaking advancements in quantum computing, AI, and sustainable energy that will define the next decade.",
-                author: "Ava Sharma",
-                type: "video",
-                videoUrl: "video3.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video3.mp4',
+                creator: 'M.Rizwan',
+                title: 'Adventure Animation',
+                views: '156K',
+                likes: '12K',
+                duration: '9:56',
+                description: 'Epic animated adventure featuring stunning visuals and engaging storyline. A must-watch for animation enthusiasts.'
             },
             {
-                id: 4,
-                title: "Cosmic Nebula Visualization",
-                category: "Trending Now",
-                description: "A spectacular visual journey detailing the incredible process of stellar formation, from dense gas clouds to brilliant, burning giants.",
-                author: "Prof. Ben Carter",
-                type: "image",
-                imgUrl: "image1.png",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video4.mp4',
+                creator: 'M.Rizwan',
+                title: 'Elephants Dream',
+                views: '203K',
+                likes: '15K',
+                duration: '10:53',
+                description: 'Surreal journey through a dreamlike world. Professional animation showcasing artistic vision and creativity.'
             },
             {
-                id: 5,
-                title: "Ancient Pyramids Discovery",
-                category: "Recommended For You",
-                description: "Unraveling the secrets of a civilization that vanished without a trace. Archaeological evidence, theories, and stunning reconstructions.",
-                author: "Dr. John Finch",
-                type: "image",
-                imgUrl: "image2.png",
-                aspectRatio: "3-2"
+                type: 'video',
+                url: 'video5.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Blazes',
+                views: '187K',
+                likes: '13K',
+                duration: '0:15',
+                description: 'High-quality video content with vibrant colors and professional production. Great for inspiration.'
             },
             {
-                id: 6,
-                title: "Culinary Fusion Masterclass",
-                category: "Recommended For You",
-                description: "Join Chef Marco as he blends global culinary traditions into breathtaking new dishes. Episode 1: Asian-Latin Fusion.",
-                author: "Sarah Chen",
-                type: "video",
-                videoUrl: "video4.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video6.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Escapes',
+                views: '142K',
+                likes: '9.8K',
+                duration: '0:15',
+                description: 'Cinematic escape into beautiful landscapes and breathtaking views. Perfect travel inspiration.'
             },
             {
-                id: 7,
-                title: "Next-Gen Robotics",
-                category: "Recommended For You",
-                description: "From factory floors to surgical theaters, explore the cutting-edge of robotics and how machines are reshaping the future of work and life.",
-                author: "Mike Lawson",
-                type: "video",
-                videoUrl: "video5.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video7.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Fun',
+                views: '178K',
+                likes: '11K',
+                duration: '0:15',
+                description: 'Fun and entertaining video content designed to bring joy and excitement to your day.'
             },
             {
-                id: 8,
-                title: "Northern Lights Magic",
-                category: "Recommended For You",
-                description: "Capture the ethereal beauty of Aurora Borealis dancing across the Arctic sky in stunning detail.",
-                author: "Emma Frost",
-                type: "image",
-                imgUrl: "image3.png",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video8.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 9,
-                title: "Vertical Mobile Showcase",
-                category: "Mobile Content",
-                description: "Perfectly formatted for mobile viewing with a vertical aspect ratio.",
-                author: "Mobile Creator",
-                type: "video",
-                videoUrl: "video6.mp4",
-                aspectRatio: "9-16"
+                type: 'video',
+                url: 'video9.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 10,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image4.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video10.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 11,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image5.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video11.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 12,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image6.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video12.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 13,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image7.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video13.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 14,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image8.png",
-                aspectRatio: "1-1"
-            },
-           {
-                id: 15,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image9.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video14.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 16,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image10.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video15.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 17,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image11.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video16.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 18,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image12.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video17.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 19,
-                title: "Square Artwork",
-                category: "Art Gallery",
-                description: "A beautiful square composition perfect for social media.",
-                author: "Digital Artist",
-                type: "image",
-                imgUrl: "image13.png",
-                aspectRatio: "1-1"
+                type: 'video',
+                url: 'video18.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 20,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video7.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video19.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 21,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video8.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video20.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
             },
             {
-                id: 22,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video9.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video21.mp4',
+                creator: 'M.Rizwan',
+                title: 'Big Buck Bunny',
+                views: '125K',
+                likes: '8.5K',
+                duration: '0:33',
+                description: 'Big Buck Bunny - A classic open-source animated short film featuring amazing graphics and storytelling. Perfect example of creative animation.'
             },
             {
-                id: 23,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video10.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video22.mp4.mp4',
+                creator: 'M.Rizwan',
+                title: 'Sample Video Clip',
+                views: '98K',
+                likes: '6.2K',
+                duration: '0:13',
+                description: 'Short video demonstration showcasing video playback capabilities with smooth transitions and quality content.'
             },
             {
-                id: 24,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video11.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video23.mp4',
+                creator: 'M.Rizwan',
+                title: 'Adventure Animation',
+                views: '156K',
+                likes: '12K',
+                duration: '9:56',
+                description: 'Epic animated adventure featuring stunning visuals and engaging storyline. A must-watch for animation enthusiasts.'
             },
             {
-                id: 25,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video12.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video24.mp4',
+                creator: 'M.Rizwan',
+                title: 'Elephants Dream',
+                views: '203K',
+                likes: '15K',
+                duration: '10:53',
+                description: 'Surreal journey through a dreamlike world. Professional animation showcasing artistic vision and creativity.'
             },
             {
-                id: 26,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video13.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video25.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Blazes',
+                views: '187K',
+                likes: '13K',
+                duration: '0:15',
+                description: 'High-quality video content with vibrant colors and professional production. Great for inspiration.'
             },
             {
-                id: 27,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video14.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video26.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Escapes',
+                views: '142K',
+                likes: '9.8K',
+                duration: '0:15',
+                description: 'Cinematic escape into beautiful landscapes and breathtaking views. Perfect travel inspiration.'
             },
             {
-                id: 28,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video15.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video27.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Fun',
+                views: '178K',
+                likes: '11K',
+                duration: '0:15',
+                description: 'Fun and entertaining video content designed to bring joy and excitement to your day.'
             },
             {
-                id: 29,
-                title: "Underwater Cities: The Deep Blue",
-                category: "Trending Now",
-                description: "Dive into the unexplored depths of the ocean and witness the mysterious ecosystems thriving beneath the surface. A journey into bioluminescence and silent giants.",
-                author: "Muhammad Rizwan",
-                type: "video",
-                videoUrl: "video16.mp4",
-                aspectRatio: "16-9"
+                type: 'video',
+                url: 'video28.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            {
+                type: 'video',
+                url: 'video29.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            {
+                type: 'video',
+                url: 'video30.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            {
+                type: 'video',
+                url: 'video31.mp4',
+                creator: 'M.Rizwan',
+                title: 'Big Buck Bunny',
+                views: '125K',
+                likes: '8.5K',
+                duration: '0:33',
+                description: 'Big Buck Bunny - A classic open-source animated short film featuring amazing graphics and storytelling. Perfect example of creative animation.'
+            },
+            {
+                type: 'video',
+                url: 'video32.mp4.mp4',
+                creator: 'M.Rizwan',
+                title: 'Sample Video Clip',
+                views: '98K',
+                likes: '6.2K',
+                duration: '0:13',
+                description: 'Short video demonstration showcasing video playback capabilities with smooth transitions and quality content.'
+            },
+            {
+                type: 'video',
+                url: 'video33.mp4',
+                creator: 'M.Rizwan',
+                title: 'Adventure Animation',
+                views: '156K',
+                likes: '12K',
+                duration: '9:56',
+                description: 'Epic animated adventure featuring stunning visuals and engaging storyline. A must-watch for animation enthusiasts.'
+            },
+            {
+                type: 'video',
+                url: 'video34.mp4',
+                creator: 'M.Rizwan',
+                title: 'Elephants Dream',
+                views: '203K',
+                likes: '15K',
+                duration: '10:53',
+                description: 'Surreal journey through a dreamlike world. Professional animation showcasing artistic vision and creativity.'
+            },
+            {
+                type: 'video',
+                url: 'video35.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Blazes',
+                views: '187K',
+                likes: '13K',
+                duration: '0:15',
+                description: 'High-quality video content with vibrant colors and professional production. Great for inspiration.'
+            },
+            {
+                type: 'video',
+                url: 'video36.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Escapes',
+                views: '142K',
+                likes: '9.8K',
+                duration: '0:15',
+                description: 'Cinematic escape into beautiful landscapes and breathtaking views. Perfect travel inspiration.'
+            },
+            {
+                type: 'video',
+                url: 'video37.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Fun',
+                views: '178K',
+                likes: '11K',
+                duration: '0:15',
+                description: 'Fun and entertaining video content designed to bring joy and excitement to your day.'
+            },
+            {
+                type: 'video',
+                url: 'video38.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            {
+                type: 'video',
+                url: 'video39.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            {
+                type: 'video',
+                url: 'video40.mp4',
+                creator: 'M.Rizwan',
+                title: 'For Bigger Joyrides',
+                views: '165K',
+                likes: '10.5K',
+                duration: '0:15',
+                description: 'Thrilling joyride experience captured in stunning detail. Adventure and excitement guaranteed.'
+            },
+            // Images
+            {
+                type: 'image',
+                url: 'image1.png',
+                creator: 'M.Rizwan',
+                title: 'Mountain Peak Sunrise',
+                views: '245K',
+                likes: '18K',
+                description: 'Breathtaking mountain landscape at sunrise with stunning colors painting the sky. Nature at its finest.'
+            },
+            {
+                type: 'image',
+                url: 'image2.png',
+                creator: 'M.Rizwan',
+                title: 'Tropical Beach Paradise',
+                views: '289K',
+                likes: '22K',
+                description: 'Crystal clear turquoise waters and pristine white sand create the perfect tropical paradise scene.'
+            },
+            {
+                type: 'image',
+                url: 'image3.png',
+                creator: 'M.Rizwan',
+                title: 'Milky Way Galaxy',
+                views: '312K',
+                likes: '25K',
+                description: 'Mesmerizing night sky filled with countless stars and the beautiful milky way stretching across.'
+            },
+            {
+                type: 'image',
+                url: 'image4.png',
+                creator: 'M.Rizwan',
+                title: 'Misty Forest Trail',
+                views: '198K',
+                likes: '14K',
+                description: 'Peaceful forest path surrounded by towering trees and morning mist creating a magical atmosphere.'
+            },
+            {
+                type: 'image',
+                url: 'image5.png',
+                creator: 'M.Rizwan',
+                title: 'Golden Hour Lake',
+                views: '267K',
+                likes: '19K',
+                description: 'Stunning golden hour sunset reflecting beautifully on a calm lake surface with mountain backdrop.'
+            },
+            {
+                type: 'image',
+                url: 'image6.png',
+                creator: 'M.Rizwan',
+                title: 'Epic Road Trip',
+                views: '223K',
+                likes: '16K',
+                description: 'Endless highway stretching into the horizon under dramatic sky. Perfect road trip inspiration.'
+            },
+            {
+                type: 'image',
+                url: 'image7.png',
+                creator: 'M.Rizwan',
+                title: 'Modern Architecture',
+                views: '178K',
+                likes: '12K',
+                description: 'Stunning modern architecture with clean lines and innovative design captured in perfect lighting.'
+            },
+            {
+                type: 'image',
+                url: 'image8.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image9.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image10.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image11.png',
+                creator: 'M.Rizwan',
+                title: 'Mountain Peak Sunrise',
+                views: '245K',
+                likes: '18K',
+                description: 'Breathtaking mountain landscape at sunrise with stunning colors painting the sky. Nature at its finest.'
+            },
+            {
+                type: 'image',
+                url: 'image12.png',
+                creator: 'M.Rizwan',
+                title: 'Tropical Beach Paradise',
+                views: '289K',
+                likes: '22K',
+                description: 'Crystal clear turquoise waters and pristine white sand create the perfect tropical paradise scene.'
+            },
+            {
+                type: 'image',
+                url: 'image13.png',
+                creator: 'M.Rizwan',
+                title: 'Milky Way Galaxy',
+                views: '312K',
+                likes: '25K',
+                description: 'Mesmerizing night sky filled with countless stars and the beautiful milky way stretching across.'
+            },
+            {
+                type: 'image',
+                url: 'image14.png',
+                creator: 'M.Rizwan',
+                title: 'Misty Forest Trail',
+                views: '198K',
+                likes: '14K',
+                description: 'Peaceful forest path surrounded by towering trees and morning mist creating a magical atmosphere.'
+            },
+            {
+                type: 'image',
+                url: 'image15.png',
+                creator: 'M.Rizwan',
+                title: 'Golden Hour Lake',
+                views: '267K',
+                likes: '19K',
+                description: 'Stunning golden hour sunset reflecting beautifully on a calm lake surface with mountain backdrop.'
+            },
+            {
+                type: 'image',
+                url: 'image16.png',
+                creator: 'M.Rizwan',
+                title: 'Epic Road Trip',
+                views: '223K',
+                likes: '16K',
+                description: 'Endless highway stretching into the horizon under dramatic sky. Perfect road trip inspiration.'
+            },
+            {
+                type: 'image',
+                url: 'image17.png',
+                creator: 'M.Rizwan',
+                title: 'Modern Architecture',
+                views: '178K',
+                likes: '12K',
+                description: 'Stunning modern architecture with clean lines and innovative design captured in perfect lighting.'
+            },
+            {
+                type: 'image',
+                url: 'image18.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image19.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image20.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image21.png',
+                creator: 'M.Rizwan',
+                title: 'Mountain Peak Sunrise',
+                views: '245K',
+                likes: '18K',
+                description: 'Breathtaking mountain landscape at sunrise with stunning colors painting the sky. Nature at its finest.'
+            },
+            {
+                type: 'image',
+                url: 'image22.png',
+                creator: 'M.Rizwan',
+                title: 'Tropical Beach Paradise',
+                views: '289K',
+                likes: '22K',
+                description: 'Crystal clear turquoise waters and pristine white sand create the perfect tropical paradise scene.'
+            },
+            {
+                type: 'image',
+                url: 'image23.png',
+                creator: 'M.Rizwan',
+                title: 'Milky Way Galaxy',
+                views: '312K',
+                likes: '25K',
+                description: 'Mesmerizing night sky filled with countless stars and the beautiful milky way stretching across.'
+            },
+            {
+                type: 'image',
+                url: 'image24.png',
+                creator: 'M.Rizwan',
+                title: 'Misty Forest Trail',
+                views: '198K',
+                likes: '14K',
+                description: 'Peaceful forest path surrounded by towering trees and morning mist creating a magical atmosphere.'
+            },
+            {
+                type: 'image',
+                url: 'image25.png',
+                creator: 'M.Rizwan',
+                title: 'Golden Hour Lake',
+                views: '267K',
+                likes: '19K',
+                description: 'Stunning golden hour sunset reflecting beautifully on a calm lake surface with mountain backdrop.'
+            },
+            {
+                type: 'image',
+                url: 'image26.png',
+                creator: 'M.Rizwan',
+                title: 'Epic Road Trip',
+                views: '223K',
+                likes: '16K',
+                description: 'Endless highway stretching into the horizon under dramatic sky. Perfect road trip inspiration.'
+            },
+            {
+                type: 'image',
+                url: 'image27.png',
+                creator: 'M.Rizwan',
+                title: 'Modern Architecture',
+                views: '178K',
+                likes: '12K',
+                description: 'Stunning modern architecture with clean lines and innovative design captured in perfect lighting.'
+            },
+            {
+                type: 'image',
+                url: 'image28.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image29.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image30.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image31.png',
+                creator: 'M.Rizwan',
+                title: 'Mountain Peak Sunrise',
+                views: '245K',
+                likes: '18K',
+                description: 'Breathtaking mountain landscape at sunrise with stunning colors painting the sky. Nature at its finest.'
+            },
+            {
+                type: 'image',
+                url: 'image32.png',
+                creator: 'M.Rizwan',
+                title: 'Tropical Beach Paradise',
+                views: '289K',
+                likes: '22K',
+                description: 'Crystal clear turquoise waters and pristine white sand create the perfect tropical paradise scene.'
+            },
+            {
+                type: 'image',
+                url: 'image33.png',
+                creator: 'M.Rizwan',
+                title: 'Milky Way Galaxy',
+                views: '312K',
+                likes: '25K',
+                description: 'Mesmerizing night sky filled with countless stars and the beautiful milky way stretching across.'
+            },
+            {
+                type: 'image',
+                url: 'image34.png',
+                creator: 'M.Rizwan',
+                title: 'Misty Forest Trail',
+                views: '198K',
+                likes: '14K',
+                description: 'Peaceful forest path surrounded by towering trees and morning mist creating a magical atmosphere.'
+            },
+            {
+                type: 'image',
+                url: 'image35.png',
+                creator: 'M.Rizwan',
+                title: 'Golden Hour Lake',
+                views: '267K',
+                likes: '19K',
+                description: 'Stunning golden hour sunset reflecting beautifully on a calm lake surface with mountain backdrop.'
+            },
+            {
+                type: 'image',
+                url: 'image36.png',
+                creator: 'M.Rizwan',
+                title: 'Epic Road Trip',
+                views: '223K',
+                likes: '16K',
+                description: 'Endless highway stretching into the horizon under dramatic sky. Perfect road trip inspiration.'
+            },
+            {
+                type: 'image',
+                url: 'image37.png',
+                creator: 'M.Rizwan',
+                title: 'Modern Architecture',
+                views: '178K',
+                likes: '12K',
+                description: 'Stunning modern architecture with clean lines and innovative design captured in perfect lighting.'
+            },
+            {
+                type: 'image',
+                url: 'image38.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image39.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
+            },
+            {
+                type: 'image',
+                url: 'image40.png',
+                creator: 'M.Rizwan',
+                title: 'Urban Exploration',
+                views: '234K',
+                likes: '17K',
+                description: 'Vibrant city life with modern buildings and urban energy captured in stunning detail.'
             }
         ];
-        let currentView = 'gallery';
-        let selectedMedia = null;
-        let videoPlayer = null;
-        const appContainer = document.getElementById('app-container');
 
-        // Utility Functions
-        const groupByCategory = (items) => {
-            return items.reduce((acc, item) => {
-                if (!acc[item.category]) acc[item.category] = [];
-                acc[item.category].push(item);
-                return acc;
-            }, {});
-        };
+        let currentTab = 'video';
+        let searchQuery = '';
+        let filteredData = [...mediaData];
+        let currentMediaType = null;
+        let currentMediaIndex = 0;
+        let videoThumbnails = new Map(); // Store video thumbnails
 
-        // Download Function
-        const downloadMedia = async (url, filename) => {
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(blobUrl);
-            } catch (error) {
-                console.error('Download failed:', error);
-                alert('Download failed. Please try again.');
-            }
-        };
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
 
-        // Render Media Card
-        const renderMediaCard = (item) => {
-            const badgeClass = item.type === 'video' ? 'badge-video' : 'badge-image';
-            const icon = item.type === 'video' 
-                ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>'
-                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>';
+            // Hide all views
+            document.getElementById('imageGridView').classList.add('hidden');
+            document.getElementById('videoGridView').classList.add('hidden');
+            document.getElementById('fullView').classList.add('hidden');
 
-            const thumbnail = item.type === 'video'
-                ? `<div class="aspect-ratio-container aspect-ratio-${item.aspectRatio}">
-                     <div class="aspect-ratio-content">
-                         <video class="w-full h-full object-cover" muted>
-                             <source src="${item.videoUrl}" type="video/mp4">
-                         </video>
-                     </div>
-                   </div>`
-                : `<div class="aspect-ratio-container aspect-ratio-${item.aspectRatio}">
-                     <div class="aspect-ratio-content">
-                         <img src="${item.imgUrl}" alt="${item.title}" class="w-full h-full object-cover">
-                     </div>
-                   </div>`;
-
-            return `
-                <div onclick="showDetailView(${item.id})" 
-                     class="video-card relative rounded-xl overflow-hidden shadow-xl cursor-pointer group bg-gradient-to-br from-gray-800 to-gray-900">
-                    
-                    <div class="relative overflow-hidden">
-                        ${thumbnail}
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                            <div class="transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                                <svg class="w-20 h-20 text-white drop-shadow-2xl" fill="currentColor" viewBox="0 0 20 20">
-                                    ${icon}
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="absolute top-3 right-3">
-                            <span class="badge ${badgeClass}">
-                                ${item.type}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="p-4">
-                        <h3 class="text-white text-lg font-bold truncate mb-2">${item.title}</h3>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-cyan-400 font-semibold">${item.author}</span>
-                            <span class="text-gray-400">${item.category}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        };
-
-        // Modern Video Player
-        const createVideoPlayer = (videoUrl, title, aspectRatio) => {
-            return `
-                <div class="modern-video-container aspect-ratio-container aspect-ratio-${aspectRatio}">
-                    <div class="aspect-ratio-content">
-                        <video id="mainVideo" class="w-full h-full">
-                            <source src="${videoUrl}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                        
-                        <div class="video-controls">
-                            <div class="progress-bar" id="progressBar">
-                                <div class="progress-filled" id="progressFilled"></div>
-                            </div>
-                            
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <button class="control-btn" id="playPauseBtn">
-                                        <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <svg id="pauseIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </button>
-                                    
-                                    <div class="flex items-center gap-2">
-                                        <button class="control-btn" id="volumeBtn">
-                                            <svg id="volumeIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </button>
-                                        <input type="range" id="volumeSlider" min="0" max="100" value="100" class="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                                    </div>
-                                    
-                                    <span class="text-white text-sm font-mono" id="timeDisplay">0:00 / 0:00</span>
-                                </div>
-                                
-                                <div class="flex items-center gap-3">
-                                    <button class="control-btn" id="speedBtn">
-                                        <span class="text-xs font-bold">1x</span>
-                                    </button>
-                                    <button class="control-btn" id="fullscreenBtn">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        };
-
-        // Initialize Video Controls
-        const initVideoControls = () => {
-            videoPlayer = document.getElementById('mainVideo');
-            if (!videoPlayer) return;
-
-            const playPauseBtn = document.getElementById('playPauseBtn');
-            const playIcon = document.getElementById('playIcon');
-            const pauseIcon = document.getElementById('pauseIcon');
-            const progressBar = document.getElementById('progressBar');
-            const progressFilled = document.getElementById('progressFilled');
-            const timeDisplay = document.getElementById('timeDisplay');
-            const volumeBtn = document.getElementById('volumeBtn');
-            const volumeSlider = document.getElementById('volumeSlider');
-            const speedBtn = document.getElementById('speedBtn');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-
-            const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
-            let currentSpeedIndex = 2;
-
-            // Play/Pause
-            playPauseBtn.addEventListener('click', () => {
-                if (videoPlayer.paused) {
-                    videoPlayer.play();
-                    playIcon.classList.add('hidden');
-                    pauseIcon.classList.remove('hidden');
-                } else {
-                    videoPlayer.pause();
-                    playIcon.classList.remove('hidden');
-                    pauseIcon.classList.add('hidden');
-                }
-            });
-
-            // Progress Bar
-            videoPlayer.addEventListener('timeupdate', () => {
-                const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-                progressFilled.style.width = percent + '%';
-                
-                const currentTime = formatTime(videoPlayer.currentTime);
-                const duration = formatTime(videoPlayer.duration);
-                timeDisplay.textContent = `${currentTime} / ${duration}`;
-            });
-
-            progressBar.addEventListener('click', (e) => {
-                const rect = progressBar.getBoundingClientRect();
-                const percent = (e.clientX - rect.left) / rect.width;
-                videoPlayer.currentTime = percent * videoPlayer.duration;
-            });
-
-            // Volume
-            volumeSlider.addEventListener('input', (e) => {
-                videoPlayer.volume = e.target.value / 100;
-            });
-
-            volumeBtn.addEventListener('click', () => {
-                videoPlayer.muted = !videoPlayer.muted;
-            });
-
-            // Speed
-            speedBtn.addEventListener('click', () => {
-                currentSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
-                videoPlayer.playbackRate = speeds[currentSpeedIndex];
-                speedBtn.querySelector('span').textContent = speeds[currentSpeedIndex] + 'x';
-            });
-
-            // Fullscreen
-            fullscreenBtn.addEventListener('click', () => {
-                if (videoPlayer.requestFullscreen) {
-                    videoPlayer.requestFullscreen();
-                }
-            });
-
-            // Auto-play
-            videoPlayer.play().catch(e => console.log('Autoplay prevented'));
-        };
-
-        const formatTime = (seconds) => {
-            if (isNaN(seconds)) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        };
-
-        // Gallery View
-        const renderGalleryView = () => {
-            const grouped = groupByCategory(mediaItems);
-            
-            let html = `
-                <div class="hero-section relative h-96 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl overflow-hidden mb-12 shadow-2xl">
-                    <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&q=80" alt="Hero" class="w-full h-full object-cover opacity-20">
-                    </div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20"></div>
-                    <div class="relative h-full flex flex-col justify-center px-8 md:px-16">
-                        <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-2xl">
-                            Discover Amazing Content
-                        </h1>
-                        <p class="text-xl text-gray-300 mb-6 max-w-2xl">
-                            Explore curated videos and stunning images from creators around the world
-                        </p>
-                        <button class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-8 py-3 rounded-full text-lg font-bold hover:from-cyan-400 hover:to-blue-400 transition-all shadow-lg hover:shadow-cyan-500/50 w-fit">
-                            Start Exploring
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            for (const category in grouped) {
-                html += `
-                    <section class="mb-12">
-                        <h2 class="text-3xl font-bold text-white mb-6 flex items-center">
-                            <span class="w-2 h-8 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-full mr-4"></span>
-                            ${category}
-                        </h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            ${grouped[category].map(renderMediaCard).join('')}
-                        </div>
-                    </section>
-                `;
-            }
-
-            appContainer.innerHTML = html;
-        };
-
-        // Detail View
-        const renderDetailView = (item) => {
-            const mediaContent = item.type === 'video'
-                ? createVideoPlayer(item.videoUrl, item.title, item.aspectRatio)
-                : `<div class="image-container aspect-ratio-container aspect-ratio-${item.aspectRatio}">
-                       <div class="aspect-ratio-content">
-                           <img src="${item.imgUrl}" alt="${item.title}" id="mainImage" class="zoomable-image w-full h-full object-contain">
-                       </div>
-                   </div>`;
-
-            const downloadBtn = `
-                <button onclick="downloadMedia('${item.type === 'video' ? item.videoUrl : item.imgUrl}', '${item.title}.${item.type === 'video' ? 'mp4' : 'jpg'}')" 
-                        class="download-btn flex items-center gap-2 border-2 border-cyan-500 text-cyan-400 px-6 py-3 rounded-full font-bold hover:bg-cyan-500 hover:text-white transition-all shadow-lg hover:shadow-cyan-500/50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Download ${item.type === 'video' ? 'Video' : 'Image'}
-                </button>
-            `;
-
-            const html = `
-                <button onclick="showGalleryView()" class="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 mb-8 font-bold text-lg transition-all group">
-                    <svg class="w-6 h-6 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Back to Gallery
-                </button>
-
-                <div class="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden">
-                    <div class="p-6 md:p-8">
-                        <div class="flex flex-col lg:flex-row gap-8">
-                            <div class="lg:w-2/3">
-                                ${mediaContent}
-                            </div>
-                            
-                            <div class="lg:w-1/3">
-                                <div class="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm">
-                                    <div class="flex items-center gap-3 mb-4">
-                                        <span class="badge ${item.type === 'video' ? 'badge-video' : 'badge-image'}">
-                                            ${item.type}
-                                        </span>
-                                        <span class="text-gray-400 text-sm">${item.category}</span>
-                                    </div>
-                                    
-                                    <h1 class="text-2xl md:text-3xl font-bold text-white mb-4">${item.title}</h1>
-                                    <p class="text-gray-300 mb-6 leading-relaxed">${item.description}</p>
-                                    
-                                    <div class="space-y-4 mb-6">
-                                        <div class="flex items-center gap-3">
-                                            <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-white font-semibold">${item.author}</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-gray-300">Uploaded recently</span>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <span class="text-gray-300">Aspect Ratio: ${item.aspectRatio.replace('-', ':')}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex flex-wrap gap-3">
-                                        ${downloadBtn}
-                                        <button class="flex items-center gap-2 border-2 border-purple-500 text-purple-400 px-6 py-3 rounded-full font-bold hover:bg-purple-500 hover:text-white transition-all">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                            </svg>
-                                            Like
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-12">
-                    <h2 class="text-2xl font-bold text-white mb-6">Related Content</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        ${mediaItems
-                            .filter(media => media.id !== item.id && media.category === item.category)
-                            .slice(0, 3)
-                            .map(renderMediaCard)
-                            .join('')}
-                    </div>
-                </div>
-            `;
-
-            appContainer.innerHTML = html;
-
-            // Initialize video controls if it's a video
-            if (item.type === 'video') {
-                setTimeout(initVideoControls, 100);
+            if (tab === 'video') {
+                document.getElementById('videoGridView').classList.remove('hidden');
+                loadVideoGrid();
             } else {
-                // Add zoom functionality to images
-                const image = document.getElementById('mainImage');
-                if (image) {
-                    image.addEventListener('click', function() {
-                        this.classList.toggle('zoomed');
-                    });
+                document.getElementById('imageGridView').classList.remove('hidden');
+                loadImageGrid();
+            }
+        }
+
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            filteredData = mediaData.filter(item => {
+                const matchesSearch = searchQuery === '' || 
+                    item.title.toLowerCase().includes(searchQuery) ||
+                    item.description.toLowerCase().includes(searchQuery);
+                
+                return matchesSearch;
+            });
+
+            if (currentTab === 'video') {
+                loadVideoGrid();
+            } else {
+                loadImageGrid();
+            }
+        }
+
+        function loadVideoGrid() {
+            const container = document.getElementById('videoGrid');
+            container.innerHTML = '';
+            
+            const videos = filteredData.filter(item => item.type === 'video');
+            
+            if (videos.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <i class="fas fa-video-slash"></i>
+                        <p class="text-lg font-semibold">No videos found</p>
+                        <p class="text-sm mt-2">Try adjusting your search</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            videos.forEach((media, index) => {
+                const videoHtml = `
+                    <div class="grid-item" onclick="openVideoFullscreen(${index})">
+                        <div class="thumbnail-container">
+                            <video 
+                                muted 
+                                preload="metadata"
+                                data-src="${media.url}"
+                                onloadeddata="captureThumbnail(this, '${media.url}')"
+                                onerror="handleVideoError(this)"
+                            >
+                                <source src="${media.url}" type="video/mp4">
+                            </video>
+                            <div class="video-play-icon">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="grid-views">
+                            <i class="fas fa-eye"></i>
+                            <span>${media.views}</span>
+                        </div>
+                        <div class="grid-duration">
+                            ${media.duration}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += videoHtml;
+            });
+
+            // Load cached thumbnails
+            setTimeout(() => {
+                videos.forEach((media, index) => {
+                    const thumbnail = videoThumbnails.get(media.url);
+                    if (thumbnail) {
+                        const videoElement = container.children[index].querySelector('video');
+                        if (videoElement) {
+                            videoElement.poster = thumbnail;
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        function captureThumbnail(videoElement, videoUrl) {
+            try {
+                // Set current time to 0.5 seconds to get a better thumbnail
+                videoElement.currentTime = 0.5;
+                
+                videoElement.addEventListener('seeked', function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = videoElement.videoWidth || 320;
+                    canvas.height = videoElement.videoHeight || 240;
+                    const ctx = canvas.getContext('2d');
+                    
+                    try {
+                        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                        const thumbnailUrl = canvas.toDataURL('image/jpeg');
+                        videoThumbnails.set(videoUrl, thumbnailUrl);
+                        
+                        // Apply thumbnail as poster
+                        videoElement.poster = thumbnailUrl;
+                        
+                        // Stop video loading to save bandwidth
+                        videoElement.pause();
+                        videoElement.removeAttribute('src');
+                        videoElement.load();
+                    } catch (e) {
+                        console.error('Error capturing thumbnail:', e);
+                    }
+                }, { once: true });
+            } catch (e) {
+                console.error('Error setting up thumbnail capture:', e);
+            }
+        }
+
+        function handleVideoError(videoElement) {
+            const container = videoElement.parentElement;
+            if (container) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'video-error';
+                errorDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><p>Video failed to load</p>';
+                container.appendChild(errorDiv);
+            }
+        }
+
+        function loadImageGrid() {
+            const container = document.getElementById('imageGrid');
+            container.innerHTML = '';
+            
+            const images = filteredData.filter(item => item.type === 'image');
+            
+            if (images.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results" style="grid-column: 1/-1;">
+                        <i class="fas fa-image-slash"></i>
+                        <p class="text-lg font-semibold">No images found</p>
+                        <p class="text-sm mt-2">Try adjusting your search</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            images.forEach((media, index) => {
+                const imageHtml = `
+                    <div class="grid-item" onclick="openMediaFullscreen('image', ${index})">
+                        <img src="${media.url}" alt="${media.title}" loading="lazy">
+                        <div class="grid-views">
+                            <i class="fas fa-eye"></i>
+                            <span>${media.views}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += imageHtml;
+            });
+        }
+
+        function openVideoFullscreen(index) {
+            openMediaFullscreen('video', index);
+        }
+
+        function openMediaFullscreen(type, index) {
+            currentMediaType = type;
+            currentMediaIndex = index;
+            
+            const mediaList = filteredData.filter(item => item.type === type);
+            
+            // Create TikTok-like vertical scrolling feed
+            let fullscreenHtml = '';
+            
+            mediaList.forEach((media, idx) => {
+                if (type === 'video') {
+                    fullscreenHtml += `
+                        <div class="snap-item" id="video-${idx}">
+                            <div class="full-top-bar">
+                                <div class="back-btn" onclick="closeFullscreen()">
+                                    <i class="fas fa-arrow-left"></i>
+                                </div>
+                                <div class="video-stats">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${media.views}</span>
+                                </div>
+                            </div>
+                            
+                            <video 
+                                src="${media.url}" 
+                                loop 
+                                playsinline
+                                onclick="togglePlay(this)"
+                                data-index="${idx}"
+                                preload="auto"
+                            ></video>
+                            
+                            <div class="overlay">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="profile-circle">
+                                        <img src="profile-picture.png" alt="Profile" onerror="this.src='https://ui-avatars.com/api/?name=M+Rizwan&background=000&color=fff&size=100'">
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-white">${media.creator}</div>
+                                        <div class="text-sm text-gray-200">${media.title}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <div class="action-btn" onclick="toggleLike(this, event)">
+                                    <i class="far fa-heart"></i>
+                                    <span>${media.likes}</span>
+                                </div>
+                                <div class="action-btn" onclick="showFullscreenDescription('${type}', ${idx}, event)">
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div class="action-btn" onclick="shareMedia('${media.title}', event)">
+                                    <i class="fas fa-share"></i>
+                                </div>
+                                <div class="action-btn" onclick="downloadMedia('${media.url}', '${media.title}', event)">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    fullscreenHtml += `
+                        <div class="snap-item" id="image-${idx}">
+                            <div class="full-top-bar">
+                                <div class="back-btn" onclick="closeFullscreen()">
+                                    <i class="fas fa-arrow-left"></i>
+                                </div>
+                                <div class="video-stats">
+                                    <i class="fas fa-eye"></i>
+                                    <span>${media.views}</span>
+                                </div>
+                            </div>
+                            
+                            <img src="${media.url}" alt="${media.title}" loading="lazy">
+                            
+                            <div class="overlay">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="profile-circle">
+                                        <img src="profile-picture.png" alt="Profile" onerror="this.src='https://ui-avatars.com/api/?name=M+Rizwan&background=000&color=fff&size=100'">
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-white">${media.creator}</div>
+                                        <div class="text-sm text-gray-200">${media.title}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <div class="action-btn" onclick="toggleLike(this, event)">
+                                    <i class="far fa-heart"></i>
+                                    <span>${media.likes}</span>
+                                </div>
+                                <div class="action-btn" onclick="showFullscreenDescription('${type}', ${idx}, event)">
+                                    <i class="fas fa-align-left"></i>
+                                </div>
+                                <div class="action-btn" onclick="shareMedia('${media.title}', event)">
+                                    <i class="fas fa-share"></i>
+                                </div>
+                                <div class="action-btn" onclick="downloadMedia('${media.url}', '${media.title}', event)">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            const container = document.getElementById('fullViewContainer');
+            container.innerHTML = fullscreenHtml;
+            
+            // Hide grid views and show fullscreen view
+            document.getElementById('imageGridView').classList.add('hidden');
+            document.getElementById('videoGridView').classList.add('hidden');
+            document.getElementById('fullView').classList.remove('hidden');
+            
+            // Scroll to the selected item
+            setTimeout(() => {
+                const itemId = type === 'video' ? `video-${index}` : `image-${index}`;
+                const element = document.getElementById(itemId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Play the selected video
+                if (type === 'video') {
+                    const video = element.querySelector('video');
+                    if (video) {
+                        video.play().catch(() => {
+                            // Auto-play was prevented
+                        });
+                    }
+                }
+            }, 100);
+            
+            // Add scroll listener for TikTok-like video handling
+            container.addEventListener('scroll', handleScroll);
+            
+            // Preload adjacent videos/images
+            preloadAdjacentMedia(type, index, mediaList);
+        }
+
+        function togglePlay(video) {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        function handleScroll() {
+            const container = document.getElementById('fullViewContainer');
+            const items = container.querySelectorAll('.snap-item');
+            const containerRect = container.getBoundingClientRect();
+            
+            items.forEach((item, index) => {
+                const itemRect = item.getBoundingClientRect();
+                const isVisible = Math.abs(itemRect.top - containerRect.top) < 100;
+                
+                if (isVisible) {
+                    // Handle videos
+                    const video = item.querySelector('video');
+                    if (video) {
+                        if (video.paused) {
+                            video.play().catch(() => {
+                                // Auto-play was prevented
+                            });
+                        }
+                    }
+                    
+                    // Update current index
+                    currentMediaIndex = index;
+                    
+                    // Preload adjacent media
+                    const mediaType = video ? 'video' : 'image';
+                    const mediaList = filteredData.filter(item => item.type === mediaType);
+                    preloadAdjacentMedia(mediaType, index, mediaList);
+                } else {
+                    // Pause videos that are not visible
+                    const video = item.querySelector('video');
+                    if (video && !video.paused) {
+                        video.pause();
+                    }
+                }
+            });
+        }
+
+        function preloadAdjacentMedia(type, currentIndex, mediaList) {
+            // Preload next video/image
+            const nextIndex = currentIndex + 1;
+            if (nextIndex < mediaList.length) {
+                const nextMedia = mediaList[nextIndex];
+                if (type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = nextMedia.url;
+                    video.preload = 'auto';
                 }
             }
-        };
+            
+            // Preload previous video/image
+            const prevIndex = currentIndex - 1;
+            if (prevIndex >= 0) {
+                const prevMedia = mediaList[prevIndex];
+                if (type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = prevMedia.url;
+                    video.preload = 'auto';
+                }
+            }
+        }
 
-        // View Navigation Functions
-        const showGalleryView = () => {
-            currentView = 'gallery';
-            selectedMedia = null;
-            renderGalleryView();
-        };
+        function closeFullscreen() {
+            // Pause all videos
+            const videos = document.querySelectorAll('#fullViewContainer video');
+            videos.forEach(video => {
+                if (!video.paused) {
+                    video.pause();
+                }
+            });
+            
+            // Remove scroll listener
+            const container = document.getElementById('fullViewContainer');
+            container.removeEventListener('scroll', handleScroll);
+            
+            // Show appropriate grid view
+            document.getElementById('fullView').classList.add('hidden');
+            if (currentTab === 'video') {
+                document.getElementById('videoGridView').classList.remove('hidden');
+            } else {
+                document.getElementById('imageGridView').classList.remove('hidden');
+            }
+        }
 
-        const showDetailView = (id) => {
-            currentView = 'detail';
-            selectedMedia = mediaItems.find(item => item.id === id);
-            renderDetailView(selectedMedia);
-        };
+        function toggleLike(btn, event) {
+            event.stopPropagation();
+            const icon = btn.querySelector('i');
+            const span = btn.querySelector('span');
+            let count = parseFloat(span.textContent.replace('K', '')) * 1000;
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.classList.add('liked');
+                count += 1;
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.classList.remove('liked');
+                count -= 1;
+            }
+            
+            span.textContent = (count / 1000).toFixed(1) + 'K';
+        }
+
+        function showFullscreenDescription(type, index, event) {
+            event.stopPropagation();
+            const mediaList = filteredData.filter(item => item.type === type);
+            const media = mediaList[index];
+            
+            let durationHtml = '';
+            if (type === 'video') {
+                durationHtml = `<div class="text-sm text-gray-500">${media.duration}</div>`;
+            }
+            
+            document.getElementById('descriptionContent').innerHTML = `
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="profile-circle">
+                        <img src="profile-picture.png" alt="Profile" onerror="this.src='https://ui-avatars.com/api/?name=M+Rizwan&background=000&color=fff&size=100'">
+                    </div>
+                    <div>
+                        <div class="font-semibold text-gray-800">${media.creator}</div>
+                        ${durationHtml}
+                    </div>
+                </div>
+                <h4 class="font-semibold mb-2 text-gray-800 text-lg">${media.title}</h4>
+                <p class="mb-4 text-gray-600 leading-relaxed">${media.description}</p>
+                <div class="flex items-center gap-6 text-sm text-gray-500 pt-3 border-t border-gray-200">
+                    <span><i class="fas fa-eye mr-2"></i>${media.views} views</span>
+                    <span><i class="fas fa-heart mr-2"></i>${media.likes} likes</span>
+                </div>
+            `;
+            document.getElementById('descriptionModal').classList.add('active');
+            document.getElementById('modalBackdrop').classList.add('active');
+        }
+
+        function closeDescription() {
+            document.getElementById('descriptionModal').classList.remove('active');
+            document.getElementById('modalBackdrop').classList.remove('active');
+        }
+
+        function shareMedia(title, event) {
+            event.stopPropagation();
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: 'Check out this content by M.Rizwan',
+                    url: window.location.href
+                }).catch(() => {
+                    // Share was cancelled
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(() => {
+                    alert('Share: ' + title + '\nURL: ' + window.location.href);
+                });
+            }
+        }
+
+        function downloadMedia(url, title, event) {
+            event.stopPropagation();
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = title.replace(/\s+/g, '-') + (url.includes('.mp4') ? '.mp4' : '.jpg');
+            a.click();
+        }
+
+        function showProfile() {
+            const videoCount = mediaData.filter(i => i.type === 'video').length;
+            const imageCount = mediaData.filter(i => i.type === 'image').length;
+            alert(`Profile: M.Rizwan\n\nContent Creator & Developer\nTotal Videos: ${videoCount}\nTotal Images: ${imageCount}\n\nSpecializing in media content creation and web development.`);
+        }
+
+        // Handle visibility change for videos
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                const videos = document.querySelectorAll('video');
+                videos.forEach(video => {
+                    if (!video.paused) {
+                        video.pause();
+                    }
+                });
+            } else {
+                // Resume current video if in fullscreen mode
+                if (!document.getElementById('fullView').classList.contains('hidden')) {
+                    const container = document.getElementById('fullViewContainer');
+                    const visibleItem = container.querySelector('.snap-item');
+                    if (visibleItem) {
+                        const video = visibleItem.querySelector('video');
+                        if (video && video.paused) {
+                            video.play().catch(() => {
+                                // Auto-play was prevented
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+        // Close modal when clicking backdrop
+        document.getElementById('modalBackdrop').addEventListener('click', closeDescription);
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDescription();
+                closeFullscreen();
+            }
+        });
 
         // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            renderGalleryView();
-        });
+        switchTab('video');
     </script>
 </body>
 </html>
